@@ -1,1 +1,2 @@
-mybin_SCRIPTS		= run sbackup
+bin_SCRIPTS	= sbackup
+mybin_SCRIPTS	= run
