@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Copyright (C) 2006 Stefanos Harhalakis
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# $Id$
+#
+# Description
+#	Mount an nfs share
+#
+
+NAME="nfsmount"
+VERSION="0.0.0"
+DESC="Mount an nfs share"
+
+# Display help
+do_help()
+{
+	cat << _END
+Configuration options:
+	NFSDIR		The full NFS path
+	MOUNTPOINT	Where to mount it
+_END
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$NFSDIR" ] && echo "Missing NFSDIR" && return 1
+	[ -z "$MOUNTPOINT" ] && echo "Missing MOUNTPOINT" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	mount -t nfs "$NFSDIR" "$MOUNTPOINT"
+}
+
