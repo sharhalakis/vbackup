@@ -1,0 +1,29 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT([sbackup], [0.0.1], [v13@priest.com])
+AM_INIT_AUTOMAKE(sbackup, 0.0.1)
+
+# Checks for programs.
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+AC_SUBST([mybindir], [${datadir}/sbackup/bin])
+AC_SUBST([myscriptdir], [${datadir}/sbackup/scripts])
+
+# Checks for library functions.
+AC_CONFIG_FILES([Makefile
+		scripts/Makefile
+		scripts/bin/Makefile
+		scripts/bin/run
+		scripts/bin/sbackup
+		scripts/scripts/Makefile
+		scripts/scripts/mount/Makefile
+		])
+AC_OUTPUT
+

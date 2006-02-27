@@ -1,0 +1,50 @@
+Simple backup
+-------------
+
+Tree:
+
+${sysconfdir}/
+	sbackup/
+		rc.d/		Backup configurations
+		backup.daily/	Links to appropriate rc.d scripts
+		backup.weekly/	....
+		backup.monthly/	....
+		
+
+${datadir}/
+	sbackup/
+		bin/		Main programs
+		scripts/	The main backup scripts
+		helpers/	Helper scripts (?)
+
+
+
+rc.daily:
+	00-init.init	// Initialization (?)
+	00-nfs.mount	// Mount nfs share
+
+	01-name.mysql	// Mysql backup
+	02-name.psql	// Postgresql backup
+	03-name.fs	// Filesystem backup
+	...
+
+
+Backup scripts:
+---------------
+
+Each backup script must have:
+
+functions:
+----------
+do_help()		A function to display help and return
+do_check_conf()		Check whether all configuration variables are ok
+			Return: 0: OK, 1: Error
+			May display error messages
+do_run()		Do the backup
+
+variables:
+----------
+NAME			The script name ("psql")
+VERSION			The script version ("1.0.0")
+DESC			A short description ("Backup a postgresql database")
+

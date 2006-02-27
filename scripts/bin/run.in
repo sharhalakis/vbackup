@@ -1,0 +1,187 @@
+#!/bin/sh
+#
+# $Id$
+#
+# Main script used to invoke backup scripts
+# The first argument is the script to invoke
+# The second argument is the configuration file
+#
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+sbindir="@sbindir@"
+libexecdir="@libexecdir@"
+localstatedir="@localstatedir@"
+libdir="@libdir@"
+sysconfdir="@sysconfdir@"
+datadir="@datadir@"
+mybindir="@mybindir@"
+myscriptdir="@myscriptdir@"
+
+# Location of main programs
+B_BINDIR="$mybindir"
+# Location of backup scripts
+B_SCRIPTDIR="$myscriptdir"
+
+# Show generic help
+do_gen_help()
+{
+	cat << _END
+Usage:
+        run <backup script> <configuration file>
+                To invoke a backup script
+
+     or run <backup script> --check <configuration file>
+                To check configuration
+
+     or run <backup script> --help
+                To get help for a script
+
+     or run --help
+                To get this help
+
+     or run --list
+                To list available backup scripts
+
+_END
+	exit 0
+}
+
+# List available scripts
+do_list()
+{
+	cd "$B_SCRIPTDIR"
+	for fn in * ; do
+		# Source the file to get NAME, VERSION and DESC
+		# and display them
+		# Use () to avoid polution
+		(
+			. ./$fn
+			echo " $fn: $NAME v$VERSION: $DESC"
+		)
+	done
+	echo
+	exit 0
+}
+
+# Validate a script name
+# $1 is the script name
+validate_script()
+{
+	if [ ! -f "$B_SCRIPTDIR/$1" ] ; then
+		echo "No such script: $1"
+		echo
+		exit 1
+	fi
+}
+
+# Validate a configuration file name
+# $1 is the configuration file name
+validate_conf()
+{
+	if [ ! -f "$1" ] ; then
+		echo "No such script: $1"
+		echo
+		exit 1
+	fi
+}
+
+# Invoke help for a script
+# $1 is the script name
+do_script_help()
+{
+	validate_script "$1"
+
+	# Source the script
+	. "$B_SCRIPTDIR/$1"
+
+	# Call do_help (included in the script)
+	do_help
+	exit 0
+}
+
+# Invoke check conf for a script
+# $1 is the script name
+# $2 is the configuration file
+do_script_check_conf()
+{
+	validate_script "$1"
+	validate_conf "$2"
+
+	# Source the script
+	. "$B_SCRIPTDIR/$1"
+
+	# Source the configuration
+	. ./"$2"
+
+	if do_check_conf ; then
+		exit 0
+	else
+		exit 1
+	fi
+}
+
+# Invoke a script
+# $1 is the script name
+# $2 is the configuration file
+do_script_run()
+{
+	validate_script "$1"
+	validate_conf "$2"
+
+	(
+	# Source the script
+	. "$B_SCRIPTDIR/$1"
+
+	# Source the configuration
+	. ./"$2"
+
+	if ! do_check_conf ; then
+		exit 1
+	fi
+
+	do_run
+	)
+}
+
+if [ -z "$1" ] ; then
+	do_gen_help
+	exit 0
+fi
+
+case "$1" in
+	--help)
+		# Display generic help
+		do_gen_help
+		;;
+	--list)
+		# List all available backup scripts
+		do_list
+		;;
+	*)
+		# Assume that $1 is the script name
+		if [ -z "$2" ] ; then
+			do_gen_help
+		fi
+		case "$2" in
+			--help)
+				# Do help for a script
+				do_script_help "$1"
+				;;
+			--check)
+				# Check requires a third argument
+				if [ -z "$3" ] ; then
+					do_gen_help
+				fi
+				do_script_check_conf "$1" "$3"
+				;;
+			*)
+				# Assume $2 is the configuration file
+				do_run "$1" "$2"
+				;;
+		esac
+		;;
+esac
+
+

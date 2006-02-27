@@ -1,0 +1,126 @@
+#!/bin/sh
+#
+# Copyright (C) 2006 Stefanos Harhalakis
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# $Id$
+#
+# The main backup script
+#
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+sbindir="@sbindir@"
+libexecdir="@libexecdir@"
+localstatedir="@localstatedir@"
+libdir="@libdir@"
+sysconfdir="@sysconfdir@"
+datadir="@datadir@"
+mybindir="@mybindir@"
+myscriptdir="@myscriptdir@"
+
+# Location of main programs
+B_BINDIR="$mybindir"
+# Location of backup scripts
+B_SCRIPTDIR="$myscriptdir"
+
+# Show generic help
+do_help()
+{
+	cat << _END
+Usage:
+	sbackup <backup configuration dir>
+		To perform backup based on this dir
+
+     or sbackup --list
+		To list all available backup scripts
+
+     or sbackup --check <back configuration dir>
+                To check configuration for all files in dir
+
+     or sbackup --help
+                To get this help
+
+_END
+	exit 0
+}
+
+# Validate a configuration directory name
+# $1 is the directory name
+validate_dir()
+{
+	if [ ! -d "$1" ] ; then
+		echo "No such directory: $1"
+		echo
+		exit 1
+	fi
+}
+
+# List available scripts
+do_list()
+{
+	$B_BINDIR/run --list
+	exit 0
+}
+
+# Check configuration
+# $1 is the directory
+do_check()
+{
+	validate_dir "$1"
+	# TODO:
+}
+
+# Run the backup configuration files
+# $1 is the directory
+do_run()
+{
+	validate_dir "$1"
+
+	cd "$1"
+	for fn in * ; do
+		D=`echo "$fn" | awk -F . '{print $NF}'`
+		echo "$fn -> $D"
+	done
+}
+
+case "$1" in
+	--help)
+		# Display generic help
+		do_help
+		;;
+	--list)
+		# List all available backup scripts
+		do_list
+		;;
+	--check)
+		# check configuration
+		if [ -z "$2" ] || [ ! -z "$3" ] ; then
+			do_help
+		fi
+		do_check "$2"
+		;;
+	*)
+		# Assume that $1 is the configuration dir name
+		if [ ! -z "$2" ] ; then
+			do_help
+		fi
+		do_run "$1"
+		;;
+esac
+
+
