@@ -32,11 +32,15 @@ sysconfdir="@sysconfdir@"
 datadir="@datadir@"
 mybindir="@mybindir@"
 myscriptdir="@myscriptdir@"
+myconfdir="@myconfdir@"
+sampledir="@sampledir@"
 
 # Location of main programs
 B_BINDIR="$mybindir"
 # Location of backup scripts
 B_SCRIPTDIR="$myscriptdir"
+# Name of the master configuration file
+B_MASTERCFG="master"
 
 # Show generic help
 do_help()
@@ -55,6 +59,9 @@ Usage:
      or sbackup --help
                 To get this help
 
+        Directories must be absolute paths or they will be prepended
+	with $myconfdir
+
 _END
 	exit 0
 }
@@ -65,9 +72,24 @@ validate_dir()
 {
 	if [ ! -d "$1" ] ; then
 		echo "No such directory: $1"
-		echo
 		exit 1
 	fi
+}
+
+# Load the master configuration file
+do_loadmastercfg()
+{
+	# Load master configuration file
+	if [ ! -f "$1"/$B_MASTERCFG ] ; then
+		echo "Master configuration file not found: $1/$B_MASTERCFG"
+		exit 1
+	fi
+
+	. "$1"/$B_MASTERCFG ]
+
+	# validate it
+	do_checkmaster
+
 }
 
 # List available scripts
@@ -85,17 +107,60 @@ do_check()
 	# TODO:
 }
 
+do_checkmaster_one()
+{
+	local	T
+
+	T=`eval echo '$'{$1}`
+	
+	if [ -z "$T" ] ; then
+		echo "Required variable was undefined: $1"
+		exit 1
+	fi
+}
+
+# Check the master configuration file
+do_checkmaster()
+{
+	local	v
+
+	for v in BACKUPDIR ; do
+		do_checkmaster_one $v
+	done
+}
+
 # Run the backup configuration files
 # $1 is the directory
 do_run()
 {
-	validate_dir "$1"
+	if [ ! "$1" = "${1#.}" ] ; then
+		echo "Bad path: $1"
+		echo "Path must not begin with a dot"
+		exit 1
+	fi
 
-	cd "$1"
-	for fn in * ; do
-		D=`echo "$fn" | awk -F . '{print $NF}'`
-		echo "$fn -> $D"
-	done
+	if [ "$1" = "${1#/}" ] ; then
+		CONFDIR="${myconfdir}/$1"
+	else
+		CONFDIR="$1"
+	fi
+
+	echo "Using $CONFDIR"
+
+	validate_dir "$CONFDIR"
+
+	do_loadmastercfg "$CONFDIR"
+
+	# TODO: Run, check exit code
+	cd "$CONFDIR"
+	find . -maxdepth 1 -type f | sort |
+		while read fn ; do
+			D=`echo "$fn" | awk -F . '{print $NF}'`
+			T=`echo "$fn" | grep '^[0-9]'`
+			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
+				echo "$fn -> $D"
+			fi
+		done
 }
 
 case "$1" in
@@ -116,9 +181,10 @@ case "$1" in
 		;;
 	*)
 		# Assume that $1 is the configuration dir name
-		if [ ! -z "$2" ] ; then
+		if [ -z "$1" ] || [ ! -z "$2" ] ; then
 			do_help
 		fi
+
 		do_run "$1"
 		;;
 esac

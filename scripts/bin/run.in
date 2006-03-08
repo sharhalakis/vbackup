@@ -18,6 +18,8 @@ sysconfdir="@sysconfdir@"
 datadir="@datadir@"
 mybindir="@mybindir@"
 myscriptdir="@myscriptdir@"
+myconfdir="@myconfdir@"
+sampledir="@sampledir@"
 
 # Location of main programs
 B_BINDIR="$mybindir"

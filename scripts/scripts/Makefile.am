@@ -1,1 +1,1 @@
-SUBDIRS = mount
+SUBDIRS = mount mysql

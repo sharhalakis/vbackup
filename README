@@ -1,7 +1,8 @@
 Simple backup
--------------
+=============
 
 Tree:
+=====
 
 ${sysconfdir}/
 	sbackup/
@@ -30,7 +31,7 @@ rc.daily:
 
 
 Backup scripts:
----------------
+===============
 
 Each backup script must have:
 
@@ -47,4 +48,20 @@ variables:
 NAME			The script name ("psql")
 VERSION			The script version ("1.0.0")
 DESC			A short description ("Backup a postgresql database")
+DIRNAME			A name for the directory where the backups will be
+			located. Most probably same as "NAME" or empty for
+			no-backup scripts like nfsmount
+
+It must return:
+---------------
+0	Everything were OK
+1	Error occured - continue backups
+2	Error occured - abort backup sequence
+
+Master configuration variables
+==============================
+
+BACKUPDIR		The directory to store backups to
+
+
 

@@ -23,11 +23,11 @@
 #
 
 # The name of the backup script
-NAME=""
+NAME="mysql"
 # The version of the script
-VERSION="0.0.0"
+VERSION="0.0.1"
 # A short description of the script
-DESC=""
+DESC="MySQL backup"
 # A name for the directory where the backups will be located
 DIRNAME="$NAME"
 
