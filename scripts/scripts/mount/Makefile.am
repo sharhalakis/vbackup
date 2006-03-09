@@ -1,1 +1,3 @@
-myscript_SCRIPTS	= nfsmount umount
+myscript_SCRIPTS	= mount nfsmount umount
+sample_DATA		= sample.mount sample.nfsmount sample.umount
+

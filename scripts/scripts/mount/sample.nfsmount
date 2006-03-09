@@ -1,0 +1,16 @@
+# Sample configuration file for nfsmount
+#
+# $Id$
+#
+
+# The NFS path to use
+#NFSDIR=127.0.0.1:/myshare/dir
+
+# The mountpoint
+#MOUNTPOINT=/mnt/backup
+
+# The filesystem type (optional)
+#FSTYPE=
+
+# Misc options (optinal)
+#OPTIONS=

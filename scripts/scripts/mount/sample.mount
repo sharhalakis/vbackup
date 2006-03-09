@@ -1,0 +1,17 @@
+# Sample configuration file for nfsmount
+#
+# $Id$
+#
+
+# The device to mount (optional)
+#DEVICE=
+
+# The mountpoint
+#MOUNTPOINT=/mnt/backup
+
+# Filesystem type (optional)
+#FSTYPE=
+
+# Misc options (optional)
+#OPTIONS=
+

@@ -1,0 +1,12 @@
+# Sample configuration file for umount
+#
+# $Id$
+#
+# Note:
+#	In case of nfsmount you may use a link to the nfsmount
+#	configuration file since MOUNTPOINT is also defined there
+#	to avoid synchronization issues
+
+# The mountpoint
+#MOUNTPOINT=/mnt/backup
+

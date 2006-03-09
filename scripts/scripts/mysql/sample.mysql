@@ -1,0 +1,25 @@
+# Sample mysql configuration file
+#
+# $Id$
+#
+# You may want to add a user named backup and do:
+#
+# mysql> grant select,show databases on *.* to 'backup'@'localhost';
+#
+
+# The username to use
+MYUSER="backup"
+
+# password (optional)
+#MYPASS='1234'
+
+# Mysql Executable (optional)
+#MYSQL='/usr/bin/mysql'
+
+# Mysqldump executable (optional)
+#MYSQLDUMP='/usr/bin/mysqldump'
+
+# Databases to backup. A space seperated list of databases
+# Use - to backup all available databases
+DATABASES="-"
+
