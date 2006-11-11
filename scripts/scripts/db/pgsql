@@ -74,13 +74,13 @@ do_run()
 
 	if [ "$DATABASES" = "-" ] ; then
 		if [ -z "$SUUSER" ] ; then
-			DATABASES=`$PSQL -F , -A -P , \
-					-P -tuples_only -P pager=off -l | \
+			DATABASES=`$PSQL -F , -A -\
+					-P tuples_only -P pager=off -l | \
 					cut -f 1 -d, | \
 					grep -v template0`
 		else
-			DATABASES=`su - $SUUSER -c "$PSQL -F , -A -P , \
-					-P -tuples_only -P pager=off -l | \
+			DATABASES=`su - $SUUSER -c "$PSQL -F , -A \
+					-P tuples_only -P pager=off -l | \
 					cut -f 1 -d, | \
 					grep -v template0"`
 		fi
