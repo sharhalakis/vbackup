@@ -7,6 +7,7 @@ Tree:
 ${sysconfdir}/
 	sbackup/
 		rc.d/		Backup configurations
+		samples/	Sample configurations
 		backup.daily/	Links to appropriate rc.d scripts
 		backup.weekly/	....
 		backup.monthly/	....
@@ -16,7 +17,7 @@ ${datadir}/
 	sbackup/
 		bin/		Main programs
 		scripts/	The main backup scripts
-		helpers/	Helper scripts (?)
+		helpers/	Helper scripts
 
 
 
@@ -48,9 +49,6 @@ variables:
 NAME			The script name ("psql")
 VERSION			The script version ("1.0.0")
 DESC			A short description ("Backup a postgresql database")
-DIRNAME			A name for the directory where the backups will be
-			located. Most probably same as "NAME" or empty for
-			no-backup scripts like nfsmount
 
 It must return:
 ---------------
@@ -62,6 +60,5 @@ Master configuration variables
 ==============================
 
 BACKUPDIR		The directory to store backups to
-
 
 
