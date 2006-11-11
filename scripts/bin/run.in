@@ -19,14 +19,17 @@ datadir="@datadir@"
 mybindir="@mybindir@"
 myscriptdir="@myscriptdir@"
 myconfdir="@myconfdir@"
+myhelperdir="@myhelperdir@"
 sampledir="@sampledir@"
 
 # Location of main programs
 B_BINDIR="$mybindir"
 # Location of backup scripts
 B_SCRIPTDIR="$myscriptdir"
+# Location of helper scripts
+B_HELPERDIR="$myhelperdir"
 
-source $B_BINDIR/common
+source $B_HELPERDIR/common
 
 # Show generic help
 do_gen_help()
@@ -182,7 +185,7 @@ case "$1" in
 				;;
 			*)
 				# Assume $2 is the configuration file
-				do_run "$1" "$2"
+				do_script_run "$1" "$2"
 				;;
 		esac
 		;;

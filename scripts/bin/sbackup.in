@@ -33,6 +33,7 @@ datadir="@datadir@"
 mybindir="@mybindir@"
 myscriptdir="@myscriptdir@"
 myconfdir="@myconfdir@"
+myhelperdir="@myhelperdir@"
 sampledir="@sampledir@"
 
 # Location of main programs
