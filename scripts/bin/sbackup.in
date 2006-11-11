@@ -120,7 +120,7 @@ do_run()
 			echo "T - D: $T - $D"
 			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
 				echo "$fn -> $D"
-				$B_BINDIR/run "$D" "$T"
+				$B_BINDIR/run "$D" "$T" < /dev/tty
 			fi
 		done
 }
