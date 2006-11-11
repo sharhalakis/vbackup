@@ -86,6 +86,7 @@ do_run()
 	fi
 
 	h_formdest "$DESTDIR"
+	h_ensuredir "$DESTDIR"
 
 	FIRST=1
 	for db in $DATABASES ; do

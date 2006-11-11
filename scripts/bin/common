@@ -36,3 +36,18 @@ h_formdest()
 	R_DESTDIR=`echo "$1" | sed "s,%D1%,$D1,g"`
 }
 
+#
+# Ensure that a directory exists. Create if it doesn't exist
+# 	$1	Directory
+#	$2	Permissions (or nothing)
+h_ensuredir()
+{
+	if ! [ -d "$1" ] ; then
+		mkdir "$1"
+	fi
+
+	if ! [ -z "$2" ] ; then
+		chmod "$2" "$1"
+	fi
+}
+
