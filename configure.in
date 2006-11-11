@@ -26,7 +26,8 @@ AC_CONFIG_FILES([Makefile
 		scripts/bin/sbackup
 		scripts/scripts/Makefile
 		scripts/scripts/mount/Makefile
-		scripts/scripts/mysql/Makefile
+		scripts/scripts/db/Makefile
+		scripts/scripts/misc/Makefile
 		])
 AC_OUTPUT
 

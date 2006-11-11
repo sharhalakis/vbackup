@@ -26,6 +26,8 @@ B_BINDIR="$mybindir"
 # Location of backup scripts
 B_SCRIPTDIR="$myscriptdir"
 
+source $B_BINDIR/common
+
 # Show generic help
 do_gen_help()
 {

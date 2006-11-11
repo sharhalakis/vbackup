@@ -1,0 +1,1 @@
+myscript_SCRIPTS	= off

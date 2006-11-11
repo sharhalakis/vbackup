@@ -1,1 +1,0 @@
-myscript_SCRIPTS	= mysql

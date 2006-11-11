@@ -1,0 +1,101 @@
+#!/bin/sh
+#
+# Copyright (C) 2006 Stefanos Harhalakis
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# $Id$
+#
+# Description
+#
+#	Backup a mysql database
+#
+
+NAME="pgsql"
+VERSION="1.0.0"
+DESC="Backup PostgreSQL databases"
+
+# Display help
+do_help()
+{
+	cat << _END
+Configuration options:
+	DATABASES	A space separated list of databases to backup.
+			Set this to '-' to backup all databases. (required)
+	USER		The username to use to connect (required)
+	PSQL		The path to psql executable
+	PGDUMP		The path to pg_dump executable
+	SUUSER		Do an 'su' to this user (example: postgres)
+	DESTDIR		The destination directory (required)
+_END
+#	PASSWORD	The password to use to connect
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$DATABASES" ] && echo "Missing DATABASES" && return 1
+	[ -z "$USER" ] && echo "Missing USER" && return 1
+	[ -z "$DESTDIR" ] && echo "Missing DESTDIR" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	# Initialize
+	if [ -z "$PSQL" ] ; then
+		PSQL="psql";
+	fi
+
+	if [ -z "$PGDUMP" ] ; then
+		PGDUMP="pg_dump"
+	fi
+
+	for t in $PSQL $PGDUMP ; do
+		if ! which $t > /dev/null ; then
+			echo "Could not find '$t'"
+		fi
+	done
+
+	if [ "$DATABASES" = "-" ] ; then
+		if [ -z "$SUUSER" ] ; then
+			DATABASES=`$PSQL -F , -A -P , \
+					-P -tuples_only -P pager=off -l | \
+					cut -f 1 -d, | \
+					grep -v template0`
+		else
+			DATABASES=`su - $SUUSER -c "$PSQL -F , -A -P , \
+					-P -tuples_only -P pager=off -l | \
+					cut -f 1 -d, | \
+					grep -v template0"`
+		fi
+	fi
+
+	h_formdest "$DESTDIR"
+
+	FIRST=1
+	for db in $DATABASES ; do
+		echo "Dumping: $db to $R_DESTDIR/$db.gz"
+		if [ -z "$SUUSER" ] ; then
+			$PGDUMP $db | gzip > $R_DESTDIR/$db.gz
+		else
+			su - $SUUSER -c "$PGDUMP $db" | gzip > $R_DESTDIR/$db.gz
+		fi
+	done
+}
+

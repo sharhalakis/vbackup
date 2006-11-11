@@ -7,19 +7,23 @@
 # mysql> grant select,show databases on *.* to 'backup'@'localhost';
 #
 
-# The username to use
-MYUSER="backup"
+# The username to use (required)
+USER="backup"
 
-# password (optional)
-#MYPASS='1234'
+# password
+# This is insecure. Anyone will be able to get this password!
+#PASSWORD='1234'
 
-# Mysql Executable (optional)
+# path to mysql Executable
 #MYSQL='/usr/bin/mysql'
 
-# Mysqldump executable (optional)
+# Path to mysqldump executable
 #MYSQLDUMP='/usr/bin/mysqldump'
 
 # Databases to backup. A space seperated list of databases
 # Use - to backup all available databases
 DATABASES="-"
+
+# The destination directory
+#DESTDIR="/tmp/mysql/%D1%"
 

@@ -23,7 +23,7 @@
 #
 
 NAME="umount"
-VERSION="0.0.0"
+VERSION="1.0.0"
 DESC="Umount a mount point"
 
 # Display help
@@ -31,7 +31,7 @@ do_help()
 {
 	cat << _END
 Configuration options:
-	MOUNTPOINT	The path to umount
+	MOUNTPOINT	The path to umount or the devicename
 _END
 }
 

@@ -153,7 +153,7 @@ do_run()
 
 	# TODO: Run, check exit code
 	cd "$CONFDIR"
-	find . -maxdepth 1 -type f | sort |
+	find . -maxdepth 1 -type f -name '*.*' | sort |
 		while read fn ; do
 			D=`echo "$fn" | awk -F . '{print $NF}'`
 			T=`echo "$fn" | grep '^[0-9]'`

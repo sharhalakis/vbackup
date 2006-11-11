@@ -18,50 +18,21 @@
 #
 # $Id$
 #
-# Description
-#	Mount an nfs share
+# Library helper functions
 #
 
-NAME="nfsmount"
-VERSION="1.0.0"
-DESC="Mount an NFS share"
-
-# Display help
-do_help()
+#
+# Helper function to form the destination directory
+#	$1 is the destination filename
+# Sets:
+#	R_DESTDIR	The destination filename
+#
+h_formdest()
 {
-	cat << _END
-Configuration options:
-	NFSDIR		The full NFS path (required)
-	MOUNTPOINT	Where to mount it (required)
-	OPTIONS		Mount options, not including -o
-_END
-}
+	local D1
 
-# Check configuration
-# return: 0: ok, 1: error
-do_check_conf()
-{
-	[ -z "$NFSDIR" ] && echo "Missing NFSDIR" && return 1
-	[ -z "$MOUNTPOINT" ] && echo "Missing MOUNTPOINT" && return 1
+	D1=`date "+%y%m%d"`
 
-	return 0
-}
-
-# Do backup
-do_run()
-{
-	local	A
-
-	if [ ! -z "$OPTIONS" ] ; then
-		A="-o $OPTIONS"
-	fi
-
-	if mount -t nfs "$NFSDIR" "$MOUNTPOINT" $A ; then
-		R=0
-	else
-		R=2
-	fi
-
-	return $R
+	R_DESTDIR=`echo "$1" | sed "s,%D1%,$D1,g"`
 }
 

@@ -23,7 +23,7 @@
 #
 
 NAME="mount"
-VERSION="0.0.0"
+VERSION="1.0.0"
 DESC="Mount a partition"
 
 # Display help
@@ -31,10 +31,10 @@ do_help()
 {
 	cat << _END
 Configuration options:
-	DEVICE		The device name (optional)
-	MOUNTPOINT	Where to mount it
-	FSTYPE		Filesystem to use (optional)
-	OPTIONS		Misc options, not including -o (optional) 
+	DEVICE		The device name
+	MOUNTPOINT	Where to mount it (required)
+	OPTIONS		Mount options, not including -o
+	FSTYPE		Filesystem type
 
 	If DEVICE is not defined an /etc/fstab entry must exist
 _END
