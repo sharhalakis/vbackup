@@ -40,8 +40,6 @@ sampledir="@sampledir@"
 B_BINDIR="$mybindir"
 # Location of backup scripts
 B_SCRIPTDIR="$myscriptdir"
-# Name of the master configuration file
-B_MASTERCFG="master"
 
 # Show generic help
 do_help()
@@ -77,22 +75,6 @@ validate_dir()
 	fi
 }
 
-# Load the master configuration file
-do_loadmastercfg()
-{
-	# Load master configuration file
-	if [ ! -f "$1"/$B_MASTERCFG ] ; then
-		echo "Master configuration file not found: $1/$B_MASTERCFG"
-		exit 1
-	fi
-
-	. "$1"/$B_MASTERCFG ]
-
-	# validate it
-	do_checkmaster
-
-}
-
 # List available scripts
 do_list()
 {
@@ -106,28 +88,6 @@ do_check()
 {
 	validate_dir "$1"
 	# TODO:
-}
-
-do_checkmaster_one()
-{
-	local	T
-
-	T=`eval echo '$'{$1}`
-	
-	if [ -z "$T" ] ; then
-		echo "Required variable was undefined: $1"
-		exit 1
-	fi
-}
-
-# Check the master configuration file
-do_checkmaster()
-{
-	local	v
-
-	for v in BACKUPDIR ; do
-		do_checkmaster_one $v
-	done
 }
 
 # Run the backup configuration files
@@ -150,16 +110,17 @@ do_run()
 
 	validate_dir "$CONFDIR"
 
-	do_loadmastercfg "$CONFDIR"
-
 	# TODO: Run, check exit code
 	cd "$CONFDIR"
 	find . -maxdepth 1 -type f -name '*.*' | sort |
 		while read fn ; do
-			D=`echo "$fn" | awk -F . '{print $NF}'`
-			T=`echo "$fn" | grep '^[0-9]'`
+			F=${fn#./}
+			D=`echo "$F" | awk -F . '{print $NF}'`
+			T=`echo "$F" | grep '^[0-9]'`
+			echo "T - D: $T - $D"
 			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
 				echo "$fn -> $D"
+				$B_BINDIR/run "$D" "$T"
 			fi
 		done
 }

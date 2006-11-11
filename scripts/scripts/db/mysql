@@ -77,7 +77,7 @@ do_run()
 	done
 
 	if [ "$DATABASES" = "-" ] ; then
-		DATABASES=`$MYSQL -m $USER --disable-pager --batch \
+		DATABASES=`$MYSQL -u $USER --disable-pager --batch \
 				-e 'show databases'`
 	fi
 
@@ -93,7 +93,7 @@ do_run()
 			FIRST="0"
 		else
 			echo "Dumping: $db to $R_DESTDIR/$db.gz"
-			$MYSQLDUMP -u $MYUSER -a $db | gzip > $R_DESTDIR/$db.gz
+			$MYSQLDUMP -u $USER -a $db | gzip > $R_DESTDIR/$db.gz
 		fi
 	done
 }
