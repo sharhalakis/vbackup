@@ -121,6 +121,15 @@ do_run()
 			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
 				echo "$fn -> $D"
 				$B_BINDIR/run "$D" "$T" < /dev/tty
+				case "$?" in
+					1)
+						echo "ERROR: $D exited with errors (non-fatal)"
+						;;
+					2)
+						echo "FATAL: $D exited with errors"
+						return
+						;;
+				esac
 			fi
 		done
 }
