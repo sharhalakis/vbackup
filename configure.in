@@ -17,7 +17,7 @@ AC_SUBST([mybindir], [${datadir}/sbackup/bin])
 AC_SUBST([myhelperdir], [${datadir}/sbackup/helpers])
 AC_SUBST([myscriptdir], [${datadir}/sbackup/scripts])
 AC_SUBST([myconfdir], [${sysconfdir}/sbackup])
-AC_SUBST([sampledir], [${myconfdir}/sample])
+AC_SUBST([sampledir], [${myconfdir}/samples])
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile

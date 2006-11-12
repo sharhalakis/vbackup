@@ -34,13 +34,13 @@ do_help()
 Configuration options:
 	DATABASES	A space separated list of databases to backup.
 			Set this to '-' to backup all databases. (required)
-	USER		The username to use to connect (required)
+	USER		The username to use to connect
+	PASSWORD	The password to use to connect
 	PSQL		The path to psql executable
 	PGDUMP		The path to pg_dump executable
 	SUUSER		Do an 'su' to this user (example: postgres)
 	DESTDIR		The destination directory (required)
 _END
-#	PASSWORD	The password to use to connect
 }
 
 # Check configuration
@@ -48,7 +48,7 @@ _END
 do_check_conf()
 {
 	[ -z "$DATABASES" ] && echo "Missing DATABASES" && return 1
-	[ -z "$USER" ] && echo "Missing USER" && return 1
+#	[ -z "$USER" ] && echo "Missing USER" && return 1
 	[ -z "$DESTDIR" ] && echo "Missing DESTDIR" && return 1
 
 	return 0
@@ -72,14 +72,22 @@ do_run()
 		fi
 	done
 
+	if ! [ -z "$USER" ] ; then
+		P_USER="-U $USER"
+	fi
+
+	if ! [ -z "$PASSWORD" ] ; then
+		export PGPASSWORD="$PASSWORD"
+	fi
+
 	if [ "$DATABASES" = "-" ] ; then
 		if [ -z "$SUUSER" ] ; then
-			DATABASES=`$PSQL -F , -A -\
+			DATABASES=`$PSQL -F , -A $P_USER\
 					-P tuples_only -P pager=off -l | \
 					cut -f 1 -d, | \
 					grep -v template0`
 		else
-			DATABASES=`su - $SUUSER -c "$PSQL -F , -A \
+			DATABASES=`su - $SUUSER -c "$PSQL -F , -A $P_USER\
 					-P tuples_only -P pager=off -l | \
 					cut -f 1 -d, | \
 					grep -v template0"`
@@ -93,9 +101,10 @@ do_run()
 	for db in $DATABASES ; do
 		echo "Dumping: $db to $R_DESTDIR/$db.gz"
 		if [ -z "$SUUSER" ] ; then
-			$PGDUMP $db | gzip > $R_DESTDIR/$db.gz
+			$PGDUMP $P_USER $db | gzip > $R_DESTDIR/$db.gz
 		else
-			su - $SUUSER -c "$PGDUMP $db" | gzip > $R_DESTDIR/$db.gz
+			su - $SUUSER -c "$PGDUMP $P_USER $db" | \
+				gzip > $R_DESTDIR/$db.gz
 		fi
 	done
 }
