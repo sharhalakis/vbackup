@@ -40,6 +40,7 @@ Configuration options:
 	PGDUMP		The path to pg_dump executable
 	SUUSER		Do an 'su' to this user (example: postgres)
 	DESTDIR		The destination directory (required)
+	ALL		Dump template[0-9] too (y/n)
 _END
 }
 
@@ -80,17 +81,27 @@ do_run()
 		export PGPASSWORD="$PASSWORD"
 	fi
 
+	if [ "$ALL" = "y" ] || [ "$ALL" = "Y" ] ; then
+		P_FILT1=""
+	else
+		P_FILT1="| grep -v 'template[0-9]'"
+	fi
+
 	if [ "$DATABASES" = "-" ] ; then
+		CMD="$PSQL -F , -A $P_USER -P tuples_only -P pager=off -l | \
+			cut -f 1 -d, $P_FILT1"
 		if [ -z "$SUUSER" ] ; then
-			DATABASES=`$PSQL -F , -A $P_USER\
-					-P tuples_only -P pager=off -l | \
-					cut -f 1 -d, | \
-					grep -v template0`
+			DATABASES=`$CMD`
+#			DATABASES=`$PSQL -F , -A $P_USER\
+#					-P tuples_only -P pager=off -l | \
+#					cut -f 1 -d, | \
+#					grep -v template0`
 		else
-			DATABASES=`su - $SUUSER -c "$PSQL -F , -A $P_USER\
-					-P tuples_only -P pager=off -l | \
-					cut -f 1 -d, | \
-					grep -v template0"`
+			DATABASES=`su - $SUUSER -c "$CMD"`
+#			DATABASES=`su - $SUUSER -c "$PSQL -F , -A $P_USER\
+#					-P tuples_only -P pager=off -l | \
+#					cut -f 1 -d, | \
+#					grep -v template0"`
 		fi
 	fi
 
@@ -100,11 +111,14 @@ do_run()
 	FIRST=1
 	for db in $DATABASES ; do
 		echo "Dumping: $db to $R_DESTDIR/$db.gz"
+		CMD="$PGDUMP $P_USER $db"
 		if [ -z "$SUUSER" ] ; then
-			$PGDUMP $P_USER $db | gzip > $R_DESTDIR/$db.gz
+			$CMD
+#			$PGDUMP $P_USER $db | gzip > $R_DESTDIR/$db.gz
 		else
-			su - $SUUSER -c "$PGDUMP $P_USER $db" | \
-				gzip > $R_DESTDIR/$db.gz
+			su - $SUUSER -c "$CMD" | gzip > $R_DESTDIR/$db.gz
+#			su - $SUUSER -c "$PGDUMP $P_USER $db" | \
+#				gzip > $R_DESTDIR/$db.gz
 		fi
 	done
 }
