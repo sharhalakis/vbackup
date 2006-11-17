@@ -1,24 +1,27 @@
-# Sample mysql configuration file
+# Sample PostgreSQL (pgsql) configuration file
 #
 # $Id$
 #
 # You may want to add a user named backup and do:
 #
-# mysql> grant select,show databases on *.* to 'backup'@'localhost';
+#	TODO:
 #
 
 # The username to use (required)
-MYUSER="backup"
+PGUSER="backup"
 
-# password
+# A username to su to when performing the backup
+#SUUSER="postgres"
+
+# The password passed as an environment variable.
 # This is insecure. Anyone will be able to get this password!
 #PASSWORD='1234'
 
-# path to mysql Executable
-#MYSQL='/usr/bin/mysql'
+# path to psql Executable
+#PSQL='/usr/bin/psql'
 
-# Path to mysqldump executable
-#MYSQLDUMP='/usr/bin/mysqldump'
+# Path to pgdump executable
+#PGDUMP='/usr/bin/pgdump'
 
 # Databases to backup. A space seperated list of databases
 # Use - to backup all available databases

@@ -34,7 +34,7 @@ do_help()
 Configuration options:
 	DATABASES	A space separated list of databases to backup.
 			Set this to '-' to backup all databases. (required)
-	USER		The username to use to connect
+	PGUSER		The username to use to connect
 	PASSWORD	The password to use to connect
 	PSQL		The path to psql executable
 	PGDUMP		The path to pg_dump executable
@@ -73,8 +73,8 @@ do_run()
 		fi
 	done
 
-	if ! [ -z "$USER" ] ; then
-		P_USER="-U $USER"
+	if ! [ -z "$PGUSER" ] ; then
+		P_USER="-U $PGUSER"
 	fi
 
 	if ! [ -z "$PASSWORD" ] ; then
