@@ -1,9 +1,0 @@
-# Sample master configuration file for sbackup
-#
-# $Id$
-#
-
-# Prefix to store backup files
-#BACKUPDIR="/var/sbackup"
-BACKUPDIR="/tmp"
-
