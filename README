@@ -56,9 +56,28 @@ It must return:
 1	Error occured - continue backups
 2	Error occured - abort backup sequence
 
-Master configuration variables
-==============================
+Configuration files:
+====================
 
-BACKUPDIR		The directory to store backups to
+Some configuration files include a DESTDIR directive.
+It may contain the following special sequences:
 
+ * '%D1%' which will be replaced by YYMMDD of the current date
+   Example: /tmp/backups/filesystem/%D1%
+   will be converted to: /tmp/backups/filesystem/061117 (as of 17 Nov 2006)
+
+Configuration directives:
+=========================
+
+Configuration directives should preserve the same names when possible.
+Common directives are:
+
+ DESTDIR	Where to backup to
+ DATABASES	The databases to backup, for DB backups
+ PASSWORD	To hold a password
+ .*USER		To hold a username (examples: PGUSER, MYUSER etc..)
+ 
+NOTE! The directive USER should never be used. I repeat NEVER USE THE USER
+DIRECTIVE! Same thing applies for other well known directives that may be
+set by sh/bash.
 
