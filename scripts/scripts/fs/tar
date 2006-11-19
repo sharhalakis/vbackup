@@ -168,8 +168,6 @@ do_run()
 			awk 'BEGIN {RS=" "} {printf("--exclude=\"%s\" ", $0)}'`
 	fi
 
-	echo "T_EXCL: $T_EXCL"
-
 	h_formdest "$DESTDIR"
 	h_ensuredestdir "$R_DESTDIR"
 
@@ -203,7 +201,7 @@ do_run()
 				extra="-N '$LDATE'"
 			fi
 		
-			tar -zc --one-file-system $EXCL -C "$dir" $extra \
+			$GTAR -zc --one-file-system $EXCL -C "$dir" $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
 				-f $R_DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz .
 		

@@ -25,5 +25,5 @@ MYUSER="backup"
 DATABASES="-"
 
 # The destination directory
-#DESTDIR="/tmp/mysql/%D1%"
+#DESTDIR="/tmp/backup/mysql/%D1%"
 

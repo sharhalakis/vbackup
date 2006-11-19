@@ -1,0 +1,21 @@
+# Sample tar configuration file
+#
+# $Id$
+#
+
+# The backup level (0-9) (required)
+LEVEL=0
+
+# The partitions to backup (required)
+# Those can be the devices in /dev or the mount points.
+# Mountpoints are preffered because the backup filename will have
+# a more readable name.
+#PARTITIONS="/ /usr"
+
+# A label to be added as "Media Label" to the backup
+# See -M switch of xfsdump. Yoy can set the hostname here.
+#MEDLABEL="localhost"
+
+# The destination directory (required)
+#DESTDIR="/tmp/backup/fs/%D1%"
+

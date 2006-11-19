@@ -182,3 +182,28 @@ h_msg()
 	return 0
 }
 
+#
+# Display a message adding spaces
+#
+#	$1	Size
+#	$2	Message
+#
+h_fixmsg()
+{
+	local	T
+	local	N
+	local	SZ
+
+	N=`echo "$2" | wc -c | sed 's/ //g'`
+	let N=$[N*1]
+
+	T="$2"
+
+	while ! [ "$N" -gt "$1" ] ; do
+		let N++
+		T="$T "
+	done
+
+	echo -n "$T"
+}
+

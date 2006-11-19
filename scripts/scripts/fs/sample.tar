@@ -3,7 +3,7 @@
 # $Id$
 #
 
-# The backup level (0-9)
+# The backup level (0-9) (required)
 LEVEL=0
 
 # The directories to backup (required)
@@ -29,6 +29,6 @@ EXCLUDE="*.iso"
 # persistent for incremental backups to work
 #STATEDIR="/var/backup/state"
 
-# The destination directory
-#DESTDIR="/tmp/mysql/%D1%"
+# The destination directory (required)
+#DESTDIR="/tmp/backup/fs/%D1%"
 

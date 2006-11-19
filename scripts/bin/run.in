@@ -29,6 +29,11 @@ B_SCRIPTDIR="$myscriptdir"
 # Location of helper scripts
 B_HELPERDIR="$myhelperdir"
 
+# Program locations
+XFSDUMP="@XFSDUMP@"
+GTAR="@GTAR@"
+
+
 source $B_HELPERDIR/common
 
 
@@ -60,13 +65,33 @@ _END
 do_list()
 {
 	cd "$B_SCRIPTDIR"
+	echo
+#	h_fixmsg 15 "Filename"
+	h_fixmsg 15 "Name"
+	h_fixmsg 8 "Version"
+	echo "Description"
+
+#	h_fixmsg 15 "--------------"
+	h_fixmsg 15 "--------------"
+	h_fixmsg 8 "-------"
+	echo "------------------------------"
+#	h_fixmsg 15 "--------"
+#	h_fixmsg 15 "----"
+#	h_fixmsg 10 "-------"
+#	echo "-----------"
+#	echo "------------------------------------------------------------------"
+
 	for fn in * ; do
 		# Source the file to get NAME, VERSION and DESC
 		# and display them
 		# Use () to avoid polution
 		(
 			. ./$fn
-			echo " $fn: $NAME v$VERSION: $DESC"
+#			echo " $fn: $NAME v$VERSION: $DESC"
+#			h_fixmsg 15 "$fn:"
+			h_fixmsg 15 "$NAME"
+			h_fixmsg 8 " $VERSION"
+			echo "$DESC"
 		)
 	done
 	echo

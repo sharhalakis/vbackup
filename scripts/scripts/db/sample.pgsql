@@ -28,5 +28,5 @@ PGUSER="backup"
 DATABASES="-"
 
 # The destination directory
-#DESTDIR="/tmp/mysql/%D1%"
+#DESTDIR="/tmp/backup/pgsql/%D1%"
 
