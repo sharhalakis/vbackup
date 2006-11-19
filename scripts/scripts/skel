@@ -28,8 +28,6 @@ NAME=""
 VERSION="0.0.0"
 # A short description of the script
 DESC=""
-# A name for the directory where the backups will be located
-DIRNAME="$NAME"
 
 # Display help
 do_help()

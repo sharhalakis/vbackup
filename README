@@ -81,3 +81,10 @@ NOTE! The directive USER should never be used. I repeat NEVER USE THE USER
 DIRECTIVE! Same thing applies for other well known directives that may be
 set by sh/bash.
 
+Requirements:
+=============
+
+ * GNU tar - for the tar method
+
+
+

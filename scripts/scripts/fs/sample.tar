@@ -1,0 +1,34 @@
+# Sample tar configuration file
+#
+# $Id$
+#
+
+# The backup level (0-9)
+LEVEL=0
+
+# The directories to backup (required)
+# This can be either a space separated list of directories (DIRS)
+# or a file with a directory on each line (DIRFILE)
+# Exaclty one of DIRS/DIRFILE is required
+#DIRS="/etc /usr/local"
+#DIRFILE="/etc/backup"
+
+# The username to use (required)
+PGUSER="backup"
+
+# A space separated list of wildcard masks to identify file to
+# be excluded from the backup, as specified by the --exclude argument of
+# GNU tar
+EXCLUDE="*.iso"
+
+# A file containing one wildcard mask on each line, identifying
+# files to be excluded from the backup
+#EXCLUDEFILE="/etc/backup.exclude"
+
+# A path to hold last backup dates. This directory should be
+# persistent for incremental backups to work
+#STATEDIR="/var/backup/state"
+
+# The destination directory
+#DESTDIR="/tmp/mysql/%D1%"
+

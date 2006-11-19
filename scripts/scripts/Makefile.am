@@ -1,1 +1,1 @@
-SUBDIRS = mount db misc
+SUBDIRS = mount db misc fs

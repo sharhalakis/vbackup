@@ -39,7 +39,7 @@ _END
 # return: 0: ok, 1: error
 do_check_conf()
 {
-	[ -z "$MOUNTPOINT" ] && echo "Missing MOUNTPOINT" && return 1
+	[ -z "$MOUNTPOINT" ] && h_error "Missing MOUNTPOINT" && return 2
 
 	return 0
 }
@@ -48,8 +48,10 @@ do_check_conf()
 do_run()
 {
 	if umount "$MOUNTPOINT" ; then
+		h_msg 6 "Umounted $MOUNTPOINT"
 		R=0
 	else
+		h_error "Failed to umount $MOUNTPOINT"
 		R=1
 	fi
 

@@ -31,6 +31,7 @@ B_HELPERDIR="$myhelperdir"
 
 source $B_HELPERDIR/common
 
+
 # Show generic help
 do_gen_help()
 {
@@ -77,8 +78,8 @@ do_list()
 validate_script()
 {
 	if [ ! -f "$B_SCRIPTDIR/$1" ] ; then
-		echo "No such script: $1"
-		echo
+		h_error "No such script: $1"
+		h_error
 		exit 1
 	fi
 }
@@ -88,8 +89,8 @@ validate_script()
 validate_conf()
 {
 	if [ ! -f "$1" ] ; then
-		echo "No such script: $1"
-		echo
+		h_error "No such script: $1"
+		h_error
 		exit 1
 	fi
 }

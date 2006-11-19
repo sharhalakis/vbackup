@@ -44,7 +44,7 @@ _END
 # return: 0: ok, 1: error
 do_check_conf()
 {
-	[ -z "$MOUNTPOINT" ] && echo "Missing MOUNTPOINT" && return 1
+	[ -z "$MOUNTPOINT" ] && h_error "Missing MOUNTPOINT" && return 2
 
 	return 0
 }
@@ -70,7 +70,9 @@ do_run()
 
 	if mount $A $MOUNTPOINT $B $C ; then
 		R=0
+		h_msg 6 "Mounted $MOUNTPOINT"
 	else
+		h_error "Failed to mount $MOUNTPOINT"
 		R=2
 	fi
 

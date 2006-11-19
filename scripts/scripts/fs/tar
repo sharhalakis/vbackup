@@ -1,0 +1,224 @@
+#!/bin/sh
+#
+# Copyright (C) 2006 Stefanos Harhalakis
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# $Id$
+#
+# Description
+#
+#	Perform filesystem backup using tar
+#
+#
+
+NAME="tar"
+VERSION="1.0.0"
+DESC="Filesystem backup using tar"
+
+# Display help
+do_help()
+{
+	cat << _END
+Configuration options:
+	LEVEL		The backup level (0-9) (required)
+	DIRS		The directories to backup (*)
+	DIRFILE		A file containing the directories to backup (*)
+	DESTDIR		The directory to backup to (required)
+	EXCLUDE		Exclude patters
+	EXCLUDEFILE	A file containing exclude patterns
+	STATEDIR	A directory to hold last backup state. If it is not
+			an absolute path it will be prefixed by:
+			"$localstatedir/sbackup" (required)
+
+  * Exactly one of DIRS/DIRFILE is required
+_END
+	if [ -z "$GTAR" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because GNU tar was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	local tmp
+
+	[ -z "$GTAR" ] && h_error "GNU tar was not found" && return 1
+
+	[ -z "$LEVEL" ] && h_error "Missing LEVEL" && return 1
+	[ -z "$DIRS" ] && [ -z "$DIRFILE" ] && h_error "Missing DIRS/DIRFILE" \
+		&& return 1
+	if ! [ -z "$DIRS" ] && ! [ -z "$DIRFILE" ] ; then
+		h_error "Only one of DIRS/DIRFILE may be defined" 
+		return 1
+	fi
+
+	[ -z "$STATEDIR" ] && h_error "Missing STATEDIR" && return 1
+	[ -z "$DESTDIR" ] && h_error "Missing DESTDIR" && return 1
+
+	tmp=`expr $1 + 1 >/dev/null 2>&1 || echo koko`
+
+	[ "$tmp" = "koko" ] && h_error "LEVEL must be a number" && return 1
+
+	if [ "$LEVEL" -lt 0 ] || [ "$LEVEL" -gt 9 ] ; then
+		h_error "LEVEL must be in the range 0-9"
+		return 1
+	fi
+
+	return 0
+}
+
+# Try to find the last backup date with lower level
+# $1 == level
+# $2 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
+# Return value in $R_LDATE
+# Return 0 if R_LDATE was found or 1 if not (true/false)
+get_old_date()
+{
+	local old=""
+	local lev="$1"
+	local statefile=""
+	
+	R_LDATE=""
+	
+	if [ -z "$1" ] || [ -z "$2" ] ; then
+		return 1
+	fi
+	
+	let lev=$lev-1
+	while [ "$lev" -ge 0 ] ; do
+		statefile="$STATEDIR/${lev}.$2"
+		if [ -f "${statefile}" ] ; then
+			R_LDATE=`cat $statefile`
+			return 0
+		fi
+		let lev=$lev-1
+	done
+	
+	return 1
+}
+
+# Remove unwanted state files
+# In case of a L3 backup remove all state files
+# for levels > 3
+# $1 == level
+# $2 == filename
+remove_unwanted()
+{
+	local lev="$1"
+
+	if [ -z "$1" ] || [ -z "$2" ] ; then
+		return 1
+	fi
+	
+	let lev=$lev+1
+	while [ "$lev" -le 9 ] ; do
+		statefile="$STATEDIR/${lev}.$2"
+		if [ -f "${statefile}" ] ; then
+			rm -f "${statefile}"
+		fi
+		let lev=$lev+1
+	done
+}
+
+# Do backup
+# TODO:
+#	Don't use -X and --exclude on systems that don't support it
+do_run()
+{
+	if [ -z "$GTAR" ] ; then
+		h_error "GNU tar was not found"
+		return 1
+	fi
+
+	T_DATE=`date`
+	T_DATE2=`h_formdate 1`
+
+	if ! [ -z "$EXCLUDEFILE" ] ; then
+		if [!  -e "$EXCLUDEFILE" ] ; then
+			h_error "'$EXCLUDEFILE' does not exist"
+			return 1
+		fi
+
+		T_EXCL_F="-X $EXCLUDEFILE"
+	else
+		T_EXCL_F=""
+	fi
+
+	if [ -z "$EXCLUDE" ] ; then
+		T_EXCL=""
+	else
+		T_EXCL=`echo -n "$EXCLUDE" | \
+			awk 'BEGIN {RS=" "} {printf("--exclude=\"%s\" ", $0)}'`
+	fi
+
+	echo "T_EXCL: $T_EXCL"
+
+	h_formdest "$DESTDIR"
+	h_ensuredestdir "$R_DESTDIR"
+
+	if ! [ -d "$STATEDIR" ] ; then
+		h_msg 5 "Creating $STATEDIR (STATEDIR)"
+		h_ensuredir "$STATEDIR"
+	fi
+
+	if [ -z "$DIRS" ] ; then
+		T_BDIRS=`cat "$DIRFILE"`
+	else
+		T_BDIRS="$DIRS"
+	fi
+
+	for dir in $T_BDIRS ; do
+		h_msg 6 "----------------------------------------"
+		FN=`echo "${dir}" | sed s,^/,, | sed s,/,.,g`
+		h_msg 6 "$dir -> $R_DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
+		(
+			STATEFILE="$STATEDIR/$LEVEL.$FN"
+			if [ -f "$STATEFILE" ] ; then
+				last=`cat $STATEFILE`
+				h_msg 6 "Last level $LEVEL backup of $dir: $last"
+			else
+				h_msg 6 "Last level $LEVEL backup of $dir: NEVER"
+			fi
+			extra=""
+
+			if get_old_date $LEVEL $FN ; then
+				h_msg 6 "Will backup files newer than: $LDATE"
+				extra="-N '$LDATE'"
+			fi
+		
+			tar -zc --one-file-system $EXCL -C "$dir" $extra \
+				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
+				-f $R_DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz .
+		
+			if [ "$?" -eq 0 ] ; then
+				h_msg 6 "Done"
+				echo "${T_DATE}" > $STATEFILE
+				remove_unwanted $LEVEL $FN
+			else
+				h_error "Backup of $dir failed"
+				return 1
+			fi
+		)
+		h_msg 6 "----------------------------------------"
+	done
+
+	return 0
+}
+

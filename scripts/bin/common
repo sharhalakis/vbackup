@@ -21,6 +21,22 @@
 # Library helper functions
 #
 
+MESSAGE_LEVEL=8
+
+#
+# Return the current date in a custom format
+#
+# $1:	The format:
+#	1:	YYMMDD
+#
+# Prints the date
+#
+h_formdate()
+{
+	# For now - only one format
+	date "+%y%m%d"
+}
+
 #
 # Helper function to form the destination directory
 #	$1 is the destination filename
@@ -31,7 +47,7 @@ h_formdest()
 {
 	local D1
 
-	D1=`date "+%y%m%d"`
+	D1=`h_formdate 1`
 
 	R_DESTDIR=`echo "$1" | sed "s,%D1%,$D1,g"`
 }
@@ -43,11 +59,126 @@ h_formdest()
 h_ensuredir()
 {
 	if ! [ -d "$1" ] ; then
+		h_msg 12 "h_ensuredir: Creating $1"
 		mkdir -p "$1"
 	fi
 
 	if ! [ -z "$2" ] ; then
+		h_msg 12 "h_ensuredir: Set permission of $1 to $2"
 		chmod "$2" "$1"
 	fi
+}
+
+#
+# Same as h_ensuredir but displays an informational message too
+#
+h_ensuredestdir()
+{
+	h_msg 7 "Creating $1 (DESTDIR)"
+	h_ensuredir "$1" "$2"
+}
+
+#
+# Display a fatal error and exit with error code
+#
+#	$1	Errorcode or -x for no-exit
+#	$2-	Message
+#
+#	if $1 is -x then don't exit
+#
+h_fatal()
+{
+	local	R
+	local	EX
+
+	if [ "x$1" = "x-x" ] ; then
+		EX=0
+	else
+		R="$1"
+		EX=1
+	fi
+
+	shift
+
+	h_msg 1 "FATAL: $*"
+
+	if [ "$EX" = "1" ] ; then
+		exit $R
+	fi
+}
+
+
+#
+# Display an error that should terminate the program but leave
+# error handling to the caller
+#
+#	$*	Message
+#
+h_error()
+{
+	h_msg 2 "ERROR: $*"
+
+	return 0
+}
+
+#
+# Display a warning 
+#
+#	$*	Message
+#
+h_warn()
+{
+	h_msg 3 "WARNING: $*"
+
+	return 0
+}
+
+#
+# Display/log a debug/information message
+#
+#	$1	Level:
+#			0:	Always show
+#			1:	Fatal error
+#			2:	Error
+#			3:	Warning
+#			4:	Note
+#			5:	Information (Rare messages)
+#			6:	Information (Usefull messages but not rare)
+#			7:	Information (Not so usefull)
+#			10-19:	Debug
+#				10-14:	Debug messages that don't flood
+#				15-19:	Debug messages that may flood
+#	$2-	Message
+#
+#	If $1 equals to "-n" then no new line is added at the end of
+#	the message, all arguments are shifted one position to the left
+#	and life goes on as expected
+#
+# TODO:
+#	Add loggin to file ? 
+#	Add timestamp for debuging messages ?
+#
+h_msg()
+{
+	local	L
+	local	N
+
+	if [ "$1" = "-n" ] ; then
+		N="-n"
+		shift
+	fi
+
+	L="$1"
+	shift
+
+	[ "$L" -gt "$MESSAGE_LEVEL" ]  && return
+
+	if [ "$L" -lt 10 ] ; then
+		echo $N "$*"
+	else
+		echo $N "L$L: $*"
+	fi
+
+	return 0
 }
 

@@ -5,7 +5,36 @@ AC_PREREQ(2.59)
 AC_INIT([sbackup], [0.0.1], [v13@priest.com])
 AM_INIT_AUTOMAKE(sbackup, 0.0.1)
 
+AC_ARG_WITH( tar,
+	[AC_HELP_STRING([--with-tar=PATH],
+		[Full path to GNU tar])	],
+	[GTAR="$with_tar"])
+
 # Checks for programs.
+if test -z "$GTAR" ; then
+	AC_PATH_PROG([GTAR], [tar], [])
+fi
+
+AC_CACHE_CHECK(
+	[whether we have GNU tar],
+	[sbackup_cv_gtar],
+	[
+	 	if test -z "$GTAR" ; then
+			sbackup_cv_gtar="-"
+		else
+			T=`$GTAR --version 2>&1 |grep 'GNU'`
+			if test -z "$T" ; then
+				GTAR=""
+				sbackup_cv_gtar="no"
+			else
+				sbackup_cv_gtar="yes"
+			fi
+		fi
+	])
+
+if ! test "$sbackup_cv_gtar" = "yes" ; then
+	GTAR=""
+fi
 
 # Checks for libraries.
 
@@ -19,6 +48,8 @@ AC_SUBST([myscriptdir], [${datadir}/sbackup/scripts])
 AC_SUBST([myconfdir], [${sysconfdir}/sbackup])
 AC_SUBST([sampledir], [${myconfdir}/samples])
 
+AC_SUBST([GTAR])
+
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
 		scripts/Makefile
@@ -29,6 +60,13 @@ AC_CONFIG_FILES([Makefile
 		scripts/scripts/mount/Makefile
 		scripts/scripts/db/Makefile
 		scripts/scripts/misc/Makefile
+		scripts/scripts/fs/Makefile
 		])
 AC_OUTPUT
+
+if test -z "$GTAR" ; then
+	echo 
+	echo " * No GNU tar was found. The tar method will not be functional."
+	echo 
+fi
 

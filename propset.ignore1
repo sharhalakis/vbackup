@@ -1,0 +1,17 @@
+configure
+Makefile.in
+conf
+config.log
+ChangeLog
+config.status
+autom4te.cache
+INSTALL
+COPYING
+missing
+aclocal.m4
+Makefile
+install-sh
+mkinstalldirs
+config.guess
+config.sub
+.*.swp
