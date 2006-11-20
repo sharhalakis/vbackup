@@ -11,6 +11,8 @@ AC_ARG_WITH( tar,
 	[GTAR="$with_tar"])
 
 # Checks for programs.
+
+# Check for GNU tar
 if test -z "$GTAR" ; then
 	AC_PATH_PROG([GTAR], [tar], [])
 fi
@@ -36,6 +38,9 @@ if ! test "$sbackup_cv_gtar" = "yes" ; then
 	GTAR=""
 fi
 
+# Check for xfsdump
+AC_PATH_PROG([XFSDUMP], [xfsdump], [], [$PATH:/sbin:/usr/sbin:/usr/local/sbin])
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -49,6 +54,7 @@ AC_SUBST([myconfdir], [${sysconfdir}/sbackup])
 AC_SUBST([sampledir], [${myconfdir}/samples])
 
 AC_SUBST([GTAR])
+AC_SUBST([XFSDUMP])
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
@@ -64,9 +70,18 @@ AC_CONFIG_FILES([Makefile
 		])
 AC_OUTPUT
 
+ERR=0
 if test -z "$GTAR" ; then
 	echo 
-	echo " * No GNU tar was found. The tar method will not be functional."
-	echo 
+	echo " * No GNU tar was found. The tar method will not function."
+	ERR=1
 fi
+
+if test -z "$XFSDUMP" ; then
+	echo 
+	echo " * xfsdump was not found. The xfsdump method will not function."
+	ERR=1
+fi
+
+test "x$ERR" = "x1" && echo
 
