@@ -21,7 +21,9 @@
 # Library helper functions
 #
 
-MESSAGE_LEVEL=8
+if [ -z "$MESSAGE_LEVEL" ] ; then
+	MESSAGE_LEVEL=8
+fi
 
 #
 # Return the current date in a custom format
