@@ -1,0 +1,201 @@
+#!/bin/sh
+#
+# Copyright (C) 2006 Stefanos Harhalakis
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# $Id: sbackup.in 691 2006-11-19 11:42:23Z v13 $
+#
+# The main backup script
+#
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+sbindir="@sbindir@"
+libexecdir="@libexecdir@"
+localstatedir="@localstatedir@"
+libdir="@libdir@"
+sysconfdir="@sysconfdir@"
+datadir="@datadir@"
+mybindir="@mybindir@"
+myscriptdir="@myscriptdir@"
+myconfdir="@myconfdir@"
+myhelperdir="@myhelperdir@"
+sampledir="@sampledir@"
+
+# Location of main programs
+B_BINDIR="$mybindir"
+# Location of backup scripts
+B_SCRIPTDIR="$myscriptdir"
+# Location of helper scripts
+B_HELPERDIR="$myhelperdir"
+
+source $B_HELPERDIR/common
+
+# TODO: Check for dialog in configure.in
+
+# TODO: Check for tempfile in configure.in
+T=`tempfile`
+trap "rm -f $tempfile" 0 1 2 5 15
+
+
+W=60
+H=7
+
+#
+# Determine the available methods
+# Sets:
+#	R_METHODS
+get_methods()
+{
+	local	a
+
+	R_METHODS=""
+	for a in $sampledir/* ; do
+		$b=${a#sample.}
+		R_METHODS="$R_METHODS $b"
+	done
+}
+
+# Return all entries
+# Sets:
+#	R_ENTRIES
+get_entries()
+{
+	R_ENTRIES=`find $D -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort`
+}
+
+#
+# TODO: A way to get the variables (required/optional)
+#
+
+#
+# Select one of the existing entries
+#
+do_select()
+{
+	local	FNS
+	local	a
+	local	S,C
+
+	get_entries
+
+	FNS="$R_ENTRIES"
+
+	S=""
+	C=1
+	for a in $FNS ; do
+		S="$S $a ''"
+		let C++
+	done
+
+	dialog --menu "Select configuration file" 0 0 $C $S 2>$T
+
+	echo $T >&2
+}
+
+do_view()
+{
+	local	FNS
+
+	get_entries
+
+	FNS="$R_ENTRIES"
+
+	S=""
+	C=0
+	for a in $FNS ; do
+		S="$S$a ''\n"
+		let C++
+	done
+
+	dialog --msgbox "$S" 0 0
+}
+
+do_edit()
+{
+	:
+}
+
+do_add()
+{
+	local	PRIO,C,S,a,METH,NAME
+
+	dialog --inputbox "Enter a two digit priority" 0 0 2>$T
+
+	PRIO=`cat $T`
+
+	C=0
+	S=""
+
+	for a in $R_METHODS ; do
+		$S="$S $a ''"
+		let C++
+	done
+
+	dialog --menu "Select the method" 0 0 $C $S 2>$T
+	METH=`cat $T`
+
+	dialog --inputbox "Enter a name" 0 0 2>$T
+	NAME=`cat $T`
+
+	FN="$PRIO-$NAME.$METH"
+}
+
+doit()
+{
+	dialog --clear --menu "Menu" 0 0 4 \
+		1 "View current entries" \
+		2 "Edit entry" \
+		3 "Add entry" \
+		4 "Quit" 2>$T
+
+	case `cat "$T"` in
+		1)
+			do_view
+			;;
+		2)
+			do_edit
+			;;
+		3)
+			do_add
+			;;
+		4)
+			return 1
+			;;
+	esac
+
+	return 0
+}
+
+if [ -z "$1" ] ; then
+	h_fatal 1 "Need the backup name as the first argument"
+fi
+
+D="$myconfdir/backup.$1"
+if ! [ -d "$D" ] ; then
+	if dialog --yesno "No such backup exists. Do you want to create it?" \
+		$H $W ; then
+		mkdir -p "$D"
+	else
+		h_msg 0 "Aborted"
+	fi
+fi
+
+get_methods
+
+while doit ; do : ; done
+
