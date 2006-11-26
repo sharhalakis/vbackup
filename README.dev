@@ -1,0 +1,87 @@
+Simple backup
+=============
+
+Tree:
+=====
+
+The installation layout should comply with the latest FHS (2.3 as of Nov 2006).
+Everything different than that should be reported as bug.
+
+${bindir}/			The sbackup program
+	
+${sysconfdir}/
+	sbackup/
+		rc.d/		Backup configurations
+		backup.daily/	Links to appropriate rc.d scripts
+		backup.weekly/	....
+		backup.monthly/	....
+		
+
+${datadir}/
+	sbackup/
+		bin/		Core scripts (run) used by sbackup
+				(They are standalone scripts)
+		helpers/	Helper scripts (not standalone)
+		scripts/	The backup scripts
+
+${docdir}/
+	sbackup/		Documentation
+		samples/	Sample configurations
+
+
+Backup scripts:
+===============
+
+Each backup script must provide:
+
+functions:
+----------
+do_help()		A function to display help and return
+do_check_conf()		Check whether all configuration variables are ok
+			Return: 0: OK, 1: Error
+			May display error messages
+do_run()		Do the backup
+
+variables:
+----------
+NAME			The script name ("psql")
+VERSION			The script version ("1.0.0")
+DESC			A short description ("Backup a postgresql database")
+COPYRIGHT		Copyright ("Copyright (c) 2006 Harhalakis Stefanos")
+LICENCE			The license of the script ("GPLv2")
+CONTACT			A contact email for bugreports etc ("v13@priest.com")
+
+It must return (from each function:
+-----------------------------------
+0	Everything were OK
+1	Error occured - continue backups
+2	Error occured - abort backup sequence
+
+Configuration files:
+====================
+
+Some configuration files may include a DESTDIR directive.
+It may contain the following special sequences:
+
+ * '%D1%' which will be replaced by YYMMDD of the current date
+   Example: /tmp/backups/filesystem/%D1%
+   will be converted to: /tmp/backups/filesystem/061117 (as of 17 Nov 2006)
+
+(to be extended with other formats)
+
+Configuration directives:
+=========================
+
+Configuration directives should preserve the same name across scripts  when
+possible. Common directives are (using regexp):
+
+ DESTDIR	Where to backup to
+ DATABASES	The databases to backup, for DB backups
+ PASSWORD	To hold a password
+ .*USER		To hold a username (examples: PGUSER, MYUSER etc..)
+ 
+NOTE! The directive USER should never be used. I repeat NEVER USE THE USER
+DIRECTIVE! Same thing applies for other well known directives that may be
+set by sh/bash.
+
+

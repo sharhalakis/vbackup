@@ -2,19 +2,21 @@
 #
 # Copyright (C) 2006 Stefanos Harhalakis
 #
-# This program is free software; you can redistribute it and/or modify
+# This file is part of sbackup.
+#
+# sbackup is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
+#
+# sbackup is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# along with sbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 #
 # $Id$
 #
@@ -22,50 +24,82 @@
 #
 
 prefix="@prefix@"
-exec_prefix="@exec_prefix@"
-bindir="@bindir@"
-sbindir="@sbindir@"
-libexecdir="@libexecdir@"
-localstatedir="@localstatedir@"
-libdir="@libdir@"
-sysconfdir="@sysconfdir@"
+datarootdir="@datarootdir@"
 datadir="@datadir@"
-mybindir="@mybindir@"
-myscriptdir="@myscriptdir@"
-myconfdir="@myconfdir@"
 myhelperdir="@myhelperdir@"
-sampledir="@sampledir@"
 
-# Location of main programs
-B_BINDIR="$mybindir"
-# Location of backup scripts
-B_SCRIPTDIR="$myscriptdir"
-# Location of helper scripts
-B_HELPERDIR="$myhelperdir"
+source $myhelperdir/common
 
-source $B_HELPERDIR/common
+do_version_head()
+{
+	cat << _END
+$PACKAGE_NAME v$PACKAGE_VERSION
+_END
+#$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006 Harhalakis Stefanos
+}
+
+do_version_bugreport()
+{
+	cat << _END
+Report bugs to $PACKAGE_BUGREPORT
+_END
+}
+
+# Show version and copyright information
+do_version()
+{
+	cat << _END
+$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006 Harhalakis Stefanos \
+$PACKAGE_BUGREPORT
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+Report bugs to $PACKAGE_BUGREPORT
+
+_END
+}
 
 # Show generic help
 do_help()
 {
+	do_version_head
 	cat << _END
 Usage:
 	sbackup <backup configuration dir>
 		To perform backup based on this dir
 
-     or sbackup --list
+     or sbackup [-d <level>] --list
 		To list all available backup scripts
 
-     or sbackup --check <back configuration dir>
+     or sbackup [-d <level>] --check <back configuration dir>
                 To check configuration for all files in dir
 
      or sbackup --help
                 To get this help
 
-        Directories must be absolute paths or they will be prepended
+     or sbackup --help <module>
+                To get module specific information
+
+        Directories must given as absolute paths or they will be prepended
 	with $myconfdir
 
+	-d <level>  Set the message level to <level> (default level is \
+$MESSAGE_LEVEL):
+		    1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
+		    5: Rare messages, 6: Usefull message, 7: Not so usefull
+		    10-14: Debug messages that don't flood
+		    15-19: Debug messages that flood
+
 _END
+	do_version_bugreport
 	exit 0
 }
 
@@ -82,8 +116,52 @@ validate_dir()
 # List available scripts
 do_list()
 {
+	do_version_head
 	$B_BINDIR/run --list
 	exit 0
+}
+
+# Common part for run/check
+# $1:	run, check indicating what to do
+# $2:	CONFDIR
+do_run_check_common()
+{
+	local	F
+	local	D
+	local	T
+
+	CONFDIR="$2"
+
+	if [ "$1" != "run" ] && [ "$1" != "check" ] ; then
+		h_fatal 1 "Bug argument to do_run_check_common()"
+	fi
+
+	cd "$CONFDIR"
+	find . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
+		while read fn ; do
+			F=${fn#./}
+			D=`echo "$F" | awk -F . '{print $NF}'`
+			T=`echo "$F" | grep '^[0-9]'`
+			h_msg 11 "T - D: $T - $D"
+			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
+				h_msg 11 "$fn -> $D"
+				if [ "$1" = "run" ] ; then
+					$B_BINDIR/run "$D" "$T" < /dev/tty
+					case "$?" in
+						1)
+							h_error "$D exited with errors (non-fatal)"
+							;;
+						2)
+							h_fatal -x "$D exited with errors"
+							return
+							;;
+					esac
+				else
+					h_msg 7 "Checking $T..."
+					$B_BINDIR/run "$D" --check "$T" < /dev/tty
+				fi
+			fi
+		done
 }
 
 # Check configuration
@@ -106,6 +184,17 @@ do_check()
 
 	validate_dir "$CONFDIR"
 	# TODO:
+
+	do_run_check_common check "$CONFDIR"
+}
+
+# Display script help
+# $1 is the script name
+do_script_help()
+{
+	do_version_head
+
+	$B_BINDIR/run "$1" --help
 }
 
 # Run the backup configuration files
@@ -127,6 +216,10 @@ do_run()
 	h_msg 6 "Using $CONFDIR"
 
 	validate_dir "$CONFDIR"
+
+	do_run_check_common check "$CONFDIR"
+
+	return
 
 	# TODO: Run, check exit code
 	cd "$CONFDIR"
@@ -152,10 +245,20 @@ do_run()
 		done
 }
 
+if [ "x$1" = "x-d" ] ; then
+	export MESSAGE_LEVEL="$2"
+	shift
+	shift
+fi
+
 case "$1" in
 	--help)
 		# Display generic help
-		do_help
+		if [ -z "$2" ] ; then
+			do_help
+		else
+			do_script_help "$2"
+		fi
 		;;
 	--list)
 		# List all available backup scripts
@@ -167,6 +270,9 @@ case "$1" in
 			do_help
 		fi
 		do_check "$2"
+		;;
+	--version)
+		do_version
 		;;
 	*)
 		# Assume that $1 is the configuration dir name

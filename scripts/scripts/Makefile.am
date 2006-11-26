@@ -1,1 +1,3 @@
-SUBDIRS = mount db misc fs
+SUBDIRS		= mount db misc fs
+
+EXTRA_DIST	= skel

@@ -1,25 +1,58 @@
 #!/bin/sh
 #
-# Copyright (C) 2006 Stefanos Harhalakis
+# This file is part of sbackup.
 #
-# This program is free software; you can redistribute it and/or modify
+# sbackup is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
+#
+# sbackup is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# along with sbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 #
 # $Id$
 #
 # Library helper functions
 #
+
+# autoconf directories
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+sbindir="@sbindir@"
+libexecdir="@libexecdir@"
+localstatedir="@localstatedir@"
+libdir="@libdir@"
+sysconfdir="@sysconfdir@"
+datarootdir="@datarootdir@"
+datadir="@datadir@"
+mybindir="@mybindir@"
+myscriptdir="@myscriptdir@"
+myconfdir="@myconfdir@"
+myhelperdir="@myhelperdir@"
+sampledir="@sampledir@"
+
+# Package information
+PACKAGE_NAME="@PACKAGE_NAME@"
+PACKAGE_VERSION="@PACKAGE_VERSION@"
+PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
+
+# Program locations
+XFSDUMP="@XFSDUMP@"
+GTAR="@GTAR"
+
+# Location of main programs
+B_BINDIR="$mybindir"
+# Location of backup scripts
+B_SCRIPTDIR="$myscriptdir"
+# Location of helper scripts
+B_HELPERDIR="$myhelperdir"
 
 if [ -z "$MESSAGE_LEVEL" ] ; then
 	MESSAGE_LEVEL=8

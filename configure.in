@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([sbackup], [0.0.1], [v13@priest.com])
-AM_INIT_AUTOMAKE(sbackup, 0.0.1)
+AC_INIT([sbackup], [0.1.0], [v13@priest.com])
+AM_INIT_AUTOMAKE(sbackup, 0.1.0)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
@@ -51,7 +51,8 @@ AC_SUBST([mybindir], [${datadir}/sbackup/bin])
 AC_SUBST([myhelperdir], [${datadir}/sbackup/helpers])
 AC_SUBST([myscriptdir], [${datadir}/sbackup/scripts])
 AC_SUBST([myconfdir], [${sysconfdir}/sbackup])
-AC_SUBST([sampledir], [${myconfdir}/samples])
+dnl AC_SUBST([sampledir], [${myconfdir}/samples])
+AC_SUBST([sampledir], [${docdir}/samples])
 
 AC_SUBST([GTAR])
 AC_SUBST([XFSDUMP])
@@ -62,6 +63,7 @@ AC_CONFIG_FILES([Makefile
 		scripts/bin/Makefile
 		scripts/bin/run
 		scripts/bin/sbackup
+		scripts/bin/common
 		scripts/scripts/Makefile
 		scripts/scripts/mount/Makefile
 		scripts/scripts/db/Makefile
