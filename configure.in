@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([sbackup], [0.1.0], [v13@priest.com])
+AC_INIT([sbackup], [0.1.0], [v13@v13.gr])
 AM_INIT_AUTOMAKE(sbackup, 0.1.0)
 
 AC_ARG_WITH( tar,

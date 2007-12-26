@@ -161,6 +161,7 @@ do_script_run()
 	validate_script "$1"
 	validate_conf "$2"
 
+	export DESTDIR=""
 	(
 	# Source the script
 	. "$B_SCRIPTDIR/$1"
@@ -170,6 +171,15 @@ do_script_run()
 
 	if ! do_check_conf ; then
 		exit 1
+	fi
+
+	# If this script has the DESTDIR variable then prepend it with
+	# DESTDIR0 and transform it as needed
+	if [ ! -z "$DESTDIR" ] ; then
+		h_formdest "$DESTDIR"
+		DESTDIR="$R_DESTDIR"
+		h_ensuredestdir "$DESTDIR"
+		h_msg 11 "DESTDIR: $DESTDIR"
 	fi
 
 	do_run

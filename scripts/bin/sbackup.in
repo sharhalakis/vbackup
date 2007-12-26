@@ -49,7 +49,7 @@ _END
 do_version()
 {
 	cat << _END
-$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006 Harhalakis Stefanos \
+$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2007 Harhalakis Stefanos \
 $PACKAGE_BUGREPORT
 
     This program is free software; you can redistribute it and/or modify
@@ -88,7 +88,10 @@ Usage:
      or sbackup --help <module>
                 To get module specific information
 
-        Directories must given as absolute paths or they will be prepended
+     or sbackup --version
+                To get version and license information
+
+        Directories must be given as absolute paths or they will be prepended
 	with $myconfdir
 
 	-d <level>  Set the message level to <level> (default level is \
@@ -121,20 +124,60 @@ do_list()
 	exit 0
 }
 
+# Set the CONFDIR variable
+# $1 is the directory
+set_confdir()
+{
+	if [ ! "$1" = "${1#.}" ] ; then
+		h_error "Bad path: $1"
+		h_error "Path must not begin with a dot"
+		exit 1
+	fi
+
+	if [ "$1" = "${1#/}" ] ; then
+		CONFDIR="${myconfdir}/backup.$1"
+	else
+		CONFDIR="$1"
+	fi
+
+	h_msg 6 "Using $CONFDIR"
+
+	validate_dir "$CONFDIR"
+}
+
+# Read global configuration file if available
+read_global_conf()
+{
+	local	G
+
+	G="$CONFDIR/sbackup.conf"
+
+	if ! [ -f "$G" ] ; then
+		h_fatal 1 "Global backup configuration file:\n$G\ndoes not exist"
+	fi
+
+	h_msg 7 "Reading: $G"
+
+	. $G
+}
+
 # Common part for run/check
 # $1:	run, check indicating what to do
-# $2:	CONFDIR
 do_run_check_common()
 {
 	local	F
 	local	D
 	local	T
 
-	CONFDIR="$2"
-
 	if [ "$1" != "run" ] && [ "$1" != "check" ] ; then
 		h_fatal 1 "Bug argument to do_run_check_common()"
 	fi
+
+	# If this becomes one, then all scripts should exit without doing
+	# aything at all, unless there is a very good reason (like umount)
+	export ABORT=0
+
+	export DESTDIR0
 
 	cd "$CONFDIR"
 	find . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
@@ -155,6 +198,9 @@ do_run_check_common()
 							h_fatal -x "$D exited with errors"
 							return
 							;;
+						3)
+							h_fatal 1 "$D exited with errors"
+							;;
 					esac
 				else
 					h_msg 7 "Checking $T..."
@@ -168,24 +214,11 @@ do_run_check_common()
 # $1 is the directory
 do_check()
 {
-	local CONFDIR
+	set_confdir "$1"
 
-	if [ ! "$1" = "${1#.}" ] ; then
-		h_error "Bad path: $1"
-		h_error "Path must not begin with a dot"
-		exit 1
-	fi
+	read_global_conf
 
-	if [ "$1" = "${1#/}" ] ; then
-		CONFDIR="${myconfdir}/backup.$1"
-	else
-		CONFDIR="$1"
-	fi
-
-	validate_dir "$CONFDIR"
-	# TODO:
-
-	do_run_check_common check "$CONFDIR"
+	do_run_check_common check
 }
 
 # Display script help
@@ -201,48 +234,11 @@ do_script_help()
 # $1 is the directory
 do_run()
 {
-	if [ ! "$1" = "${1#.}" ] ; then
-		h_error "Bad path: $1"
-		h_error "Path must not begin with a dot"
-		exit 1
-	fi
+	set_confdir "$1"
 
-	if [ "$1" = "${1#/}" ] ; then
-		CONFDIR="${myconfdir}/backup.$1"
-	else
-		CONFDIR="$1"
-	fi
+	read_global_conf
 
-	h_msg 6 "Using $CONFDIR"
-
-	validate_dir "$CONFDIR"
-
-	do_run_check_common check "$CONFDIR"
-
-	return
-
-	# TODO: Run, check exit code
-	cd "$CONFDIR"
-	find . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
-		while read fn ; do
-			F=${fn#./}
-			D=`echo "$F" | awk -F . '{print $NF}'`
-			T=`echo "$F" | grep '^[0-9]'`
-			h_msg 11 "T - D: $T - $D"
-			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
-				h_msg 11 "$fn -> $D"
-				$B_BINDIR/run "$D" "$T" < /dev/tty
-				case "$?" in
-					1)
-						h_error "$D exited with errors (non-fatal)"
-						;;
-					2)
-						h_fatal -x "$D exited with errors"
-						return
-						;;
-				esac
-			fi
-		done
+	do_run_check_common run
 }
 
 if [ "x$1" = "x-d" ] ; then
@@ -273,6 +269,9 @@ case "$1" in
 		;;
 	--version)
 		do_version
+		;;
+	-*)
+		do_help
 		;;
 	*)
 		# Assume that $1 is the configuration dir name

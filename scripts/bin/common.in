@@ -45,7 +45,7 @@ PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
 
 # Program locations
 XFSDUMP="@XFSDUMP@"
-GTAR="@GTAR"
+GTAR="@GTAR@"
 
 # Location of main programs
 B_BINDIR="$mybindir"
@@ -81,10 +81,13 @@ h_formdate()
 h_formdest()
 {
 	local D1
+	local T
 
 	D1=`h_formdate 1`
 
-	R_DESTDIR=`echo "$1" | sed "s,%D1%,$D1,g"`
+	T=`echo "$1" | sed "s,%D1%,$D1,g"`
+
+	R_DESTDIR="$DESTDIR0/$T/"
 }
 
 #
@@ -109,7 +112,9 @@ h_ensuredir()
 #
 h_ensuredestdir()
 {
-	h_msg 7 "Creating $1 (DESTDIR)"
+	if ! [ -d "$1" ] ; then
+		h_msg 5 "Creating $1 (DESTDIR)"
+	fi
 	h_ensuredir "$1" "$2"
 }
 
@@ -190,7 +195,7 @@ h_warn()
 #	and life goes on as expected
 #
 # TODO:
-#	Add loggin to file ? 
+#	Add loging to file ? 
 #	Add timestamp for debuging messages ?
 #
 h_msg()
@@ -209,9 +214,9 @@ h_msg()
 	[ "$L" -gt "$MESSAGE_LEVEL" ]  && return
 
 	if [ "$L" -lt 10 ] ; then
-		echo $N "$*"
+		echo -e $N "$*"
 	else
-		echo $N "L$L: $*"
+		echo -e $N "L$L: $*"
 	fi
 
 	return 0
@@ -240,5 +245,45 @@ h_fixmsg()
 	done
 
 	echo -n "$T"
+}
+
+#
+# Check whether a variable is true or false
+#
+# True is 1, yes, on
+# False is 0, no, off
+# Everything else is error and returns the default
+#
+#	$1	Value to check
+#	$2	Default value (used when $1 is empty)
+#
+# Return:
+#	0: True
+#	1: False
+#	2: Error
+#
+h_is_true()
+{
+	local T
+
+	if [ -z "$1" ] ; then
+		T="$2"
+	else
+		T="$1"
+	fi
+
+	T=`echo "$T" | sed 's/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/g'`
+
+	case "$T" in
+		yes|y|1|on)
+			return 0
+			;;
+		no|n|0|off)
+			return 1
+			;;
+		*)
+			return 2
+			;;
+	esac
 }
 

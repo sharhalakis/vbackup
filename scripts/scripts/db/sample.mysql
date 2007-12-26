@@ -8,7 +8,7 @@
 #
 
 # The username to use (required)
-MYUSER="backup"
+MYUSER="root"
 
 # password
 # This is insecure. Anyone will be able to get this password!
@@ -24,6 +24,9 @@ MYUSER="backup"
 # Use - to backup all available databases
 DATABASES="-"
 
-# The destination directory
+# The destination directory (required)
 #DESTDIR="/tmp/backup/mysql/%D1%"
 
+# Include CREATE DATABASE statements in dumps
+# Default: no
+#CREATEDB="yes"

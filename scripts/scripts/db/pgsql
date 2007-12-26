@@ -31,8 +31,8 @@ NAME="pgsql"
 VERSION="1.0.0"
 DESC="Backup PostgreSQL databases"
 LICENSE="GPLv2"
-COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"
-CONTACT="v13@priest.com"
+COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
+CONTACT="v13@v13.gr"
 
 # Display help
 do_help()
@@ -47,7 +47,9 @@ Configuration options:
 	PGDUMP		The path to pg_dump executable
 	SUUSER		Do an 'su' to this user (example: postgres)
 	DESTDIR		The destination directory (required)
-	ALL		Dump template[0-9] too (y/n)
+	CREATEDB	Include CREATE DATABASE statements (y/N)
+	GLOBALS		Where to dump global objects (Default: "globals")
+	ALL		Dump template[1-9] too (Y/n)
 _END
 }
 
@@ -65,6 +67,10 @@ do_check_conf()
 # Do backup
 do_run()
 {
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
 	# Initialize
 	if [ -z "$PSQL" ] ; then
 		PSQL="psql";
@@ -89,8 +95,14 @@ do_run()
 		export PGPASSWORD="$PASSWORD"
 	fi
 
-	if [ "$ALL" = "y" ] || [ "$ALL" = "Y" ] ; then
-		P_FILT1=""
+	# Extra parameters for dumping
+	P_DUMPPARAMS=""
+	if h_is_true "$CREATEDB" "1" ; then
+		P_DUMPPARAMS="$P_PARAMS -C"
+	fi
+
+	if h_is_true "$ALL" "yes" ; then
+		P_FILT1="| grep -v 'template0'"
 	else
 		P_FILT1="| grep -v 'template[0-9]'"
 	fi
@@ -100,33 +112,19 @@ do_run()
 			cut -f 1 -d, $P_FILT1"
 		if [ -z "$SUUSER" ] ; then
 			DATABASES=`$CMD`
-#			DATABASES=`$PSQL -F , -A $P_USER\
-#					-P tuples_only -P pager=off -l | \
-#					cut -f 1 -d, | \
-#					grep -v template0`
 		else
 			DATABASES=`su - $SUUSER -c "$CMD"`
-#			DATABASES=`su - $SUUSER -c "$PSQL -F , -A $P_USER\
-#					-P tuples_only -P pager=off -l | \
-#					cut -f 1 -d, | \
-#					grep -v template0"`
 		fi
 	fi
 
-	h_formdest "$DESTDIR"
-	h_ensuredir "$R_DESTDIR"
-
 	FIRST=1
 	for db in $DATABASES ; do
-		h_msg 6 "Dumping: $db to $R_DESTDIR/$db.gz"
-		CMD="$PGDUMP $P_USER $db"
+		h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
+		CMD="$PGDUMP $P_USER $P_DUMPPARAMS $db"
 		if [ -z "$SUUSER" ] ; then
-			$CMD
-#			$PGDUMP $P_USER $db | gzip > $R_DESTDIR/$db.gz
+			$CMD | gzip > $DESTDIR/$db.gz
 		else
-			su - $SUUSER -c "$CMD" | gzip > $R_DESTDIR/$db.gz
-#			su - $SUUSER -c "$PGDUMP $P_USER $db" | \
-#				gzip > $R_DESTDIR/$db.gz
+			su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$db.gz
 		fi
 	done
 }

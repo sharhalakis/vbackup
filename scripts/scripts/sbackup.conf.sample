@@ -1,0 +1,12 @@
+# Per backup global configuration file
+#
+# This file holds per-backup configuration options and should reside in
+# etc/sbackup/backup.XXXX/
+#
+# $Id: sample.tar 692 2006-11-19 15:50:11Z v13 $
+#
+
+# A directory where backups will be stored
+# All other DESTDIR directived are relative to this one
+DESTDIR0=""
+

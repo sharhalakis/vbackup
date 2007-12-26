@@ -31,9 +31,9 @@ DESC=""
 # The license of this module
 LICENSE="GPLv2"
 # A copyright statement
-COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"
+COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
 # A contact email for bugreports etc
-CONTACT="v13@priest.com"
+CONTACT="v13@v13.gr"
 
 # Display help
 do_help()
@@ -56,5 +56,8 @@ do_check_conf()
 # Do backup
 do_run()
 {
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
 }
 

@@ -13,6 +13,7 @@ ${sysconfdir}/
 	sbackup/
 		rc.d/		Backup configurations
 		backup.daily/	Links to appropriate rc.d scripts
+			sbackup.conf	Per backup global configuration file
 		backup.weekly/	....
 		backup.monthly/	....
 		
@@ -49,13 +50,33 @@ VERSION			The script version ("1.0.0")
 DESC			A short description ("Backup a postgresql database")
 COPYRIGHT		Copyright ("Copyright (c) 2006 Harhalakis Stefanos")
 LICENCE			The license of the script ("GPLv2")
-CONTACT			A contact email for bugreports etc ("v13@priest.com")
+CONTACT			A contact email for bugreports etc ("v13@v13.gr")
 
-It must return (from each function:
------------------------------------
+It may expect:
+--------------
+  * If the configuration file includes a DESTDIR options, it will be
+    prepended with the DESTDIR0 prefix. It will also be transformed
+    by changed %X% variables (for example %D1%)
+  * A variable named ABORT is set to 1 if a script previously exited with
+    error code 2 (see bellow). Most scripts should abort with exit code 0
+    when they detect this. For example: a script that checks for free space
+    may exit with error code 2. The ABORT variable will be set automatically.
+    All backup scripts must detect this and do nothing. The umount script
+    will ignore this and actually try to umount the directory.
+
+It must return (from each function):
+------------------------------------
 0	Everything were OK
 1	Error occured - continue backups
 2	Error occured - abort backup sequence
+3	Error occured - force abort of backup sequence
+
+Notes:
+  * When a script returns 2, the flag ABORT is set to 1. This is
+    checked by backup scripts and they will not do anything at all.
+    Scripts like umount may ignore this and umount the directory
+  * When a script returns 3, the backup is immediately aborted.
+    This sould be used by scripts like mount
 
 Configuration files:
 ====================

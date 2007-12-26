@@ -30,3 +30,19 @@ DATABASES="-"
 # The destination directory
 #DESTDIR="/tmp/backup/pgsql/%D1%"
 
+# Include create database statements (yes/no)
+# Default: yes
+#CREATEDB="yes"
+
+# Dump global objects to this filename
+# Global objects will not be dumped if this is defined to be empty
+# Default is "globals". You'll need to change this if you have a database
+# named like this.
+# Default: globals
+#GLOBALS="globals"
+
+# Dump template[1-9] databases too. Database template0 is never dumped since 
+# it is not needed and postgresql does not allow ita
+# Default: yes
+#ALL="yes"
+

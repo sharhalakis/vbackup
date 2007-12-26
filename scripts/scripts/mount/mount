@@ -27,7 +27,7 @@ VERSION="1.0.0"
 DESC="Mount a partition"
 LICENSE="GPLv2"
 COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"
-CONTACT="v13@priest.com"
+CONTACT="v13@v13.gr"
 
 # Display help
 do_help()
@@ -76,7 +76,7 @@ do_run()
 		h_msg 6 "Mounted $MOUNTPOINT"
 	else
 		h_error "Failed to mount $MOUNTPOINT"
-		R=2
+		R=3
 	fi
 
 	return $R
