@@ -93,25 +93,17 @@ do_run()
 
 	if [ "$DATABASES" = "-" ] ; then
 		DATABASES=`$MYSQL -u $MYUSER --disable-pager --batch \
-				-e 'show databases'`
+				-se 'show databases'`
 	fi
 
 	if ! [ "$?" = 0 ] ; then
 		return 1
 	fi
 
-#	h_formdest "$DESTDIR"
-#	h_ensuredir "$DESTDIR"
-
-	FIRST=1
 	for db in $DATABASES ; do
-		if [ "$FIRST" = "1" ] ; then
-			FIRST="0"
-		else
-			h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
-			$MYSQLDUMP -u $MYUSER -a $P $db \
-				| gzip > $DESTDIR/$db.gz
-		fi
+		h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
+		$MYSQLDUMP -u $MYUSER -a $P $db \
+			| gzip > $DESTDIR/$db.gz
 	done
 }
 
