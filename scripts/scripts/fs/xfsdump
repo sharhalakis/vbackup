@@ -61,7 +61,7 @@ do_check_conf()
 	[ -z "$PARTITIONS" ] && h_error "Missing PARTITIONS" && return 1
 	[ -z "$DESTDIR" ] && h_error "Missing DESTDIR" && return 1
 
-	tmp=`expr $1 + 1 >/dev/null 2>&1 || echo koko`
+	tmp=`expr $LEVEL + 1 >/dev/null 2>&1 || echo koko`
 
 	[ "$tmp" = "koko" ] && h_error "LEVEL must be a number" && return 1
 
@@ -85,9 +85,11 @@ do_dump()
 		return 1
 	fi
 
+	h_msg 6 "Dumping $1 to $2"
+
 	T_M="-M '$MEDLABEL'"
 
-	if ! $XFSDUMP -l $LEVEL $T_M -L "$1" -f $2 "$1" ; then
+	if ! $XFSDUMP -l $LEVEL $T_M -L "$1" -f "$2" "$1" ; then
 		return 1
 	fi
 }
@@ -99,11 +101,17 @@ do_run()
 		return 0
 	fi
 
-#	h_formdest "$DESTDIR"
-#	h_ensuredestdir "$DESTDIR"
-
 	for part in $PARTITIONS ; do
 		FN=`echo "${part}" | sed s,^/,, | sed s,/,.,g`
+		if [ "$FN" = "root" ] ; then
+			# Worst case scenario
+			# In case someone crazy enough mounted /root to a
+			# partition of its own
+			$FN="root."
+		fi
+		if [ -z "$FN" ] ; then
+			FN="root"
+		fi
 		if ! do_dump $part $DESTDIR/$FN ; then
 			h_error "Backup of $part failed"
 			return 1

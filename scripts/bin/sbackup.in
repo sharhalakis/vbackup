@@ -28,7 +28,7 @@ datarootdir="@datarootdir@"
 datadir="@datadir@"
 myhelperdir="@myhelperdir@"
 
-source $myhelperdir/common
+. $myhelperdir/common
 
 do_version_head()
 {
@@ -180,7 +180,7 @@ do_run_check_common()
 	export DESTDIR0
 
 	cd "$CONFDIR"
-	find . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
+	$GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
 		while read fn ; do
 			F=${fn#./}
 			D=`echo "$F" | awk -F . '{print $NF}'`

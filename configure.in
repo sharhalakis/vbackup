@@ -10,6 +10,11 @@ AC_ARG_WITH( tar,
 		[Full path to GNU tar])	],
 	[GTAR="$with_tar"])
 
+AC_ARG_WITH( find,
+	[AC_HELP_STRING([--with-find=PATH],
+		[Full path to GNU find])],
+	[GFIND="$with_find"])
+
 # Checks for programs.
 
 # Check for GNU tar
@@ -17,29 +22,65 @@ if test -z "$GTAR" ; then
 	AC_PATH_PROG([GTAR], [tar], [])
 fi
 
+if test -z "$GFIND" ; then
+	AC_PATH_PROG([GFIND], [find], [])
+fi
+
 AC_CACHE_CHECK(
-	[whether we have GNU tar],
+	[for GNU tar],
 	[sbackup_cv_gtar],
 	[
 	 	if test -z "$GTAR" ; then
-			sbackup_cv_gtar="-"
+			sbackup_cv_gtar="no"
 		else
 			T=`$GTAR --version 2>&1 |grep 'GNU'`
 			if test -z "$T" ; then
-				GTAR=""
 				sbackup_cv_gtar="no"
 			else
-				sbackup_cv_gtar="yes"
+				sbackup_cv_gtar="$GTAR"
 			fi
 		fi
 	])
 
-if ! test "$sbackup_cv_gtar" = "yes" ; then
+if test "$sbackup_cv_gtar" = "no" ; then
 	GTAR=""
+else
+	GTAR="$sbackup_cv_gtar"
+fi
+
+# Check for GNU find
+AC_CACHE_CHECK(
+	[for GNU find],
+	[sbackup_cv_gfind],
+	[
+	 	if test -z "$GFIND" ; then
+			sbackup_cv_gfind="no"
+		else
+			T=`$GFIND --version 2>&1 |grep 'GNU'`
+			if test -z "$T" ; then
+				sbackup_cv_gfind="no"
+			else
+				sbackup_cv_gfind="$GFIND"
+			fi
+		fi
+	])
+
+if test "$sbackup_cv_gfind" = "no" ; then
+	GFIND=""
+else
+	GFIND="$sbackup_cv_gfind"
 fi
 
 # Check for xfsdump
 AC_PATH_PROG([XFSDUMP], [xfsdump], [], [$PATH:/sbin:/usr/sbin:/usr/local/sbin])
+
+# Check for echo that accepts newlines
+T=`echo -e ""`
+if test -z "$T" ; then
+	ECHO_E="echo -e"
+else
+	ECHO_E="echo"
+fi
 
 # Checks for libraries.
 
@@ -55,7 +96,9 @@ dnl AC_SUBST([sampledir], [${myconfdir}/samples])
 AC_SUBST([sampledir], [${docdir}/samples])
 
 AC_SUBST([GTAR])
+AC_SUBST([GFIND])
 AC_SUBST([XFSDUMP])
+AC_SUBST([ECHO_E])
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
@@ -76,6 +119,12 @@ ERR=0
 if test -z "$GTAR" ; then
 	echo 
 	echo " * No GNU tar was found. The tar method will not function."
+	ERR=1
+fi
+
+if test -z "$GFIND" ; then
+	echo 
+	echo " * No GNU find was found. This script will not work."
 	ERR=1
 fi
 

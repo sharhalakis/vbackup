@@ -45,7 +45,9 @@ PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
 
 # Program locations
 XFSDUMP="@XFSDUMP@"
+GFIND="@GFIND@"
 GTAR="@GTAR@"
+ECHO_E="@ECHO_E@"
 
 # Location of main programs
 B_BINDIR="$mybindir"
@@ -214,9 +216,9 @@ h_msg()
 	[ "$L" -gt "$MESSAGE_LEVEL" ]  && return
 
 	if [ "$L" -lt 10 ] ; then
-		echo -e $N "$*"
+		$ECHO_E $N "$*"
 	else
-		echo -e $N "L$L: $*"
+		$ECHO_E $N "L$L: $*"
 	fi
 
 	return 0

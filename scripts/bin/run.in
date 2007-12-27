@@ -28,7 +28,7 @@ datarootdir="@datarootdir@"
 datadir="@datadir@"
 myhelperdir="@myhelperdir@"
 
-source $myhelperdir/common
+. $myhelperdir/common
 
 # Show generic help
 do_gen_help()
