@@ -45,6 +45,7 @@ Configuration options:
 	STATEDIR	A directory to hold last backup state. If it is not
 			an absolute path it will be prefixed by:
 			"$localstatedir/sbackup" (required)
+	ROOTFN		The name to give to the root fs tar file (if any)
 
   * Exactly one of DIRS/DIRFILE is required
 _END
@@ -175,9 +176,6 @@ do_run()
 			awk 'BEGIN {RS=" "} {printf("--exclude=\"%s\" ", $0)}'`
 	fi
 
-#	h_formdest "$DESTDIR"
-#	h_ensuredestdir "$DESTDIR"
-
 	if ! [ -d "$STATEDIR" ] ; then
 		h_msg 5 "Creating $STATEDIR (STATEDIR)"
 		h_ensuredir "$STATEDIR"
@@ -192,6 +190,12 @@ do_run()
 	for dir in $T_BDIRS ; do
 		h_msg 6 "----------------------------------------"
 		FN=`echo "${dir}" | sed s,^/,, | sed s,/,.,g`
+		if [ -z "$FN" ] ; then
+			FN="$ROOTFN"
+			if [ -z "$FN" ] ; then
+				FN="root"
+			fi
+		fi
 		h_msg 6 "$dir -> $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
 		(
 			STATEFILE="$STATEDIR/$LEVEL.$FN"

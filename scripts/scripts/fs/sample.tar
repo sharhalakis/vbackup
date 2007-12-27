@@ -32,3 +32,6 @@ EXCLUDE="*.iso"
 # The destination directory (required)
 #DESTDIR="/tmp/backup/fs/%D1%"
 
+# The name to give to the root filesystem tar file
+# Default: root
+#ROOTFN="root"
