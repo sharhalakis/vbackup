@@ -1,5 +1,5 @@
-VBackup - A module simple backup program
-========================================
+VBackup - A modular backup utility
+==================================
 
 This is a collection of scripts that perform backup to systems.
 It should support most of the unices out there (everything different should be

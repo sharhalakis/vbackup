@@ -136,3 +136,5 @@ fi
 
 test "x$ERR" = "x1" && echo
 
+true
+
