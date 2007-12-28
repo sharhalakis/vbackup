@@ -27,10 +27,10 @@ EXCLUDE="*.iso"
 
 # A path to hold last backup dates. This directory should be
 # persistent for incremental backups to work
-#STATEDIR="/var/backup/state"
+#STATEDIR="/var/lib/vbackup/state"
 
 # The destination directory (required)
-#DESTDIR="/tmp/backup/fs/%D1%"
+#DESTDIR="fs/%D1%"
 
 # The name to give to the root filesystem tar file
 # Default: root

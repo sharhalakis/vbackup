@@ -28,7 +28,7 @@ PGUSER="backup"
 DATABASES="-"
 
 # The destination directory
-#DESTDIR="/tmp/backup/pgsql/%D1%"
+#DESTDIR="pgsql/%D1%"
 
 # Include create database statements (yes/no)
 # Default: yes

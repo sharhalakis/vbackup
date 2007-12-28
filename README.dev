@@ -7,26 +7,26 @@ Tree:
 The installation layout should comply with the latest FHS (2.3 as of Nov 2006).
 Everything different than that should be reported as bug.
 
-${bindir}/			The sbackup program
+${bindir}/			The vbackup program
 	
 ${sysconfdir}/
-	sbackup/
+	vbackup/
 		rc.d/		Backup configurations
 		backup.daily/	Links to appropriate rc.d scripts
-			sbackup.conf	Per backup global configuration file
+			vbackup.conf	Per backup global configuration file
 		backup.weekly/	....
 		backup.monthly/	....
 		
 
 ${datadir}/
-	sbackup/
-		bin/		Core scripts (run) used by sbackup
+	vbackup/
+		bin/		Core scripts (run) used by vbackup
 				(They are standalone scripts)
 		helpers/	Helper scripts (not standalone)
 		scripts/	The backup scripts
 
 ${docdir}/
-	sbackup/		Documentation
+	vbackup/		Documentation
 		samples/	Sample configurations
 
 

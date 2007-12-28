@@ -25,7 +25,7 @@ MYUSER="root"
 DATABASES="-"
 
 # The destination directory (required)
-#DESTDIR="/tmp/backup/mysql/%D1%"
+#DESTDIR="mysql/%D1%"
 
 # Include CREATE DATABASE statements in dumps
 # Default: no

@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([sbackup], [0.1.0], [v13@v13.gr])
-AM_INIT_AUTOMAKE(sbackup, 0.1.0)
+AC_INIT([vbackup], [0.1.0], [v13@v13.gr])
+AM_INIT_AUTOMAKE(vbackup, 0.1.0)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
@@ -28,47 +28,47 @@ fi
 
 AC_CACHE_CHECK(
 	[for GNU tar],
-	[sbackup_cv_gtar],
+	[vbackup_cv_gtar],
 	[
 	 	if test -z "$GTAR" ; then
-			sbackup_cv_gtar="no"
+			vbackup_cv_gtar="no"
 		else
 			T=`$GTAR --version 2>&1 |grep 'GNU'`
 			if test -z "$T" ; then
-				sbackup_cv_gtar="no"
+				vbackup_cv_gtar="no"
 			else
-				sbackup_cv_gtar="$GTAR"
+				vbackup_cv_gtar="$GTAR"
 			fi
 		fi
 	])
 
-if test "$sbackup_cv_gtar" = "no" ; then
+if test "$vbackup_cv_gtar" = "no" ; then
 	GTAR=""
 else
-	GTAR="$sbackup_cv_gtar"
+	GTAR="$vbackup_cv_gtar"
 fi
 
 # Check for GNU find
 AC_CACHE_CHECK(
 	[for GNU find],
-	[sbackup_cv_gfind],
+	[vbackup_cv_gfind],
 	[
 	 	if test -z "$GFIND" ; then
-			sbackup_cv_gfind="no"
+			vbackup_cv_gfind="no"
 		else
 			T=`$GFIND --version 2>&1 |grep 'GNU'`
 			if test -z "$T" ; then
-				sbackup_cv_gfind="no"
+				vbackup_cv_gfind="no"
 			else
-				sbackup_cv_gfind="$GFIND"
+				vbackup_cv_gfind="$GFIND"
 			fi
 		fi
 	])
 
-if test "$sbackup_cv_gfind" = "no" ; then
+if test "$vbackup_cv_gfind" = "no" ; then
 	GFIND=""
 else
-	GFIND="$sbackup_cv_gfind"
+	GFIND="$vbackup_cv_gfind"
 fi
 
 # Check for xfsdump
@@ -88,10 +88,10 @@ fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
-AC_SUBST([mybindir], [${datadir}/sbackup/bin])
-AC_SUBST([myhelperdir], [${datadir}/sbackup/helpers])
-AC_SUBST([myscriptdir], [${datadir}/sbackup/scripts])
-AC_SUBST([myconfdir], [${sysconfdir}/sbackup])
+AC_SUBST([mybindir], [${datadir}/vbackup/bin])
+AC_SUBST([myhelperdir], [${datadir}/vbackup/helpers])
+AC_SUBST([myscriptdir], [${datadir}/vbackup/scripts])
+AC_SUBST([myconfdir], [${sysconfdir}/vbackup])
 dnl AC_SUBST([sampledir], [${myconfdir}/samples])
 AC_SUBST([sampledir], [${docdir}/samples])
 
@@ -105,7 +105,7 @@ AC_CONFIG_FILES([Makefile
 		scripts/Makefile
 		scripts/bin/Makefile
 		scripts/bin/run
-		scripts/bin/sbackup
+		scripts/bin/vbackup
 		scripts/bin/common
 		scripts/scripts/Makefile
 		scripts/scripts/mount/Makefile

@@ -1,11 +1,11 @@
-Simple Backup
-=============
+VBackup - A module simple backup program
+========================================
 
 This is a collection of scripts that perform backup to systems.
 It should support most of the unices out there (everything different should be
 reported as a bug).
 
-This version of sbackup can backup:
+This version of vbackup can backup:
 
     * Postgresql databases
     * MySQL databases
@@ -17,6 +17,7 @@ The backup procedure is completely customizable and extendable by the user.
 Requirements:
 =============
 
+ * GNU find
  * GNU tar - for the tar method
  * xfsdump - for the xfsdump method
 
@@ -27,23 +28,23 @@ Installation:
 # make
 # make install
 
-This will install sbackup to /usr/local and assume the configuration files will
-be placed at /etc/sbackup
+This will install vbackup to /usr/local and assume the configuration files will
+be placed at /etc/vbackup
 
 Usage:
 ======
 
 For usage run:
-# sbackup --help
+# vbackup --help
 
 For a list of backup methods (scripts) run:
-# sbackup --list
+# vbackup --list
 
 To get some information about a module run:
-# sbackup --help <module>
+# vbackup --help <module>
 
 example:
-# sbackup --help xfsdump
+# vbackup --help xfsdump
 
 Setup:
 ======
@@ -54,9 +55,9 @@ Let's assume you want to
     * Perform backup of directories using tar (full and incremantal)
     * Perform mysql and pgsql backup
 
-1.  Go to /etc/sbackup and create a folder named rc.d. This will hold all the
+1.  Go to /etc/vbackup and create a folder named rc.d. This will hold all the
     configuration scripts.
-2.  Copy from the samples directory ($prefix/share/sbackup/samples) the
+2.  Copy from the samples directory ($prefix/share/vbackup/samples) the
     following scripts to rc.d:
     * sample.nfsmount
     * sample.umount
@@ -78,7 +79,7 @@ Let's assume you want to
 9.  Copy sample.xfsdump to level0.xfsdump and edit it. Set the level to 0
 10. Rename xfsdump to level5.xfsdump and edit it. Set the level to 5
 
-11. Create two directories named backup.0 and backup.5 under /etc/sbackup
+11. Create two directories named backup.0 and backup.5 under /etc/vbackup
 12. Enter backup.0 and create softlinks to the desired configuration files:
     # ln -s ../rc.d/remote.nfsmount 00-remote.nfsmount
     # ln -s ../rc.d/remote.umount 99-remote.umount
@@ -91,23 +92,25 @@ Let's assume you want to
     # ln -s ../rc.d/remote.umount 99-remote.umount
     # ln -s ../rc.d/level5.tar 20-level5.tar
     # ln -s ../rc.d/level5.xfsdump 30-level5.xfsdump
-14. Check the configuration using:
-    # sbackup --check 0
-    # sbackup --check 5
+14. Copy to backup.0 and backup.1 the vbackup.conf.sample from the samples
+    directory. Rename it to vbackup.conf and edit it as needed.
+15. Check the configuration using:
+    # vbackup --check 0
+    # vbackup --check 5
 
 To perform level 0 backup run
-# sbackup 0
+# vbackup 0
 
 To perform level 5 backup run
-# sbackup 5
+# vbackup 5
 
 How it works:
 =============
 
 When you run:
-# sbackup 0
+# vbackup 0
 
-The script enters directory /etc/sbackup/backup.0 and searches for files named
+The script enters directory /etc/vbackup/backup.0 and searches for files named
 XX-name.module, where <XX> is a number and <module> is a backup module/method.
 All configurations are examined in an alphabetical order, so that the <XX>
 prefix may be used to indicate the order. For each configuration file,
@@ -160,8 +163,8 @@ Contact:
 Extending:
 ==========
 
-    If you're interested in extending sbackup, just read the README.dev and
-    have a look at the existing modules (I recomend mount and tar/xfsdump).
+    If you're interested in extending vbackup, just read the README.dev and
+    have a look at the existing modules (I recommend mount and tar/xfsdump).
     A template for new modules is available with the name 'skel' under the
     scripts/ directory of the source code.
 

@@ -2,20 +2,20 @@
 #
 # Copyright (C) 2006 Stefanos Harhalakis
 #
-# This file is part of sbackup.
+# This file is part of vbackup.
 #
-# sbackup is free software; you can redistribute it and/or modify
+# vbackup is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# sbackup is distributed in the hope that it will be useful,
+# vbackup is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with sbackup; if not, write to the Free Software
+# along with vbackup; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 #
 # $Id$
@@ -73,22 +73,22 @@ do_help()
 	do_version_head
 	cat << _END
 Usage:
-	sbackup <backup configuration dir>
+	vbackup <backup configuration dir>
 		To perform backup based on this dir
 
-     or sbackup [-d <level>] --list
+     or vbackup [-d <level>] --list
 		To list all available backup scripts
 
-     or sbackup [-d <level>] --check <back configuration dir>
+     or vbackup [-d <level>] --check <back configuration dir>
                 To check configuration for all files in dir
 
-     or sbackup --help
+     or vbackup --help
                 To get this help
 
-     or sbackup --help <module>
+     or vbackup --help <module>
                 To get module specific information
 
-     or sbackup --version
+     or vbackup --version
                 To get version and license information
 
         Directories must be given as absolute paths or they will be prepended
@@ -150,7 +150,7 @@ read_global_conf()
 {
 	local	G
 
-	G="$CONFDIR/sbackup.conf"
+	G="$CONFDIR/vbackup.conf"
 
 	if ! [ -f "$G" ] ; then
 		h_fatal 1 "Global backup configuration file:\n$G\ndoes not exist"

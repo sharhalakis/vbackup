@@ -17,5 +17,5 @@ LEVEL=0
 #MEDLABEL="localhost"
 
 # The destination directory (required)
-#DESTDIR="/tmp/backup/fs/%D1%"
+#DESTDIR="fs/%D1%"
 
