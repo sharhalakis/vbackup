@@ -188,7 +188,7 @@ do_run()
 	fi
 
 	for dir in $T_BDIRS ; do
-		h_msg 6 "----------------------------------------"
+		h_msg 7 "----------------------------------------"
 		FN=`echo "${dir}" | sed s,^/,, | sed s,/,.,g`
 		if [ -z "$FN" ] ; then
 			FN="$ROOTFN"
@@ -201,18 +201,22 @@ do_run()
 			STATEFILE="$STATEDIR/$LEVEL.$FN"
 			if [ -f "$STATEFILE" ] ; then
 				last=`cat $STATEFILE`
-				h_msg 6 "Last level $LEVEL backup of $dir: $last"
+				h_msg 7 "Last level $LEVEL backup of $dir: $last"
 			else
-				h_msg 6 "Last level $LEVEL backup of $dir: NEVER"
+				h_msg 7 "Last level $LEVEL backup of $dir: NEVER"
 			fi
 			extra=""
+			extra_n=""
 
 			if get_old_date $LEVEL $FN ; then
-				h_msg 6 "Will backup files newer than: $LDATE"
-				extra="-N '$LDATE'"
+				h_msg 7 "Will backup files newer than: $R_LDATE"
+				extra_n="$R_LDATE"
+			else
+				extra_n="Thu Jan  1 00:00:00 EET 1970"
 			fi
 		
-			$GTAR -zc --one-file-system $EXCL -C "$dir" $extra \
+			 $GTAR -zc --one-file-system $EXCL -C "$dir" \
+			 	-N "$extra_n" $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
 				-f $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz .
 		
@@ -221,11 +225,11 @@ do_run()
 				echo "${T_DATE}" > $STATEFILE
 				remove_unwanted $LEVEL $FN
 			else
-				h_error "Backup of $dir failed"
+				h_error "Backup of $dir may have failed"
 				return 1
 			fi
 		)
-		h_msg 6 "----------------------------------------"
+		h_msg 7 "----------------------------------------"
 	done
 
 	return 0

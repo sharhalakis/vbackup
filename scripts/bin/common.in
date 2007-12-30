@@ -75,6 +75,22 @@ h_formdate()
 }
 
 #
+# Helper function to transform a filename
+#	$1 is the filename to transform
+# Sets:
+#	R		The resulted filename
+#
+h_transform()
+{
+	local D1
+
+	D1=`h_formdate 1`
+
+	R=`echo "$1" | sed "s,%D1%,$D1,g"`
+}
+
+
+#
 # Helper function to form the destination directory
 #	$1 is the destination filename
 # Sets:
@@ -82,14 +98,9 @@ h_formdate()
 #
 h_formdest()
 {
-	local D1
-	local T
+	h_transform "$1"
 
-	D1=`h_formdate 1`
-
-	T=`echo "$1" | sed "s,%D1%,$D1,g"`
-
-	R_DESTDIR="$DESTDIR0/$T/"
+	R_DESTDIR="$DESTDIR0/$R/"
 }
 
 #

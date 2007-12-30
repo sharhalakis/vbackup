@@ -1,0 +1,10 @@
+
+Directories:
+------------
+
+db/		Database backups
+fs/		Filesystem backups
+mount/		Scripts to mount/umount a media
+misc/		Weird scripts
+pkg/		Package lists backups
+

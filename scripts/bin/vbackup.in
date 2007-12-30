@@ -189,7 +189,7 @@ do_run_check_common()
 			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
 				h_msg 11 "$fn -> $D"
 				if [ "$1" = "run" ] ; then
-					$B_BINDIR/run "$D" "$T" < /dev/tty
+					$B_BINDIR/run "$D" "$T"
 					case "$?" in
 						1)
 							h_error "$D exited with errors (non-fatal)"
@@ -204,7 +204,7 @@ do_run_check_common()
 					esac
 				else
 					h_msg 7 "Checking $T..."
-					$B_BINDIR/run "$D" --check "$T" < /dev/tty
+					$B_BINDIR/run "$D" --check "$T"
 				fi
 			fi
 		done

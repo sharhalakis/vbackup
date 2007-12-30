@@ -1,0 +1,12 @@
+# Sample tar configuration file
+#
+# $Id: sample.xfsdump 1416 2007-12-28 12:36:01Z v13 $
+#
+
+# The destination directory (required)
+#DESTDIR="fs/%D1%"
+
+# The destinations filename
+# Default: dpkg_selections.%D1%
+#DESTFILE="dpkg_selections.%D1%
+

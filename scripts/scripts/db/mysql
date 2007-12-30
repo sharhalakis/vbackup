@@ -74,7 +74,6 @@ do_run()
 	fi
 
 	if [ ! "$PASSWORD" = "" ] ;  then
-		# P="--password=$PASSWORD"
 		export MYSQL_PWD="$PASSWORD"
 	fi
 
@@ -94,10 +93,9 @@ do_run()
 	if [ "$DATABASES" = "-" ] ; then
 		DATABASES=`$MYSQL -u $MYUSER --disable-pager --batch \
 				-se 'show databases'`
-	fi
-
-	if ! [ "$?" = 0 ] ; then
-		return 1
+		if ! [ "$?" = 0 ] ; then
+			return 1
+		fi
 	fi
 
 	for db in $DATABASES ; do
