@@ -45,6 +45,7 @@ Configuration options:
 	PASSWORD	The password to use to connect
 	PSQL		The path to psql executable
 	PGDUMP		The path to pg_dump executable
+	PGDUMPALL	The path to pg_dumpall executable
 	SUUSER		Do an 'su' to this user (example: postgres)
 	DESTDIR		The destination directory (required)
 	CREATEDB	Include CREATE DATABASE statements (y/N)
@@ -78,6 +79,14 @@ do_run()
 
 	if [ -z "$PGDUMP" ] ; then
 		PGDUMP="pg_dump"
+	fi
+
+	if [ -z "$PGDUMPALL" ] ; then
+		PGDUMPALL="pg_dumpall"
+	fi
+
+	if [ -z "$GLOBALS" ] ; then
+		GLOBALS="globals"
 	fi
 
 	for t in $PSQL $PGDUMP ; do
@@ -127,5 +136,15 @@ do_run()
 			su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$db.gz
 		fi
 	done
+
+	if [ ! "x$GLOBALS" = "x-" ] ; then
+		h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS.gz"
+		CMD="$PGDUMPALL -g"
+		if [ -z "$SUUSER" ] ; then
+			$CMD | gzip > $DESTDIR/$GLOBALS.gz
+		else
+			su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$GLOBALS.gz
+		fi
+	fi
 }
 

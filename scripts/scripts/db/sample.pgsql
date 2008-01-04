@@ -35,7 +35,7 @@ DATABASES="-"
 #CREATEDB="yes"
 
 # Dump global objects to this filename
-# Global objects will not be dumped if this is defined to be empty
+# Global objects will not be dumped if this is defined to be '-'
 # Default is "globals". You'll need to change this if you have a database
 # named like this.
 # Default: globals
