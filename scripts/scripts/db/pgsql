@@ -28,7 +28,7 @@
 #
 
 NAME="pgsql"
-VERSION="1.0.0"
+VERSION="$PACKAGE_VERSION"
 DESC="Backup PostgreSQL databases"
 LICENSE="GPLv2"
 COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
@@ -43,6 +43,8 @@ Configuration options:
 			Set this to '-' to backup all databases. (required)
 	PGUSER		The username to use to connect
 	PASSWORD	The password to use to connect
+	PGHOST		The host to connect to (empty for local database)
+	PGPORT		The port to connect to (empty for default port)
 	PSQL		The path to psql executable
 	PGDUMP		The path to pg_dump executable
 	PGDUMPALL	The path to pg_dumpall executable
@@ -96,13 +98,14 @@ do_run()
 		fi
 	done
 
-	if ! [ -z "$PGUSER" ] ; then
-		P_USER="-U $PGUSER"
-	fi
-
 	if ! [ -z "$PASSWORD" ] ; then
 		export PGPASSWORD="$PASSWORD"
 	fi
+
+	P_CONN=""
+	if ! [ -z "$PGUSER" ] ; then P_CONN="$P_CONN -U $PGUSER" ; fi
+	if ! [ -z "$PGHOST" ] ; then P_CONN="$P_CONN -h $PGHOST" ; fi
+	if ! [ -z "$PHPORT" ] ; then P_CONN="$P_CONN -p $PGPORT" ; fi
 
 	# Extra parameters for dumping
 	P_DUMPPARAMS=""
@@ -117,8 +120,8 @@ do_run()
 	fi
 
 	if [ "$DATABASES" = "-" ] ; then
-		CMD="$PSQL -F , -A $P_USER -P tuples_only -P pager=off -l | \
-			cut -f 1 -d, $P_FILT1"
+		CMD="$PSQL -F , -A $P_CONN -P tuples_only -P pager=off -l | \
+		     cut -f 1 -d, $P_FILT1"
 		if [ -z "$SUUSER" ] ; then
 			DATABASES=`$CMD`
 		else
@@ -128,22 +131,42 @@ do_run()
 
 	FIRST=1
 	for db in $DATABASES ; do
-		h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
-		CMD="$PGDUMP $P_USER $P_DUMPPARAMS $db"
-		if [ -z "$SUUSER" ] ; then
-			$CMD | gzip > $DESTDIR/$db.gz
+		CMD="$PGDUMP $P_CONN $P_DUMPPARAMS $db"
+
+		if h_is_true $COMPRESS ; then
+			h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
+			if [ -z "$SUUSER" ] ; then
+				$CMD | gzip > $DESTDIR/$db.gz
+			else
+				su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$db.gz
+			fi
 		else
-			su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$db.gz
+			h_msg 6 "Dumping: $db to $DESTDIR/$db"
+			if [ -z "$SUUSER" ] ; then
+				$CMD > $DESTDIR/$db
+			else
+				su - $SUUSER -c "$CMD" > $DESTDIR/$db
+			fi
 		fi
 	done
 
 	if [ ! "x$GLOBALS" = "x-" ] ; then
-		h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS.gz"
-		CMD="$PGDUMPALL -g"
-		if [ -z "$SUUSER" ] ; then
-			$CMD | gzip > $DESTDIR/$GLOBALS.gz
+		CMD="$PGDUMPALL $P_CONN -g"
+		if h_is_true $COMPRESS ; then
+			h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS.gz"
+			if [ -z "$SUUSER" ] ; then
+				$CMD | gzip > $DESTDIR/$GLOBALS.gz
+			else
+				su - $SUUSER -c "$CMD" | gzip \
+					> $DESTDIR/$GLOBALS.gz
+			fi
 		else
-			su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$GLOBALS.gz
+			h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS"
+			if [ -z "$SUUSER" ] ; then
+				$CMD > $DESTDIR/$GLOBALS
+			else
+				su - $SUUSER -c "$CMD" > $DESTDIR/$GLOBALS
+			fi
 		fi
 	fi
 }

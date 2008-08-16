@@ -1,0 +1,16 @@
+# Sample "mbr" configuration file
+#
+# $Id: sample.pgsql 1421 2008-01-04 17:01:13Z v13 $
+#
+
+# A space separated list of disks to backup
+# Disk names must not include the /dev/ prefix (ex: sda sdb sdc)
+# Leave it empty for auto-detect
+DISKS=""
+
+# The destination directory (required)
+#DESTDIR="mbr/"
+
+# The destination filename
+DESTFILE="mbrs.%D1%"
+

@@ -2,13 +2,17 @@
 #
 # $Id$
 #
-# You may want to add a user named backup and do:
-#
-#	TODO:
-#
 
 # The username to use (required)
 PGUSER="backup"
+
+# The host to connect to. Empty if it is a local connection
+# Default: empty
+# PGHOST=""
+
+# The port to conenct to. Empty means to not specify a port
+# Default: empty
+# PGPORT=5432
 
 # A username to su to when performing the backup
 #SUUSER="postgres"
@@ -42,7 +46,7 @@ DATABASES="-"
 #GLOBALS="globals"
 
 # Dump template[1-9] databases too. Database template0 is never dumped since 
-# it is not needed and postgresql does not allow ita
+# it is not needed and postgresql does not allow it
 # Default: yes
 #ALL="yes"
 

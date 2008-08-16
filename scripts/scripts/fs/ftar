@@ -25,7 +25,7 @@
 #
 
 NAME="ftar"
-VERSION="1.0.0"
+VERSION="$PACKAGE_VERSION"
 DESC="Filesystem backup using tar and find"
 LICENSE="GPLv2"
 COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
@@ -38,6 +38,10 @@ do_help()
 This method is almost the same as tar but uses find and grep to filter
 directories. Regular expressions are used to match entries to be excluded
 by tar.
+
+This method should be avoided since it doesn't do actual incremental tar
+backups. If you try to restore an incremental backup, files that were deleted
+will re-appear (but no files will be lost).
 
 Configuration options:
 	LEVEL		The backup level (0-9) (required)
@@ -211,6 +215,16 @@ do_run()
 				h_msg 7 "Last level $LEVEL backup of $dir: NEVER"
 			fi
 			extra=""
+			if h_is_true "$COMPRESS" ; then
+				FN2="$DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
+				extra="-z"
+				h_msg 13 "Will compress"
+			else
+				FN2="$DESTDIR/$LEVEL.$FN.$T_DATE2.tar"
+				extra=""
+				h_msg 13 "Will NOT compress $COMPRESS"
+			fi
+
 			extra_n=""
 
 			if get_old_date $LEVEL $FN ; then
@@ -223,11 +237,10 @@ do_run()
 			CMD1="(cd '$dir' && find -xdev ) "
 			CMD1="$CMD1 | sed 's,^\./,,' $T_EXCL"
 			eval "$CMD1" | \
-			 $GTAR -zc --one-file-system $EXCL -C "$dir" \
+			 $GTAR -c --one-file-system $EXCL -C "$dir" \
 			 	-N "$extra_n" $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
-				-f $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz \
-				--sparse -T - --no-recursion
+				-f $FN2 --sparse -T - --no-recursion
 		
 			if [ "$?" -eq 0 ] ; then
 				h_msg 6 "Done"

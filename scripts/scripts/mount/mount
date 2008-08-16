@@ -23,7 +23,7 @@
 #
 
 NAME="mount"
-VERSION="1.0.0"
+VERSION="$PACKAGE_VERSION"
 DESC="Mount a partition"
 LICENSE="GPLv2"
 COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"

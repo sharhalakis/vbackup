@@ -10,3 +10,6 @@
 # All other DESTDIR directived are relative to this one
 DESTDIR0=""
 
+# Compress backups? (yes/no)
+COMPRESS="yes"
+

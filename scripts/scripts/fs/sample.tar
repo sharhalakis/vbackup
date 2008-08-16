@@ -13,10 +13,7 @@ LEVEL=0
 #DIRS="/etc /usr/local"
 #DIRFILE="/etc/backup"
 
-# The username to use (required)
-PGUSER="backup"
-
-# A space separated list of wildcard masks to identify file to
+# A space separated list of wildcard masks to identify files to
 # be excluded from the backup, as specified by the --exclude argument of
 # GNU tar
 EXCLUDE="*.iso"

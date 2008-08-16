@@ -21,11 +21,15 @@
 # Description
 #
 #	Perform filesystem backup using tar
-#
+#	It does incremental backups using --listed-incremental
+#	It should be restored like this:
+#	tar --incremental -xf /backup/0.mplampla.tar
+#	tar --incremental -xf /backup/5.mplampla.tar
+#	tar --incremental -xf /backup/7.mplampla.tar
 #
 
 NAME="tar"
-VERSION="1.0.0"
+VERSION="$PACKAGE_VERSION"
 DESC="Filesystem backup using tar"
 LICENSE="GPLv2"
 COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
@@ -35,6 +39,8 @@ CONTACT="v13@v13.gr"
 do_help()
 {
 	cat << _END
+Perform incremental (listed-incremental) tar backups
+
 Configuration options:
 	LEVEL		The backup level (0-9) (required)
 	DIRS		The directories to backup (*)
@@ -92,6 +98,8 @@ do_check_conf()
 # $1 == level
 # $2 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
 # Return value in $R_LDATE
+# Return tar-state file in $R_TARSTATE0
+# Return last backup level in $R_LLEVEL
 # Return 0 if R_LDATE was found or 1 if not (true/false)
 get_old_date()
 {
@@ -110,10 +118,15 @@ get_old_date()
 		statefile="$STATEDIR/${lev}.$2"
 		if [ -f "${statefile}" ] ; then
 			R_LDATE=`cat $statefile`
+			R_TARSTATE0="$statefile.snar"
+			R_LLEVEL=$lev
 			return 0
 		fi
 		let lev=$lev-1
 	done
+
+	R_TARSTATE0="$STATEDIR/${lev}.0.snar"
+	R_LLEVEL=-1
 	
 	return 1
 }
@@ -135,7 +148,11 @@ remove_unwanted()
 	while [ "$lev" -le 9 ] ; do
 		statefile="$STATEDIR/${lev}.$2"
 		if [ -f "${statefile}" ] ; then
+			h_msg 11 "Removing $statefile"
 			rm -f "${statefile}"
+
+			h_msg 11 "Removing $statefile.snar"
+			rm -f "${statefile}.snar"
 		fi
 		let lev=$lev+1
 	done
@@ -196,7 +213,19 @@ do_run()
 				FN="root"
 			fi
 		fi
-		h_msg 6 "$dir -> $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
+
+		extra=""
+		if h_is_true "$COMPRESS" ; then
+			FN2="$DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
+			extra="-z"
+			h_msg 13 "Will compress"
+		else
+			FN2="$DESTDIR/$LEVEL.$FN.$T_DATE2.tar"
+			extra=""
+			h_msg 13 "Will NOT compress $COMPRESS"
+		fi
+
+		h_msg 6 "$dir -> $FN2"
 		(
 			STATEFILE="$STATEDIR/$LEVEL.$FN"
 			if [ -f "$STATEFILE" ] ; then
@@ -205,29 +234,38 @@ do_run()
 			else
 				h_msg 7 "Last level $LEVEL backup of $dir: NEVER"
 			fi
-			extra=""
-			extra_n=""
 
 			if get_old_date $LEVEL $FN ; then
-				h_msg 7 "Will backup files newer than: $R_LDATE"
-				extra_n="$R_LDATE"
+				h_msg 7 "Backup will be based on L$R_LLEVEL backup at $R_LDATE"
+			fi
+
+			R_TARSTATE="$STATEFILE.snar"
+			rm -f "$R_TARSTATE.new"
+			if [ -e "$R_TARSTATE0" ] ; then
+				h_msg 11 "Copying $R_TARSTATE0 to $R_TARSTATE.new"
+				cp -f "$R_TARSTATE0" "$R_TARSTATE.new"
 			else
-				extra_n="Thu Jan  1 00:00:00 EET 1970"
+				h_msg 11 "Creating $R_TARSTATE.new"
+				touch "$R_TARSTATE.new"
 			fi
 		
-			 $GTAR -zc --one-file-system $EXCL -C "$dir" \
-			 	-N "$extra_n" $extra \
+			$GTAR -c --one-file-system $EXCL -C "$dir" \
+				--listed-incremental="$R_TARSTATE.new" \
+			 	--sparse $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
-				-f $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz .
+				-f $FN2 .
 		
-			if [ "$?" -eq 0 ] ; then
-				h_msg 6 "Done"
-				echo "${T_DATE}" > $STATEFILE
-				remove_unwanted $LEVEL $FN
-			else
+			if ! [ "$?" -eq 0 ] ; then
 				h_error "Backup of $dir may have failed"
 				return 1
 			fi
+
+			h_msg 11 "Renaming $R_TARSTATE.new to $R_TARSTATE"
+			mv -f "$R_TARSTATE.new" "$R_TARSTATE"
+
+			h_msg 6 "Done"
+			echo "${T_DATE}" > $STATEFILE
+			remove_unwanted $LEVEL $FN
 		)
 		h_msg 7 "----------------------------------------"
 	done

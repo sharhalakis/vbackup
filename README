@@ -121,7 +121,10 @@ This way you'll have to create configuration files once and perform various
 types of backups, depending on your needs.
 
 The verbosity of the backup procedure may be controlled using the -d parameter.
-Level 7 is recomended.
+Level 7 is recommended.
+
+Backups that fail will not stop the backup procedure. There are however some
+errors that will stop everything (ex: when failing to mount a filesystem)
 
 Available modules:
 ==================
@@ -131,15 +134,23 @@ The following modules are available:
 mount:	    Mount a partition
 nfsmount:   Mount an NFS share
 umount:	    Umount a partition
+exist:	    Check whether a file/dir exists
 tar:	    Perform filesystem backup using GNU tar
 xfsdump:    Perform filesystem backup using xfsdump
 mysql:	    Dump mysql databases
 pgsql:	    Dump pgsql databases
+dpkg:	    Backup debian dpkg database
+mbr:	    Backup MBRs and partition tables
+
+More:
+=====
+
+More information about how vbackup actually works can be found in README.dev
 
 Copyright:
 ==========
 
-    Copyright (c) 2006 Harhalakis Stefanos
+    Copyright (c) 2006-2008 Harhalakis Stefanos
 
 License:
 ========
@@ -157,7 +168,7 @@ License:
 Contact:
 ========
 
-    For bug reports, recomendations or anything else, you can find me at
+    For bug reports, recommendations or anything else, you can find me at
     v13@v13.gr. I'll be glad to hear from you.
 
     The latest vbackup can be found at:

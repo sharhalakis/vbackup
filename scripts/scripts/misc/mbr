@@ -1,0 +1,198 @@
+#!/bin/sh
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+# Description
+#
+#
+
+# The name of the backup script
+NAME="mbr"
+# The version of the script
+VERSION="$PACKAGE_VERSION"
+# A short description of the script
+DESC="Backup MBRs, Partition Tables, MD and LVM information"
+# The license of this module
+LICENSE="GPLv3"
+# A copyright statement
+COPYRIGHT="Copyright (c) 2008 Stefanos Harhalakis"
+# A contact email for bugreports etc
+CONTACT="v13@v13.gr"
+
+# Display help
+do_help()
+{
+	cat << _END
+Configuration options:
+	DISKS		The disks to backup. Leave it empty for autodetect.
+			This is a space separated list without the /dev/
+			prefixes (ex: sda sdb usb/mydisk hdf)
+	DESTDIR		Where to store the backup (required)
+	DESTFILE	The filename to use
+_END
+
+	if [ -z "$SFDISK" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because sfdisk was not found
+_END
+	fi
+	if [ -z "$MDADM" ] || [ -z "$FDISK" ] || [ -z "$LVDISPLAY" ] ||
+		[ -z "$VGDISPLAY" ] || [ -z "$PVDISPLAY" ] ; then
+		cat << _END
+
+ !! This method will be degraded bacause one of the required tools (mdadm,
+    fdisk, lvdisplay, vgdisplay, pvdisplay) was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$SFDISK" ] && h_error "sfdisk was not found" && return 1
+
+	[ -z "$DESTDIR" ] && h_error "DESTDIR is not set" && return 1
+
+	return 0
+}
+
+# Determine local disks
+# Return them in $DISKS
+get_disks()
+{
+	local T
+
+	if [ -n "$DISKS" ] ; then
+		return
+	fi
+
+	# A heuristic
+	T=`cat /proc/partitions | \
+		awk '{print $NF}' | \
+		grep -E '^[hs]d[a-z]$'`
+
+	DISKS=""
+	# Now perform the actual check
+	for a in $T ; do
+		if $SFDISK -l /dev/$a > /dev/null 2>&1 ; then
+			DISKS="$DISKS $a"
+		fi
+	done
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	[ -z "$SFDISK" ] && h_error "sfdisk was not found" && return 1
+
+	if ! test -f /proc/partitions ; then
+		h_error "/proc/partitions doesn't exist. Perhaps this is not a Linux system?"
+		return 1
+	fi
+
+	if [ -z "$DESTFILE" ] ; then
+		DESTFILE="mbrs.%D1%"
+	fi
+
+	h_transform "$DESTFILE"
+	FN="$DESTDIR/$R"
+
+	# Detect local hard-disks
+	get_disks
+
+	if [ -z "$DISKS" ]; then
+		h_error "No local disks found (!)"
+		return 1
+	fi
+
+	# Create a temporary directory
+	TDIR=`mktemp -d`
+	TDIR2="$TDIR/mbr"
+
+	# Store files in there
+	mkdir $TDIR2
+
+	# Make sure we have sbin in the path
+	export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+
+	# Backup partition tables, fdisk output and sfdisk output
+	h_msg 6 "Backing up MBRs and partition tables"
+
+	for p in $DISKS ; do
+		h_msg 12 "Backing up $p"
+		dd if=/dev/$p of=$TDIR2/$p.mbr bs=512 count=1 > /dev/null 2>&1
+		[ -z "$FDISK" ] || $FDISK -l /dev/$p > $TDIR2/$p.fdisk-l
+		$SFDISK -l /dev/$p > $TDIR2/$p.sfdisk-l
+		$SFDISK -d /dev/$p > $TDIR2/$p.sfdisk-d
+	done
+
+	# Backup LVM information
+	if test -d /etc/lvm/backup ; then
+		h_msg 6 "Backing up LVM information"
+		TDIR3="$TDIR2/lvm"
+		mkdir $TDIR3
+
+		cp -R /etc/lvm/backup $TDIR3/backup
+
+		[ -z "$PVDISPLAY" ] || $PVDISPLAY > $TDIR3/pvdisplay
+		[ -z "$VGDISPLAY" ] || $VGDISPLAY > $TDIR3/vgdisplay
+		[ -z "$LVDISPLAY" ] || $LVDISPLAY > $TDIR3/lvdisplay
+	fi
+
+	# Backup MD information
+	if test -f /proc/mdstat ; then
+		h_msg 6 "Backing up MD information"
+		TDIR3="$TDIR2/md"
+		mkdir $TDIR3
+		cat /proc/mdstat > $TDIR3/proc_mdstat
+		test -e /etc/mdadm.conf && \
+			cp /etc/mdadm.conf $TDIR3/etc_mdadm_conf
+		test -e /etc/mdadm/mdadm.conf && \
+			cp /etc/mdadm/mdadm.conf $TDIR3/etc_mdadm_mdadm_conf
+
+		# Backup all mdadm --detail output
+		if [ -n "$MDADM" ] ; then
+			cat /proc/mdstat | grep "^md" | while read md rest ; do
+				$MDADM --detail /dev/$md > $TDIR3/$md.sb
+				cat $TDIR3/$md.sb | grep -E "[[:space:]]/dev/[hs]d[a-z][0-9]+$" | awk '{print $NF}' | while read dsk ; do
+					dsk2=`basename "$dsk"`
+					$MDADM --examine "$dsk" > \
+						"$TDIR3/$dsk2.sb"
+				done
+			done
+		fi
+	fi
+
+	h_msg 12 "Creating tar archive"
+	tar -zcf $FN.tgz -C $TDIR mbr
+
+	h_msg 12 "Removing temp dir $TDIR"
+	rm -rf $TDIR
+
+	h_msg 6 "Done with $FN.tgz"
+
+	return 0
+}
+

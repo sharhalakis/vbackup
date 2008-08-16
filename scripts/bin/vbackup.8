@@ -1,0 +1,160 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH VBACKUP 8 "July 28, 2007"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+vbackup \- A modular backup program
+.SH SYNOPSIS
+.RS 3
+.B vbackup
+.RI [ OPTIONS "] <" "backup configuration directory" >
+.RE
+.br
+or
+.B vbackup 
+.RI [ OPTIONS "] --" list
+.br
+or
+.B vbackup
+.RI [ OPTIONS "] --" check " <" "backup configuration directory" >
+.br
+or
+.B vbackup
+.RI -- help " [<" module >]
+.br
+or
+.B vbackup
+.RI --version
+.br
+.SH DESCRIPTION
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBvbackup\fP is a program that performs system backups.
+The backup strategy is specified with a set of minimal configuration files that exist in directories under /etc/vbackup. See the quickstart section for quick first-time setup.
+.SH OPTIONS
+.TP
+\fB--check <backup configuration directory>\fP
+Check configuration files for a specific backup strategy. Each module checks its own configuration file. 
+.TP
+\fB-d <level>\fP
+Set the message level to <level> (default level is 8):
+1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
+(5: Rare messages, 6: Usefull message, 7: Not so usefull), 
+10-14: Debug messages that don't flood,
+15-19: Debug messages that flood
+.TP
+\fB--help [<module>]\fP
+Show some help. If a module is passed as argument the it will display some help about that module. This is where the module configuration parameters are shown.
+.TP
+\fB--list\fP
+List all available modules, their version and some brief description.
+.TP
+\fB--version\fP
+Guess what...
+.SH QUICKSTART
+\fIThis is by no means a way to learn how to use vbackup. You'll have to read the next section to be able to understand it\fP.
+.PP
+.IP "\(bu" 2
+Create a directory named /etc/vbackup/backup.0
+.IP "\(bu" 2
+Create a directory named /etc/vbackup/rc.d
+.IP "\(bu" 2
+Create a place that will hold your backups. For example, create the directory /backup.
+.IP "\(bu" 2
+Go to /usr/share/doc/vbackup/samples/
+.IP "\(bu" 2
+Copy sample.mbr to /etc/vbackup/rc.d/20-mbr.mbr
+.IP "\(bu" 2
+Copy sample.tar to /etc/vbackup/rc.d/30-home-0.tar
+.IP "\(bu" 2
+Copy vbackup.conf.sample to /etc/vbackup/rc.d/vbackup.conf
+.IP "\(bu" 2
+Go to /etc/rc.d and edit those files. They all include descriptive comments. Most defaults will be OK. In vbackup.conf set the destination directory to /backup (or whatever you created). In 30-home-0.tar set LEVEL=0 and DIRS="/home".
+.IP "\(bu" 2
+Go to /etc/vbackup/backup.0/
+.IP "\(bu" 2
+Create soft links from all files in /etc/backup/rc.d/ here (ln -s ../rc.d/20-mbr.mbr etc...)
+.IP "\(bu" 2
+Run "vbackup --check 0"
+.IP "\(bu" 2
+If there are configuration errors edit the configuration files and correct them. Repeat as needed.
+.IP "\(bu" 2
+Run "vbackup test" and watch the backup procedure.
+.IP "\(bu" 2
+If everything went OK you'll have a nice tidy backup placed under /backup. You can create other backup strategies and place them in their own directories under /etc/vbackup. Most probably you'll need an almost exact backup.5 that will perform level 5 backups. This can be done by copying 30-home-0.tar to 30-home-5.tar and setting LEVEL=5 in it.
+.SH CONFIGURATION
+The backup strategy is specified with a set of minimal configuration files that exist in directories under /etc/vbackup. Each directory is named backup.XXXXX where XXXXX is the name of the backup strategy.
+.PP
+For example, a simplistic backup strategy may have two directories named backup.0 and backup.5. Each of them will include configuration files that describe level 0 and leve 5 system backups.
+.PP
+It is adviced to have a directory named rc.d under /etc/vbackup that will hold all configuration files. After that, individual backup.XXXXX directories will only contain links to those files. It is absolutely sure that some files will be the same among different backup strategies and trying to keep them synchronized will be an uneeded pain.
+.PP
+Each configuration file must contain a vbackup.conf file that specifies some global configuration options (like a destination directory). Next, it must contain one or more module configuration files. The available modules can be seen using the \fB--list\fP parameter. Each configuration file is in the form \fBsomething\fP.\fBmodulename\fP. It is suggested that \fBsomething\fP is in the form of \fBNN-string\fP where \fBNN\fP is a two (or more) digit number and \fBstring\fP is a descriptive string. For example, a good name is "00-myserver.nfsmount". This clearly shows that a path in myserver will be mounted using nfs and it will help you when 2 years later. The number prefix helps in determining the sorting order. \fIAll configuration files are examined in a sorted order\fP.
+.PP
+.SH BACKUP
+After having created at least one backup.XXXXX directory in /etc/vbackup, you can perform that backup by running "vbackup XXXXX". This will first source the vbackup.conf and it will then check for existing configuration files. For each one that is found, it will determine the appropriate backup module and run it.
+.SH MODULES
+.TP
+dpkg
+Backup the debian package list. Small space requirement and very usefull for restoring a debian system.
+.TP
+exist
+Check whether a file or directory exists. This can be used to determine whether a filesystem is actually mounted or not. \fIIt is strongly advised to use this when you're not using mount or nfsmount!
+.TP
+ftar
+Use tar to backup a filesystem but use find to locate the files to backup. This is simillar to the tar method but is not that good for incremental backups. If you restore a system that was incrementally backed up using this method it will have all files that were deleted between intermediate backups too. The advantage of this method is that you can use regular expression to filter files that will be backed up.
+.TP
+mbr
+Backup MBRs from all disks and their Partition Tables. It will also backup MD and LVM information if any of those is detected. Extremely usefull with very low space requirements.
+.TP
+mount
+Mount a local filesystem, in case you have an unmounted filesystem to perform backups (for example a spare or external disk).
+.TP
+mysql
+Backup some or all MySQL databases.
+.TP
+nfsmount
+Mount a remote filesystem using NFS.
+.TP
+off
+Don't do anything at all. Very usefull for disabling configuration files. For example, if you rename 50-main.pgsql to 50-main.pgsql.off it will remain in the configuration directory by will be disabled.
+.TP
+pgsql
+Backup some or all PostgreSQL databases.
+.TP
+tar
+Perform incremental backups using the listed-incremental format of GNU tar. \fIUse the --noplugin parameter when editing tar configuration files (!!!)\fP.
+.TP
+umount
+Umount a filesystem that was previously mounted. This can be used for local and remote mounts. The configuration of this module is compatible with the configuration of mount and nfsmount modules. This means that you can just create a link to the coresponding mount configuration file to have it unount the filesystem. (For example, link 00-remote.nfsmount to 99-remount.umount)
+.TP
+xfsdump
+Perform incremental backups using xfsdump. This is by far the very best way to backup an XFS filesystem (as a whole). It works extremely well, it is very reliable and it is able to do live backups. It is also very easy to restore all or part of the backed-up data using the interactive xfsrestore utility (xfsrestore -i).
+.SH EXTENDING
+You can extend vbackup by writting very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
+.SH AUTHOR
+Written and maintained by Stefanos Harhalakis.
+.SH CONTACT
+For bugs, requests, ideas, comments or anything else (except spam) contact <v13@v13.gr>
+.SH COPYRIGHT
+Copyright (c) 2006-2008 Harhalakis Stefanos
+.SH LICENSE
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+.PP
+If GPLv3 doesn't fit your needs (BSD?) feel free to contact me and I may release it with another license too.

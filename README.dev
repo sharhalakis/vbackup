@@ -105,4 +105,13 @@ NOTE! The directive USER should never be used. I repeat NEVER USE THE USER
 DIRECTIVE! Same thing applies for other well known directives that may be
 set by sh/bash.
 
+Common configuration variables:
+===============================
+
+Common configuration variables are variables that are set in vbackup.conf
+or in other configuration files. The vbackup.conf entry is the main one
+but it may be overriden by individual configuration files.
+
+ COMPRESS	Whether to compress the backup or not (yes/no, on/off, 1/0)
+
 

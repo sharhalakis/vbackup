@@ -1,0 +1,8 @@
+# Sample "Exist" configuration file
+#
+# $Id: sample.pgsql 1421 2008-01-04 17:01:13Z v13 $
+#
+
+# The PATH to check
+DIR="backup"
+

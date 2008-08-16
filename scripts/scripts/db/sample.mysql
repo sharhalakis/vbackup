@@ -30,3 +30,7 @@ DATABASES="-"
 # Include CREATE DATABASE statements in dumps
 # Default: no
 #CREATEDB="yes"
+
+# Extra parameters to pass to mysqldump
+# For example: --default-character-set=latin1 --add-drop-table etc
+MYSQLDUMPEXTRA=""

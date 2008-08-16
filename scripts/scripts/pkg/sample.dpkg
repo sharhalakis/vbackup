@@ -4,7 +4,7 @@
 #
 
 # The destination directory (required)
-#DESTDIR="fs/%D1%"
+#DESTDIR="dpkg"
 
 # The destinations filename
 # Default: dpkg_selections.%D1%

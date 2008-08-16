@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([vbackup], [0.1.5], [v13@v13.gr])
-AM_INIT_AUTOMAKE(vbackup, 0.1.5)
+AC_INIT([vbackup], [0.1.6], [v13@v13.gr])
+AM_INIT_AUTOMAKE(vbackup, 0.1.6)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
@@ -71,8 +71,15 @@ else
 	GFIND="$vbackup_cv_gfind"
 fi
 
-# Check for xfsdump
-AC_PATH_PROG([XFSDUMP], [xfsdump], [], [$PATH:/sbin:/usr/sbin:/usr/local/sbin])
+# Check for xfsdump and other programs
+PATH2="$PATH:/sbin:/usr/sbin:/usr/local/sbin"
+AC_PATH_PROG([XFSDUMP], [xfsdump], [], [$PATH2])
+AC_PATH_PROG([FDISK], [fdisk], [], [$PATH2])
+AC_PATH_PROG([SFDISK], [sfdisk], [], [$PATH2])
+AC_PATH_PROG([MDADM], [mdadm], [], [$PATH2])
+AC_PATH_PROG([LVDISPLAY], [lvdisplay], [], [$PATH2])
+AC_PATH_PROG([VGDISPLAY], [vgdisplay], [], [$PATH2])
+AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`
@@ -98,6 +105,12 @@ AC_SUBST([sampledir], [${docdir}/samples])
 AC_SUBST([GTAR])
 AC_SUBST([GFIND])
 AC_SUBST([XFSDUMP])
+AC_SUBST([FDISK])
+AC_SUBST([SFDISK])
+AC_SUBST([MDADM])
+AC_SUBST([LVDISPLAY])
+AC_SUBST([VGDISPLAY])
+AC_SUBST([PVDISPLAY])
 AC_SUBST([ECHO_E])
 
 # Checks for library functions.
