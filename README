@@ -49,6 +49,9 @@ example:
 Setup:
 ======
 
+NOTE: You can skip this and just use the vbackup-wizard script.
+      Take a look at the "Wizard" section.
+
 Let's assume you want to
     * Backup to an NFS mounted space
     * Perform backup of two partitions using xfsdump (full and incremental)
@@ -103,6 +106,20 @@ To perform level 0 backup run
 
 To perform level 5 backup run
 # vbackup 5
+
+Basic setup using the wizard:
+=============================
+
+There is a wizard script that will help you create basic configuration files.
+Most probably you will want to use this one the first time. For more advanced
+configuration and fine-tunning you will have to adjust the configuration files
+yourself. Read the rest of this file to fully understand how you can use
+vbackup.
+
+To launch the wizard run:
+# vbackup-wizard
+
+and just answer its questions. The wizard also serves as an introduction.
 
 How it works:
 =============

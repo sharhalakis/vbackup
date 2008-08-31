@@ -73,34 +73,11 @@ do_help()
 	do_version_head
 	cat << _END
 Usage:
-	vbackup <backup configuration dir>
-		To perform backup based on this dir
-
-     or vbackup [-d <level>] --list
-		To list all available backup scripts
-
-     or vbackup [-d <level>] --check <back configuration dir>
-                To check configuration for all files in dir
+	vbackup-wizard
+		Perform basic vbackup(8) configuration.
 
      or vbackup --help
                 To get this help
-
-     or vbackup --help <module>
-                To get module specific information
-
-     or vbackup --version
-                To get version and license information
-
-        Directories must be given as absolute paths or they will be prepended
-	with $myconfdir
-
-	-d <level>  Set the message level to <level> (default level is \
-$MESSAGE_LEVEL):
-		    1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
-		    5: Rare messages, 6: Usefull message, 7: Not so usefull
-		    10-14: Debug messages that don't flood
-		    15-19: Debug messages that flood
-
 _END
 	do_version_bugreport
 	exit 0

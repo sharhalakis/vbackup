@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH VBACKUP 8 "July 28, 2007"
+.TH VBACKUP 8 "Aug 31, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -66,36 +66,9 @@ List all available modules, their version and some brief description.
 \fB--version\fP
 Guess what...
 .SH QUICKSTART
-\fIThis is by no means a way to learn how to use vbackup. You'll have to read the next section to be able to understand it\fP.
-.PP
-.IP "\(bu" 2
-Create a directory named /etc/vbackup/backup.0
-.IP "\(bu" 2
-Create a directory named /etc/vbackup/rc.d
-.IP "\(bu" 2
-Create a place that will hold your backups. For example, create the directory /backup.
-.IP "\(bu" 2
-Go to /usr/share/doc/vbackup/samples/
-.IP "\(bu" 2
-Copy sample.mbr to /etc/vbackup/rc.d/20-mbr.mbr
-.IP "\(bu" 2
-Copy sample.tar to /etc/vbackup/rc.d/30-home-0.tar
-.IP "\(bu" 2
-Copy vbackup.conf.sample to /etc/vbackup/rc.d/vbackup.conf
-.IP "\(bu" 2
-Go to /etc/rc.d and edit those files. They all include descriptive comments. Most defaults will be OK. In vbackup.conf set the destination directory to /backup (or whatever you created). In 30-home-0.tar set LEVEL=0 and DIRS="/home".
-.IP "\(bu" 2
-Go to /etc/vbackup/backup.0/
-.IP "\(bu" 2
-Create soft links from all files in /etc/backup/rc.d/ here (ln -s ../rc.d/20-mbr.mbr etc...)
-.IP "\(bu" 2
-Run "vbackup --check 0"
-.IP "\(bu" 2
-If there are configuration errors edit the configuration files and correct them. Repeat as needed.
-.IP "\(bu" 2
-Run "vbackup test" and watch the backup procedure.
-.IP "\(bu" 2
-If everything went OK you'll have a nice tidy backup placed under /backup. You can create other backup strategies and place them in their own directories under /etc/vbackup. Most probably you'll need an almost exact backup.5 that will perform level 5 backups. This can be done by copying 30-home-0.tar to 30-home-5.tar and setting LEVEL=5 in it.
+Use the 
+.BR vbackup-wizard (8)
+for quickstarting. Most probably that's what you will do the first time.
 .SH CONFIGURATION
 The backup strategy is specified with a set of minimal configuration files that exist in directories under /etc/vbackup. Each directory is named backup.XXXXX where XXXXX is the name of the backup strategy.
 .PP
@@ -105,6 +78,7 @@ It is adviced to have a directory named rc.d under /etc/vbackup that will hold a
 .PP
 Each configuration file must contain a vbackup.conf file that specifies some global configuration options (like a destination directory). Next, it must contain one or more module configuration files. The available modules can be seen using the \fB--list\fP parameter. Each configuration file is in the form \fBsomething\fP.\fBmodulename\fP. It is suggested that \fBsomething\fP is in the form of \fBNN-string\fP where \fBNN\fP is a two (or more) digit number and \fBstring\fP is a descriptive string. For example, a good name is "00-myserver.nfsmount". This clearly shows that a path in myserver will be mounted using nfs and it will help you when 2 years later. The number prefix helps in determining the sorting order. \fIAll configuration files are examined in a sorted order\fP.
 .PP
+The complete documentation is in the README files.
 .SH BACKUP
 After having created at least one backup.XXXXX directory in /etc/vbackup, you can perform that backup by running "vbackup XXXXX". This will first source the vbackup.conf and it will then check for existing configuration files. For each one that is found, it will determine the appropriate backup module and run it.
 .SH MODULES
@@ -146,15 +120,16 @@ xfsdump
 Perform incremental backups using xfsdump. This is by far the very best way to backup an XFS filesystem (as a whole). It works extremely well, it is very reliable and it is able to do live backups. It is also very easy to restore all or part of the backed-up data using the interactive xfsrestore utility (xfsrestore -i).
 .SH EXTENDING
 You can extend vbackup by writting very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
-.SH AUTHOR
-Written and maintained by Stefanos Harhalakis.
+.SH AUTHOR - COPYRIGHT
+vbackup is written and maintained by Stefanos Harhalakis.
+Copyright (c) 2006-2008 Harhalakis Stefanos
 .SH CONTACT
 For bugs, requests, ideas, comments or anything else (except spam) contact <v13@v13.gr>
-.SH COPYRIGHT
-Copyright (c) 2006-2008 Harhalakis Stefanos
 .SH LICENSE
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 .PP
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 .PP
 If GPLv3 doesn't fit your needs (BSD?) feel free to contact me and I may release it with another license too.
+.SH SEE ALSO
+.BR vbackup-wizard (8)
