@@ -37,6 +37,7 @@ myscriptdir="@myscriptdir@"
 myconfdir="@myconfdir@"
 myhelperdir="@myhelperdir@"
 sampledir="@sampledir@"
+wizdir="@wizdir@"
 
 # Package information
 PACKAGE_NAME="@PACKAGE_NAME@"
@@ -304,5 +305,83 @@ h_is_true()
 			return 2
 			;;
 	esac
+}
+
+#
+# Internal funciton
+# Common function to display the text beffore a question
+h_ask_txt()
+{
+	clear
+	if [ ! -z "$1" ] ; then
+		echo
+#		echo "------------------------------"
+#		echo
+		echo "$1"
+		echo
+	fi
+}
+
+#
+# Ask a true/false question with an optional default answer
+#
+# Parameters:
+# 	$1	Multi-line description text
+#	$2	Sinle-line question
+#	$3	Optional default answer (y/n)
+#
+# Return:
+#	0	Yes
+#	1	No
+h_ask_yesno()
+{
+	local	prom ans ans2
+
+	h_ask_txt "$1"
+
+	prom="$2 (y/n) "
+	if [ "$3" = "y" ] ; then
+		prom="$prom[y] "
+		ans2=y
+	elif [ "$3" = "n" ] ; then
+		prom="$prom[n] "
+		ans2=n
+	fi
+
+	while true ; do
+		read -p "$prom" ans
+		if [ -z "$ans" ] && [ ! -z "$ans2" ] ; then
+			ans=$ans2
+		fi
+
+		if [ "x$ans" = "xy" ] ; then
+			return 0
+		elif [ "x$ans" = "xn" ] ; then
+			return 1
+		fi
+	done
+}
+
+#
+# Ask a question and get a string as an answer
+#
+# Parameters:
+#	Same as h_ask_yesno()
+#
+# Return:
+#	$RET	The string that was entered
+h_ask_str()
+{
+	local	prom ans
+
+	h_ask_txt "$1"
+
+	prom="$2 [$3] "
+
+	read -p "$prom" RET
+
+	if [ -z "$RET" ] ; then
+		RET="$3"
+	fi
 }
 

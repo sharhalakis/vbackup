@@ -101,6 +101,7 @@ AC_SUBST([myscriptdir], [${datadir}/vbackup/scripts])
 AC_SUBST([myconfdir], [${sysconfdir}/vbackup])
 dnl AC_SUBST([sampledir], [${myconfdir}/samples])
 AC_SUBST([sampledir], [${docdir}/samples])
+AC_SUBST([wizdir], [${datadir}/vbackup/wizard])
 
 AC_SUBST([GTAR])
 AC_SUBST([GFIND])
@@ -120,12 +121,14 @@ AC_CONFIG_FILES([Makefile
 		scripts/bin/run
 		scripts/bin/vbackup
 		scripts/bin/common
+		scripts/bin/vbackup-wizard
 		scripts/scripts/Makefile
 		scripts/scripts/mount/Makefile
 		scripts/scripts/db/Makefile
 		scripts/scripts/misc/Makefile
 		scripts/scripts/fs/Makefile
 		scripts/scripts/pkg/Makefile
+		scripts/wizard/Makefile
 		])
 AC_OUTPUT
 

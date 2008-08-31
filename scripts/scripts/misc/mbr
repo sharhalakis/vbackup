@@ -132,7 +132,7 @@ do_run()
 	TDIR2="$TDIR/mbr"
 
 	# Store files in there
-	mkdir $TDIR2
+	mkdir "$TDIR2"
 
 	# Make sure we have sbin in the path
 	export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
@@ -142,41 +142,41 @@ do_run()
 
 	for p in $DISKS ; do
 		h_msg 12 "Backing up $p"
-		dd if=/dev/$p of=$TDIR2/$p.mbr bs=512 count=1 > /dev/null 2>&1
-		[ -z "$FDISK" ] || $FDISK -l /dev/$p > $TDIR2/$p.fdisk-l
-		$SFDISK -l /dev/$p > $TDIR2/$p.sfdisk-l
-		$SFDISK -d /dev/$p > $TDIR2/$p.sfdisk-d
+		dd if=/dev/$p "of=$TDIR2/$p.mbr" bs=512 count=1 >/dev/null 2>&1
+		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p.fdisk-l"
+		$SFDISK -l /dev/$p > "$TDIR2/$p.sfdisk-l"
+		$SFDISK -d /dev/$p > "$TDIR2/$p.sfdisk-d"
 	done
 
 	# Backup LVM information
 	if test -d /etc/lvm/backup ; then
 		h_msg 6 "Backing up LVM information"
 		TDIR3="$TDIR2/lvm"
-		mkdir $TDIR3
+		mkdir "$TDIR3"
 
-		cp -R /etc/lvm/backup $TDIR3/backup
+		cp -R /etc/lvm/backup "$TDIR3/backup"
 
-		[ -z "$PVDISPLAY" ] || $PVDISPLAY > $TDIR3/pvdisplay
-		[ -z "$VGDISPLAY" ] || $VGDISPLAY > $TDIR3/vgdisplay
-		[ -z "$LVDISPLAY" ] || $LVDISPLAY > $TDIR3/lvdisplay
+		[ -z "$PVDISPLAY" ] || $PVDISPLAY > "$TDIR3/pvdisplay"
+		[ -z "$VGDISPLAY" ] || $VGDISPLAY > "$TDIR3/vgdisplay"
+		[ -z "$LVDISPLAY" ] || $LVDISPLAY > "$TDIR3/lvdisplay"
 	fi
 
 	# Backup MD information
 	if test -f /proc/mdstat ; then
 		h_msg 6 "Backing up MD information"
 		TDIR3="$TDIR2/md"
-		mkdir $TDIR3
-		cat /proc/mdstat > $TDIR3/proc_mdstat
+		mkdir "$TDIR3"
+		cat /proc/mdstat > "$TDIR3/proc_mdstat"
 		test -e /etc/mdadm.conf && \
-			cp /etc/mdadm.conf $TDIR3/etc_mdadm_conf
+			cp /etc/mdadm.conf "$TDIR3/etc_mdadm_conf"
 		test -e /etc/mdadm/mdadm.conf && \
-			cp /etc/mdadm/mdadm.conf $TDIR3/etc_mdadm_mdadm_conf
+			cp /etc/mdadm/mdadm.conf "$TDIR3/etc_mdadm_mdadm_conf"
 
 		# Backup all mdadm --detail output
 		if [ -n "$MDADM" ] ; then
 			cat /proc/mdstat | grep "^md" | while read md rest ; do
-				$MDADM --detail /dev/$md > $TDIR3/$md.sb
-				cat $TDIR3/$md.sb | grep -E "[[:space:]]/dev/[hs]d[a-z][0-9]+$" | awk '{print $NF}' | while read dsk ; do
+				$MDADM --detail /dev/$md > "$TDIR3/$md.sb"
+				cat "$TDIR3/$md.sb" | grep -E "[[:space:]]/dev/[hs]d[a-z][0-9]+$" | awk '{print $NF}' | while read dsk ; do
 					dsk2=`basename "$dsk"`
 					$MDADM --examine "$dsk" > \
 						"$TDIR3/$dsk2.sb"
@@ -186,10 +186,10 @@ do_run()
 	fi
 
 	h_msg 12 "Creating tar archive"
-	tar -zcf $FN.tgz -C $TDIR mbr
+	tar -zcf "$FN.tgz" -C "$TDIR" mbr
 
 	h_msg 12 "Removing temp dir $TDIR"
-	rm -rf $TDIR
+	rm -rf "$TDIR"
 
 	h_msg 6 "Done with $FN.tgz"
 

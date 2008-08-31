@@ -7,6 +7,6 @@
 #	configuration file since MOUNTPOINT is also defined there
 #	to avoid synchronization issues
 
-# The mountpoint
+# The mountpoint (required)
 #MOUNTPOINT=/mnt/backup
 

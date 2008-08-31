@@ -4,9 +4,9 @@
 #
 
 # The destination directory (required)
-DESTDIR="dpkg/"
+DESTDIR="rpm/"
 
 # The destinations filename
-# Default: dpkg_selections.%D1%
-#DESTFILE="dpkg_selections.%D1%
+# Default: rpm.%D1%
+#DESTFILE="rpm.%D1%
 

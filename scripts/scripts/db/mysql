@@ -105,11 +105,11 @@ do_run()
 		if h_is_true $COMPRESS ; then
 			$MYSQLDUMP -u $MYUSER -a $P $db \
 				$MYSQLDUMPEXTRA \
-				| gzip > $DESTDIR/$db.gz
+				| gzip > "$DESTDIR/$db.gz"
 		else
 			$MYSQLDUMP -u $MYUSER -a $P $db \
 				$MYSQLDUMPEXTRA \
-				> $DESTDIR/$db
+				> "$DESTDIR/$db"
 		fi
 		if ! [ "$?" -eq 0 ] ; then
 			h_msg 2 "Failed to backup $db"

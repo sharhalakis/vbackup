@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+
+NAME="mbr"
+
+PRI="25"
+
+w_do_ask()
+{
+    local RET
+
+    RET=1
+    case "$1" in
+	ENABLE)
+	    if h_ask_yesno \
+"It is possible to backup Master Boot Records from local disks,
+LVM information, MD information and some other related information.
+This can be of great help whenever something bad happens." \
+		"Backup Master Boot Records and other related information?" \
+		y ; then
+		RET=0
+	    fi
+	    ASK_NEXT=""
+	;;
+    esac
+
+    return $RET
+}
+
+w_get_config()
+{
+    cat << _KOKO
+DISKS=""
+DESTDIR="mbr/"
+DESTFILE="mbrs.%D1%"
+_KOKO
+}
+
+# vim: set ts=8 sts=4 sw=4 noet formatoptions=r ai nocindent:
+

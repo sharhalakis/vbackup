@@ -122,7 +122,7 @@ do_run()
 		if [ -z "$FN" ] ; then
 			FN="root"
 		fi
-		if ! do_dump $part $DESTDIR/$FN ; then
+		if ! do_dump "$part" "$DESTDIR/$FN" ; then
 			h_error "Backup of $part failed"
 			return 1
 		fi

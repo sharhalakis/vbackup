@@ -1,0 +1,341 @@
+#!/bin/bash
+#
+# Copyright (C) 2006-2008 Stefanos Harhalakis
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+# A helper wizard for creating initial configuration
+#
+
+prefix="@prefix@"
+datarootdir="@datarootdir@"
+datadir="@datadir@"
+myhelperdir="@myhelperdir@"
+
+. $myhelperdir/common
+
+do_version_head()
+{
+	cat << _END
+$PACKAGE_NAME v$PACKAGE_VERSION
+_END
+#$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2008 Harhalakis Stefanos
+}
+
+do_version_bugreport()
+{
+	cat << _END
+Report bugs to $PACKAGE_BUGREPORT
+_END
+}
+
+# Show version and copyright information
+do_version()
+{
+	cat << _END
+$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2008 Harhalakis Stefanos \
+$PACKAGE_BUGREPORT
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+Report bugs to $PACKAGE_BUGREPORT
+
+_END
+}
+
+# Show generic help
+do_help()
+{
+	do_version_head
+	cat << _END
+Usage:
+	vbackup <backup configuration dir>
+		To perform backup based on this dir
+
+     or vbackup [-d <level>] --list
+		To list all available backup scripts
+
+     or vbackup [-d <level>] --check <back configuration dir>
+                To check configuration for all files in dir
+
+     or vbackup --help
+                To get this help
+
+     or vbackup --help <module>
+                To get module specific information
+
+     or vbackup --version
+                To get version and license information
+
+        Directories must be given as absolute paths or they will be prepended
+	with $myconfdir
+
+	-d <level>  Set the message level to <level> (default level is \
+$MESSAGE_LEVEL):
+		    1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
+		    5: Rare messages, 6: Usefull message, 7: Not so usefull
+		    10-14: Debug messages that don't flood
+		    15-19: Debug messages that flood
+
+_END
+	do_version_bugreport
+	exit 0
+}
+
+get_vbackup_conf()
+{
+	[ -z "$1" ] && h_fatal 1 "WTF? BUG!"
+	(
+
+	RET=""
+	while [ -z "$RET" ] ; do
+		h_ask_str \
+"vbackup stores all backups under a common directory prefix. Please enter a
+prefix where all backups will be placed under. Be carefull not to use a path
+that is been backed up or you will create a backup paradox.
+
+The best place to store backups is an external disk or a remote directory that
+is localy mounted" \
+			"Where to place backups?"
+	done
+	DESTDIR0="$RET"
+	
+	
+	cat << _KOKO > "$1"
+# Per backup global configuration file
+#
+# This file holds per-backup configuration options
+
+# A directory where backups will be stored
+# All other DESTDIR directives are relative to this one
+DESTDIR0=$DESTDIR0
+
+# Compress backups? (yes/no)
+COMPRESS="yes"
+
+_KOKO
+	)
+}
+
+do_run()
+{
+	h_ask_txt \
+"Welcome to vbackup initial configuration wizard.
+Your configuration files will be stored in:
+$myconfdir
+
+You'll now be asked a series of questions.
+Default answers will be shown in brackets. You can accept them by pressing
+enter."
+
+	read -p "Press enter to continue..." a
+
+	cd "$wizdir"
+
+	# We will need stdin
+	exec 9<&0
+
+	# Create a temporary directory
+	T=`mktemp -d -p /tmp/v/`
+	if [ -z "$T" ] ; then
+		h_fatal 1 "Failed to create temporary directory!"
+	fi
+
+	mkdir "$T/cfg"
+	mkdir "$T/enabled"
+
+	# Ask a name for the backup
+	h_ask_str \
+"You can have unlimited number of backup schemes. Each scheme must have a
+unique name that will be used to distinguish it. It is possible to have a
+blank scheme name which is fine for most cases." \
+		"Enter the backup scheme name" \
+		""
+	SCHEME="$RET"
+	DESTBASE="$myconfdir/backup.$SCHEME"
+	# Check if it exists
+	if [ -e "${DESTBASE}0" ] || [ -e "${DESTBASE}5}" ] ; then
+		# Find a free dirname to move it to
+		TNAME="$myconfdir/old"
+		CNT=0
+		while [ -e "$TNAME" ] ; do
+			let CNT+=1
+			TNAME="$myconfdir/old$CNT"
+		done
+
+		if ! h_ask_yesno \
+"A backup scheme with that name already exists. I can move existing scheme to
+$TNAME
+You will have to delete it yourself if it is not needed any more" \
+			"Do you want to move existing scheme out of the way?" \
+			"y" ; then
+			h_msg 0 \
+"
+Re-run this wizard to start over
+"
+
+			# Remove tmp dir
+			rm -rf "$T"
+
+			exit 1
+		fi
+
+		if ! mkdir "$TNAME" ; then
+			h_msg 2 "Failed to create directory $TNAME"
+			rm -rf "$T"
+			exit 1
+		fi
+
+		mv "${DESTBASE}0" "$TNAME"
+		mv "${DESTBASE}5" "$TNAME"
+	fi
+
+	# Run the wizards
+	while read fn ; do
+		(
+		. "$fn"
+
+		CFG="$T/cfg/$PRI-$NAME"
+
+		ASK_NEXT="ENABLE"
+		while ! [ -z "$ASK_NEXT" ] ; do
+			w_do_ask "$ASK_NEXT"
+			R="$?"
+		done
+
+		# Prepend an explanatory line
+		(echo "# Auto-created - See sample.$NAME for information"
+		 test -f "$CFG" && cat "$CFG" ) > "$CFG.new"
+		mv -f "$CFG.new" "$CFG"
+
+		# Keep the state of enabled methods
+		# Remove this config file if not needed
+		if [ "$R" = "0" ] ; then
+			touch "$T/enabled/$NAME"
+		else
+			rm -f "$CFG"
+		fi
+		) <&9
+	done < <( $GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*-*' |\
+			sort)
+
+	# Get a temporary file
+	T2=`mktemp -p /tmp/v/`
+
+	# Create configuration
+	while read fn ; do
+		(
+		. "$fn"
+
+		if ! test -f "$T/enabled/$NAME" ; then
+			exit
+		fi
+
+		CFG="$T/cfg/$PRI-$NAME"
+
+		# Empty the file
+		: > $T2
+
+		# Create configuration for each backup level
+		for LEVEL in 0 5 ; do
+			DCFG="$T/final/backup.$LEVEL"
+			test -d "$DCFG" || mkdir -p "$DCFG"
+
+			w_get_config $LEVEL > $T2
+
+			if ! [ -s "$T2" ] ; then
+				rm -f "$T2"
+			else
+				cat $T2 > "$DCFG/$PRI-$NAME.$NAME"
+			fi
+		done
+		) <&9
+	done < <( $GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*-*' |\
+			sort)
+
+	# Create vbackup.conf
+	get_vbackup_conf "$T2"
+	for LEVEL in 0 5 ; do
+		(
+		DCFG="$T/final/backup.$LEVEL"
+
+		cp "$T2" "$DCFG/vbackup.conf"
+		) <&9
+	done
+
+	# Move configuration to final directory
+	for LEVEL in 0 5 ; do
+		DCFG="$T/final/backup.$LEVEL"
+		mv "$DCFG" "$DESTBASE$LEVEL"
+	done
+
+	h_ask_txt \
+"Done! You can now create level 0 backups by running:
+
+# vbackup ${SCHEME}0
+
+and level 5 backups by running:
+
+# vbackup ${SCHEME}5
+
+Level 5 backups are incremental backups. This means that they only store
+differences from the last level 0 backup. This is only possible for filesystem
+backups. For all other cases where an incremental backup is not possible (like
+database backups) a full backup will be made. To restore a level 5 backup you
+also have to have the level 0 backup. This means that you may only delete
+older same-level backups.
+
+All configuration options are placed under $myconfdir
+If you want to further customize the backup procedure you will have to have
+a look at the documentation. All configuration options are documented at
+plugin help screens and in the sample configuration files. You can get a list
+of available plugins by running:
+
+# vbackup --list
+
+You can get further information about each plugin by running
+
+# vbackup --help <plugin name>
+
+After using vbackup don't forget to send some feedback to v13@v13.gr
+Since this is a work-in-progress, this will greatly affect the way vbackup
+is developed and what new features will be available in the near future."
+}
+
+case "$1" in
+	--help)
+		do_help
+		;;
+	-*)
+		do_help
+		;;
+	*)
+		do_run "$1"
+		;;
+esac
+
+

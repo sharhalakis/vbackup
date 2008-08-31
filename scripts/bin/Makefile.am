@@ -1,4 +1,4 @@
-bin_SCRIPTS		= vbackup
+bin_SCRIPTS		= vbackup vbackup-wizard
 mybin_SCRIPTS		= run
 myhelper_SCRIPTS	= common
 

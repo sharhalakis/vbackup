@@ -117,7 +117,7 @@ get_old_date()
 	while [ "$lev" -ge 0 ] ; do
 		statefile="$STATEDIR/${lev}.$2"
 		if [ -f "${statefile}" ] ; then
-			R_LDATE=`cat $statefile`
+			R_LDATE=`cat "$statefile"`
 			R_TARSTATE0="$statefile.snar"
 			R_LLEVEL=$lev
 			return 0
@@ -235,7 +235,7 @@ do_run()
 				h_msg 7 "Last level $LEVEL backup of $dir: NEVER"
 			fi
 
-			if get_old_date $LEVEL $FN ; then
+			if get_old_date $LEVEL "$FN" ; then
 				h_msg 7 "Backup will be based on L$R_LLEVEL backup at $R_LDATE"
 			fi
 
@@ -253,7 +253,7 @@ do_run()
 				--listed-incremental="$R_TARSTATE.new" \
 			 	--sparse $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
-				-f $FN2 .
+				-f "$FN2" .
 		
 			if ! [ "$?" -eq 0 ] ; then
 				h_error "Backup of $dir may have failed"
@@ -264,8 +264,8 @@ do_run()
 			mv -f "$R_TARSTATE.new" "$R_TARSTATE"
 
 			h_msg 6 "Done"
-			echo "${T_DATE}" > $STATEFILE
-			remove_unwanted $LEVEL $FN
+			echo "${T_DATE}" > "$STATEFILE"
+			remove_unwanted $LEVEL "$FN"
 		)
 		h_msg 7 "----------------------------------------"
 	done

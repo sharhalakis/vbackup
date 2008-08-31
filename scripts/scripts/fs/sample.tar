@@ -15,19 +15,19 @@ LEVEL=0
 
 # A space separated list of wildcard masks to identify files to
 # be excluded from the backup, as specified by the --exclude argument of
-# GNU tar
+# GNU tar (optional)
 EXCLUDE="*.iso"
 
 # A file containing one wildcard mask on each line, identifying
-# files to be excluded from the backup
+# files to be excluded from the backup (optional)
 #EXCLUDEFILE="/etc/backup.exclude"
 
 # A path to hold last backup dates. This directory should be
-# persistent for incremental backups to work
-#STATEDIR="/var/lib/vbackup/state"
+# persistent for incremental backups to work (required)
+STATEDIR="/var/lib/vbackup/state/tar"
 
 # The destination directory (required)
-#DESTDIR="fs/%D1%"
+DESTDIR="fs/%D1%"
 
 # The name to give to the root filesystem tar file
 # Default: root

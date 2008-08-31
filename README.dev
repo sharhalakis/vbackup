@@ -24,6 +24,7 @@ ${datadir}/
 				(They are standalone scripts)
 		helpers/	Helper scripts (not standalone)
 		scripts/	The backup scripts
+		wizard/		Wizard configuration files
 
 ${docdir}/
 	vbackup/		Documentation
@@ -113,5 +114,54 @@ or in other configuration files. The vbackup.conf entry is the main one
 but it may be overriden by individual configuration files.
 
  COMPRESS	Whether to compress the backup or not (yes/no, on/off, 1/0)
+
+Wizard:
+=======
+Inside the wizard dir, each script may place a configuration file. This file
+will describe a wizard step for initial configuration creation.
+
+Each wizard configuration file includes:
+NAME="the name of the configuration script"
+PRI="Priority of configuration file"
+
+w_do_ask()
+{
+  A function that will be called to ask for configuration parameters.
+  This function may be called multiple times to answer different questions.
+  The first argument mantates the question to me asked
+  Initialy, this function is called with "ENABLE" as the first argument.
+  All capital letter names should be reserved for vbackup usage. This function
+  must set the variable ASK_NEXT to "" whenever the series of questions is
+  finished, or to a name that will be passed as the first argument to the
+  next function call.
+
+  The last function call must return 0 to indicate that this method is
+  active or 1 to indicate that it is not
+
+  Example call tree:
+  do_ask ENABLE ==> Set ASK_NEXT=path
+  do_ask path ==> Set ASK_NEXT=level
+  do_ask level ==> Set ASK_NEXT="", return code=0
+  finished asking questions, method is enabled
+
+  This function may also write to temporary file $CFG
+  echo 'DIRS="/tmp"' > $CFG
+  echo '# Comment' > $CFG
+
+  This file will be available when w_get_config() is called.
+  Typically, this should contain the majority of the configuration options
+  except from backup level related options.
+}
+
+w_get_config()
+{
+  A function that should print to its stdout the configuration file
+  The first argument is a number that indicates a backup level. This should
+  be used whenever backup levels are supported (or to enable-disable a method
+  for a specific backup level).
+
+  This function may produce empty output to indicate that it should be
+  disabled at the current backup level.
+}
 
 

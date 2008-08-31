@@ -3,10 +3,10 @@
 # $Id$
 #
 
-# The NFS path to use
+# The NFS path to use (required)
 #NFSDIR=127.0.0.1:/myshare/dir
 
-# The mountpoint
+# The mountpoint (required)
 #MOUNTPOINT=/mnt/backup
 
 # The filesystem type (optional)

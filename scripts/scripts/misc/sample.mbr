@@ -9,7 +9,7 @@
 DISKS=""
 
 # The destination directory (required)
-#DESTDIR="mbr/"
+DESTDIR="mbr/"
 
 # The destination filename
 DESTFILE="mbrs.%D1%"

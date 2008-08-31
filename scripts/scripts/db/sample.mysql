@@ -8,29 +8,34 @@
 #
 
 # The username to use (required)
+# "root" should be OK for most cases, unless you've created the 'backup'
+# user that is mentioned above.
 MYUSER="root"
 
 # password
-# This is insecure. Anyone will be able to get this password!
+# This is insecure. Anyone will be able to get this password! It is preferred
+# to add the password in .my.cnf. Take a look at MySQL documentation
 #PASSWORD='1234'
 
-# path to mysql Executable
+# path to mysql Executable (optional)
+# Default: Use $PATH - should work in most cases
 #MYSQL='/usr/bin/mysql'
 
-# Path to mysqldump executable
+# Path to mysqldump executable (optional)
+# Default: Use $PATH - should work in most cases
 #MYSQLDUMP='/usr/bin/mysqldump'
 
-# Databases to backup. A space seperated list of databases
+# Databases to backup. A space seperated list of databases (required)
 # Use - to backup all available databases
 DATABASES="-"
 
 # The destination directory (required)
-#DESTDIR="mysql/%D1%"
+DESTDIR="mysql/%D1%"
 
 # Include CREATE DATABASE statements in dumps
 # Default: no
 #CREATEDB="yes"
 
-# Extra parameters to pass to mysqldump
+# Extra parameters to pass to mysqldump (optional)
 # For example: --default-character-set=latin1 --add-drop-table etc
 MYSQLDUMPEXTRA=""

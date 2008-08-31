@@ -117,7 +117,7 @@ get_old_date()
 	while [ "$lev" -ge 0 ] ; do
 		statefile="$STATEDIR/${lev}.$2"
 		if [ -f "${statefile}" ] ; then
-			R_LDATE=`cat $statefile`
+			R_LDATE=`cat "$statefile"`
 			return 0
 		fi
 		let lev=$lev-1
@@ -240,12 +240,12 @@ do_run()
 			 $GTAR -c --one-file-system $EXCL -C "$dir" \
 			 	-N "$extra_n" $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
-				-f $FN2 --sparse -T - --no-recursion
+				-f "$FN2" --sparse -T - --no-recursion
 		
 			if [ "$?" -eq 0 ] ; then
 				h_msg 6 "Done"
-				echo "${T_DATE}" > $STATEFILE
-				remove_unwanted $LEVEL $FN
+				echo "${T_DATE}" > "$STATEFILE"
+				remove_unwanted $LEVEL "$FN"
 			else
 				h_error "Backup of $dir may have failed"
 				return 1

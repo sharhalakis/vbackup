@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+
+NAME="rpm"
+
+PRI="21"
+
+# The w_do_ask function. Adjust as needed
+# $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
+#     the next question
+#
+# Set ASK_NEXT to the next question or "" for finish
+# When ASK_NEXT=="", also return 0/1 to indicate that the script is enabled
+# (0: enabled, 1: disabled)
+w_do_ask()
+{
+    local RET
+
+    RET=1
+    case "$1" in
+	ENABLE)
+	    # This is only enabled when RPM databse exists
+	    if [ ! -d "/var/lib/rpm" ] ; then
+		ASK_NEXT=""
+		return 0
+	    fi
+
+	    if h_ask_yesno \
+"You can backup your RPM databse. This can be usefull if it get destroyed for
+an unpredicted reason." \
+		"Backup RPM database?" \
+		y ; then
+		RET=0
+	    fi
+	    ASK_NEXT=""
+	;;
+    esac
+
+    return $RET
+}
+
+# The w_get_config function.
+# $1: Backup level
+#
+# Display configuration file in stdout
+w_get_config()
+{
+    cat << _KOKO
+DESTDIR="rpm/"
+_KOKO
+}
+
+# vim: set ts=8 sts=4 sw=4 noet formatoptions=r ai nocindent:
+

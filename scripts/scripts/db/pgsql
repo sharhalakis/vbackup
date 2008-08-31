@@ -136,16 +136,16 @@ do_run()
 		if h_is_true $COMPRESS ; then
 			h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
 			if [ -z "$SUUSER" ] ; then
-				$CMD | gzip > $DESTDIR/$db.gz
+				$CMD | gzip > "$DESTDIR/$db.gz"
 			else
-				su - $SUUSER -c "$CMD" | gzip > $DESTDIR/$db.gz
+				su - $SUUSER -c "$CMD" | gzip > "$DESTDIR/$db.gz"
 			fi
 		else
 			h_msg 6 "Dumping: $db to $DESTDIR/$db"
 			if [ -z "$SUUSER" ] ; then
-				$CMD > $DESTDIR/$db
+				$CMD > "$DESTDIR/$db"
 			else
-				su - $SUUSER -c "$CMD" > $DESTDIR/$db
+				su - $SUUSER -c "$CMD" > "$DESTDIR/$db"
 			fi
 		fi
 	done
@@ -155,17 +155,17 @@ do_run()
 		if h_is_true $COMPRESS ; then
 			h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS.gz"
 			if [ -z "$SUUSER" ] ; then
-				$CMD | gzip > $DESTDIR/$GLOBALS.gz
+				$CMD | gzip > "$DESTDIR/$GLOBALS.gz"
 			else
 				su - $SUUSER -c "$CMD" | gzip \
-					> $DESTDIR/$GLOBALS.gz
+					> "$DESTDIR/$GLOBALS.gz"
 			fi
 		else
 			h_msg 6 "Dumping globals to $DESTDIR/$GLOBALS"
 			if [ -z "$SUUSER" ] ; then
-				$CMD > $DESTDIR/$GLOBALS
+				$CMD > "$DESTDIR/$GLOBALS"
 			else
-				su - $SUUSER -c "$CMD" > $DESTDIR/$GLOBALS
+				su - $SUUSER -c "$CMD" > "$DESTDIR/$GLOBALS"
 			fi
 		fi
 	fi

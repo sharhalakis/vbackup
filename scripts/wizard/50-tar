@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+
+NAME="tar"
+
+# The priority to be used for the configuration file
+PRI="50"
+
+# The w_do_ask function. Adjust as needed
+# $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
+#     the next question
+#
+# Set ASK_NEXT to the next question or "" for finish
+# When ASK_NEXT=="", also return 0/1 to indicate that the script is enabled
+# (0: enabled, 1: disabled)
+w_do_ask()
+{
+    local R T
+
+    R=1
+    case "$1" in
+	ENABLE)
+	    if h_ask_yesno \
+"It is advised to backup your system configuration. The system configuration
+will be backed up using GNU tar" \
+		"Backup system configuration?" \
+		y ; then
+		ASK_NEXT="dirs"
+	    else
+		ASK_NEXT="home"
+	    fi
+
+	    touch "$CFG"
+	;;
+	
+	dirs)
+	    T="/etc /boot"
+	    while true ; do
+		h_ask_str \
+"On sane systems all configuration files are stored in /etc. It is also a 
+convenience thing to backup /boot too. Please note that this wizard doesn't
+support paths with spaces." \
+		    "What directories contain configuration files?" \
+		    "$T"
+
+		for i in $RET ; do
+		    if [ ! -d "$i" ] ; then
+			h_msg 3 "No such directory: $i"
+			continue
+		    fi
+		done
+
+		ASK_NEXT="home"
+
+		echo "DIRS='$RET'" > "$CFG"
+		break
+	    done
+	;;
+
+	home)
+	    if [ ! -d /home ] ; then
+		ASK_NEXT="other"
+		return
+	    fi
+
+	    if h_ask_yesno \
+"For desktop systems, the most important part of the backup is the home
+directories. In most cases home directories must be backed up. If you have
+an XFS partition for the home directories you should say no here and use
+the xfsdump method for backing up the whole partition.
+Beware that this will not cross filesystem boundaries. If you have multiple
+partitions mounted under /home you should backup each of them seperately!" \
+		"Backup /home directory?" \
+		y ; then
+		# Source the existing $CFG and append /home to $DIRS
+		( . "$CFG" ; echo "DIRS='$DIRS /home'" > "$CFG" )
+	    fi
+	    ASK_NEXT="other"
+	;;
+
+	other)
+	    h_ask_str \
+"If you have other directories that need to be backed up using the tar method
+enter them here" \
+		"Other directories to backup?"
+	    if [ ! -z "$RET" ] ; then
+		# Source the existing $CFG and append $RET to $DIRS
+		( . "$CFG" ; echo "DIRS='$DIRS $RET'" > "$CFG" )
+	    fi
+	    ASK_NEXT=""
+
+	    # Check whether any directory is added to $DIRS
+	    if test -f "$CFG" ; then
+		. "$CFG"
+	    else
+		DIRS=""
+	    fi
+
+	    if [ "$(echo "$DIRS" | wc -w)" -eq 0 ] ; then
+		R=1
+	    else
+		R=0
+	    fi
+	;;
+    esac
+
+    return $R
+}
+
+# The w_get_config function.
+# $1: Backup level
+#
+# Display configuration file in stdout
+w_get_config()
+{
+    cat "$CFG"
+    cat << _KOKO
+LEVEL=$1
+STATEDIR="/var/lib/vbackup/state/tar"
+DESTDIR="fs/%D1%"
+_KOKO
+}
+
+# vim: set ts=8 sts=4 sw=4 noet formatoptions=r ai nocindent:
+

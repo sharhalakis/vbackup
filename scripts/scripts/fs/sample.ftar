@@ -17,21 +17,21 @@ LEVEL=0
 # be excluded from the backup. They will be checked against the whole path
 # starting from the DIRS entries. For example, when dumping /usr, the regexp
 # will be checked against share/ local/ local/sbin/ local/bin/ etc.
-# No '^' or '$' will be added, so you should probable add one yourself.
+# No '^' or '$' will be added, so you should probably add one yourself.
 # When excluding directories you should not use ^XX$ because this will only
-# exclulde the directory.
+# exclulde the directory. (optional)
 #EXCLUDE="^/tmp"
 
 # A file containing one regular expression per line, as specified above
-# files to be excluded from the backup
+# that indicate files to be excluded from the backup
 #EXCLUDEFILE="/etc/backup.exclude"
 
 # A path to hold last backup dates. This directory should be
-# persistent for incremental backups to work
-#STATEDIR="/var/lib/vbackup/state/ftar"
+# persistent for incremental backups to work (required)
+STATEDIR="/var/lib/vbackup/state/ftar"
 
 # The destination directory (required)
-#DESTDIR="fs/%D1%"
+DESTDIR="fs/%D1%"
 
 # The name to give to the root filesystem tar file
 # Default: root
