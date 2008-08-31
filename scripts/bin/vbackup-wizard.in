@@ -137,7 +137,7 @@ enter."
 	exec 9<&0
 
 	# Create a temporary directory
-	T=`mktemp -d -p /tmp/v/`
+	T=`mktemp -d`
 	if [ -z "$T" ] ; then
 		h_fatal 1 "Failed to create temporary directory!"
 	fi

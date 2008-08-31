@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([vbackup], [0.1.6], [v13@v13.gr])
-AM_INIT_AUTOMAKE(vbackup, 0.1.6)
+AC_INIT([vbackup], [0.1.6.1], [v13@v13.gr])
+AM_INIT_AUTOMAKE(vbackup, 0.1.6.1)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
