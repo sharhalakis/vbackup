@@ -300,7 +300,7 @@ You can get further information about each plugin by running
 
 After using vbackup don't forget to send some feedback to v13@v13.gr
 Since this is a work-in-progress, this will greatly affect the way vbackup
-is developed and what new features will be available in the near future."
+is developed and what new features will be available in the near future." | more
 }
 
 case "$1" in

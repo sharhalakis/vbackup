@@ -58,7 +58,15 @@ for each cluster. You'll have to do this by hand" \
 	;;
 
 	pguser)
-	    h_ask_str "" \
+	    h_ask_str
+"You need to use a postgresql administrative user to perform database backup.
+This is either an administrative user you've created or a default one.
+
+This user should be a database user and not a system user.
+
+For most systems you can use the 'postgres' user be default and just press
+enter here. Debian users just press enter.
+" \
 		"Enter the username of a postgresql administrative user" \
 		"postgres"
 
@@ -68,11 +76,19 @@ for each cluster. You'll have to do this by hand" \
 
 	suuser)
 	    h_ask_str \
-"You can either use a database password or an existing user that can connect
-to PostgreSQL as the administrative user without requiring a password. The
-later is recommended. Supplying a password is insecure on multiuser systems.
-Either provide a username to 'su' to, or a password to use to connect.
-Enter - if you want to use a password instead." \
+"You can either use a database password or an existing system user that can
+connect to PostgreSQL as the administrative user without requiring a password.
+The later is recommended. Supplying a password is insecure on multiuser
+systems. Either provide a username to 'su' to, or a password to use to connect.
+Enter - if you want to use a password instead.
+
+You can setup this kind of access:
+a) by modifying pg_hba.conf
+b) by adding a .pgpass file in a user's home directory. A sample line for the
+.pgpass file is: *:*:*:username:password
+
+For debian systems you can rely on the 'postgres' user by default and just
+press enter here." \
 	    "What username to su to?" \
 	    "postgres"
 
