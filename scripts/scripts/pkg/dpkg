@@ -76,7 +76,7 @@ do_run()
 	FN="$DESTDIR/$R"
 
 	h_msg -n 6 "Storing dpkg selections to $FN.gz..."
-	dpkg --get-selections | gzip > "$FN.gz"
+	dpkg --get-selections '*' | gzip > "$FN.gz"
 	h_msg 6 " done"
 
 	return 0

@@ -58,12 +58,12 @@ do_run()
 	h_msg 13 "Check whether $DIR exists"
 	if test -e "$DIR"  ; then
 		h_msg 10 "$DIR exists"
-		ret=3
-	else
-		h_msg 10 "$DIR doesn't exist"
 		ret=0
+	else
+		h_msg 2 "$DIR doesn't exist"
+		ret=3
 	fi
 
-	return 0
+	return $ret
 }
 
