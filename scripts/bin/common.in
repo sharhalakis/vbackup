@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This file is part of vbackup.
 #
@@ -44,16 +44,35 @@ PACKAGE_NAME="@PACKAGE_NAME@"
 PACKAGE_VERSION="@PACKAGE_VERSION@"
 PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
 
+# Lookup an executable
+# Last restore
+# Required for prepackaged vbackup
+function h_lookup()
+{
+	(
+	# Ensure that path contains /sbin and /usr/sbin
+	export PATH="$PATH:/sbin:/usr/sbin"
+	if [ -z "$1" ] ; then
+		F=$(which "$2")
+		if ! [ -z "$F" ] ; then
+			echo "$F"
+		fi
+	else
+		echo "$1"
+	fi
+	)
+}
+
 # Program locations
-XFSDUMP="@XFSDUMP@"
-GFIND="@GFIND@"
-GTAR="@GTAR@"
-FDISK="@FDISK@"
-SFDISK="@SFDISK@"
-MDADM="@MDADM@"
-LVDISPLAY="@LVDISPLAY@"
-VGDISPLAY="@VGDISPLAY@"
-PVDISPLAY="@PVDISPLAY@"
+XFSDUMP=$(h_lookup "@XFSDUMP@" xfsdump)
+GFIND=$(h_lookup "@GFIND@" find)
+GTAR=$(h_lookup "@GTAR@" tar)
+FDISK=$(h_lookup "@FDISK@" fdisk)
+SFDISK=$(h_lookup "@SFDISK@" sfdisk)
+MDADM=$(h_lookup "@MDADM@" mdadm)
+LVDISPLAY=$(h_lookup "@LVDISPLAY@" lvdisplay)
+VGDISPLAY=$(h_lookup "@VGDISPLAY@" vgdisplay)
+PVDISPLAY=$(h_lookup "@PVDISPLAY@" pvdisplay)
 ECHO_E="@ECHO_E@"
 
 # Location of main programs
