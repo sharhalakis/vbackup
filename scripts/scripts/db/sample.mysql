@@ -4,7 +4,7 @@
 #
 # You may want to add a user named backup and do:
 #
-# mysql> grant select,show databases on *.* to 'backup'@'localhost';
+# mysql> grant select,show databases,lock tables on *.* to 'backup'@'localhost';
 #
 
 # The username to use (required)
