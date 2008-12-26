@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (C) 2006-2008 Stefanos Harhalakis
 #
@@ -180,6 +180,10 @@ do_run_check_common()
 	# If this becomes one, then all scripts should exit without doing
 	# aything at all, unless there is a very good reason (like umount)
 	export ABORT=0
+
+	# Transform DESTDIR0
+	h_transform "$DESTDIR0"
+	DESTDIR0="$R"
 
 	export DESTDIR0
 
