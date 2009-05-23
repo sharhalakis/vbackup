@@ -111,8 +111,9 @@ h_transform()
 	local D1
 
 	D1=`h_formdate 1`
+	L="$LEVEL"
 
-	R=`echo "$1" | sed "s,%D1%,$D1,g"`
+	R=`echo "$1" | sed "s,%D1%,$D1,g" | sed "s,%L%,$L,g"`
 }
 
 

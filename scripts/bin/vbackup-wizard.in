@@ -221,7 +221,7 @@ Re-run this wizard to start over
 			sort)
 
 	# Get a temporary file
-	T2=`mktemp -p /tmp/v/`
+	T2=`mktemp -p /tmp/`
 
 	# Create configuration
 	while read fn ; do

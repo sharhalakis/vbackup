@@ -125,6 +125,7 @@ do_list()
 }
 
 # Set the CONFDIR variable
+# Also set the LEVEL variable
 # $1 is the directory
 set_confdir()
 {
@@ -139,6 +140,8 @@ set_confdir()
 	else
 		CONFDIR="$1"
 	fi
+
+	LEVEL="$1"
 
 	h_msg 6 "Using $CONFDIR"
 
@@ -174,7 +177,7 @@ do_run_check_common()
 	local	T
 
 	if [ "$1" != "run" ] && [ "$1" != "check" ] ; then
-		h_fatal 1 "Bug argument to do_run_check_common()"
+		h_fatal 1 "Bad argument to do_run_check_common()"
 	fi
 
 	# If this becomes one, then all scripts should exit without doing
