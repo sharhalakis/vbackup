@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+# Description
+#
+#	Delete a directory recursively
+#
+
+NAME="rm"
+VERSION="$PACKAGE_VERSION"
+DESC="Remove a directory recursively"
+LICENSE="GPLv2"
+COPYRIGHT="Copyright (c) 2009 Stefanos Harhalakis"
+CONTACT="v13@v13.gr"
+
+# Display help
+do_help()
+{
+	cat << _END
+A script to remove a directory. It can be used after copying a backup
+to a remote host.
+
+Configuration options:
+	DIR		The directory to remove. Relative to DESTDIR0
+_END
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$DIR" ] && h_error "Missing DIR" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	# Transform this and construct $DST
+	h_transform "$DIR"
+	DST="$DESTDIR0/$R"
+
+	if [ -e "$DST" ] ; then
+		h_msg 7 "Removing $DST"
+		rm -rf "$DST"
+	else
+		h_msg 6 "Not found: $DST. Nothing to delete"
+	fi
+
+	return 0
+}
+

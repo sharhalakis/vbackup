@@ -1,0 +1,11 @@
+# Sample "rm" configuration file
+#
+# $Id: sample.pgsql 1421 2008-01-04 17:01:13Z v13 $
+#
+
+# A directory to be recursively removed (required)
+# This is relative to DESTDIR0
+# Use / if you want to remove DESDIR0
+DIR=""
+
+

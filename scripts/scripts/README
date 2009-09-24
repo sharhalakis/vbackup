@@ -7,4 +7,5 @@ fs/		Filesystem backups
 mount/		Scripts to mount/umount a media
 misc/		Weird scripts
 pkg/		Package lists backups
+netcp/		Copy data over network
 

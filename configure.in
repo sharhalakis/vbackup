@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([vbackup], [0.1.7], [v13@v13.gr])
-AM_INIT_AUTOMAKE(vbackup, 0.1.7)
+AC_INIT([vbackup], [0.1.8], [v13@v13.gr])
+AM_INIT_AUTOMAKE(vbackup, 0.1.8)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
@@ -80,6 +80,7 @@ AC_PATH_PROG([MDADM], [mdadm], [], [$PATH2])
 AC_PATH_PROG([LVDISPLAY], [lvdisplay], [], [$PATH2])
 AC_PATH_PROG([VGDISPLAY], [vgdisplay], [], [$PATH2])
 AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
+AC_PATH_PROG([SCP], [scp], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`
@@ -112,6 +113,7 @@ AC_SUBST([MDADM])
 AC_SUBST([LVDISPLAY])
 AC_SUBST([VGDISPLAY])
 AC_SUBST([PVDISPLAY])
+AC_SUBST([SCP])
 AC_SUBST([ECHO_E])
 
 # Checks for library functions.
@@ -128,6 +130,7 @@ AC_CONFIG_FILES([Makefile
 		scripts/scripts/misc/Makefile
 		scripts/scripts/fs/Makefile
 		scripts/scripts/pkg/Makefile
+		scripts/scripts/netcp/Makefile
 		scripts/wizard/Makefile
 		])
 AC_OUTPUT
@@ -148,6 +151,12 @@ fi
 if test -z "$XFSDUMP" ; then
 	echo 
 	echo " * xfsdump was not found. The xfsdump method will not function."
+	ERR=1
+fi
+
+if test -z "$SCP" ; then
+	echo
+	echo " * scp was not found. The scp method will not function."
 	ERR=1
 fi
 

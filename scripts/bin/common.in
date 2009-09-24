@@ -45,7 +45,6 @@ PACKAGE_VERSION="@PACKAGE_VERSION@"
 PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
 
 # Lookup an executable
-# Last restore
 # Required for prepackaged vbackup
 function h_lookup()
 {
@@ -73,6 +72,7 @@ MDADM=$(h_lookup "@MDADM@" mdadm)
 LVDISPLAY=$(h_lookup "@LVDISPLAY@" lvdisplay)
 VGDISPLAY=$(h_lookup "@VGDISPLAY@" vgdisplay)
 PVDISPLAY=$(h_lookup "@PVDISPLAY@" pvdisplay)
+SCP=$(h_lookup "@SCP@" scp)
 ECHO_E="@ECHO_E@"
 
 # Location of main programs

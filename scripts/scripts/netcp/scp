@@ -1,0 +1,123 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+#
+# $Id$
+#
+# Description
+#
+#	Perform file copy using scp
+#
+
+NAME="scp"
+VERSION="$PACKAGE_VERSION"
+DESC="Remote file copy using scp"
+LICENSE="GPLv2"
+COPYRIGHT="Copyright (c) 2009 Stefanos Harhalakis"
+CONTACT="v13@v13.gr"
+
+# Display help
+do_help()
+{
+	cat << _END
+This method copies a file or a tree to a remote host using scp. It can be
+used at the end of a backup to copy the backup to a remote host.
+
+For scp to work you have to setup public key authentication from local host
+to the remote host. You also have to to perform an interactive ssh to the
+remote host first. This is needed to accept the remote host's key and ensure
+that public key authentication works.
+
+NOTE: When doing the interactive login use the exact same hostname as it
+is specified in the config file. For ssh "127.0.0.1" and "localhost" are not
+the same.
+
+Configuration options:
+	SOURCE		The local directory to copy data from (required)
+	RHOST		The remote host name (required)
+	RPREFIX		A prefix at the remote host that should pre-exist
+			(required)
+	RDIR		The directory under prefix that will be used for
+			data to be copyied 
+	USERNAME	The username to use (required)
+	SCPEXTRA	Extra parameters to be passedo to scp (optional)
+_END
+
+	if [ -z "$SCP" ] ; then
+		cat << _END
+
+ !! This method is DISABLED becuase SCP was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$SCP" ] && h_error "SCP was not found" && return 1
+
+#	[ -z "$SOURCE" ] && h_error "Missing SOURCE" && return 1
+	[ -z "$RHOST" ] && h_error "Missing RHOST" && return 1
+	[ -z "$USERNAME" ] && h_error "Missing USERNAME" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	if [ -z "$SCP" ] ; then
+		h_error "SCP was not found"
+		return 1
+	fi
+
+	# Form destination
+	DST="$RPREFIX/$RDIR"
+
+	# Expand special chars
+	h_transform "$DST"
+	DST="$R"
+
+	# Form source
+	h_transform "$SOURCE"
+	T="${R:0:0}"
+	if ! [ "x$T" = "x/" ] ; then
+		SRC="$DESTDIR0/$R"
+	else
+		SRC="$R"
+	fi
+
+	h_msg 6 "$SRC -> $USERNAME@$RHOST:$DST"
+
+	if scp -o PubkeyAuthentication=yes -o PasswordAuthentication=no \
+		-o BatchMode=yes \
+		$SCPEXTRA \
+		-r \
+		"$SRC" "$USERNAME@$RHOST:$DST" ; then
+		h_msg 6 "scp succeeded"
+	else
+		h_msg 2 "scp failed"
+	fi
+
+	return 0
+}
+

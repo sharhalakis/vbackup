@@ -1,0 +1,40 @@
+# Sample tar configuration file
+#
+# $Id: sample.xfsdump 1416 2007-12-28 12:36:01Z v13 $
+#
+
+# The local directory to be copied to remote system
+# This can be used in two ways:
+# 1) A relative path is set: This is interpreted as being relative to
+#    DESTDIR0. This can be used in a backup strategy where, after creating
+#    the backup, all data are copied to a remote host.
+# 2) An absoulte path is set: This is the simple case of copying something
+#    to a remote host.
+#
+# If this is empty then then DESTDIR0 is used by itself
+#
+# Default: empty
+SOURCE=""
+
+# The remote host to copy data to (required)
+RHOST=""
+
+# The remote path to copy data to (required)
+#
+# The full path is RPREFIX/RDIR
+#
+# The RPREFIX must exist.
+# The RDIR will be created if it doesn't exist.
+# RDIR must only contain one level to be created. For example, if RDIR is
+# a/b/c and only a/ exists, then it will faile. However, if a/b exists then
+# it will succeed. This happens because of scp.
+RPREFIX=""
+# RDIR="%D1%/"
+
+# The username to use for scp (required)
+USERNAME=""
+
+# Extra parameters to be passed to scp (optional)
+# WARNING: no spaces !
+# SCPEXTRA=""
+
