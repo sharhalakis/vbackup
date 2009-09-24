@@ -76,7 +76,7 @@ Usage:
 	vbackup <backup configuration dir>
 		To perform backup based on this dir
 
-     or vbackup [-d <level>] --list
+     or vbackup --list
 		To list all available backup scripts
 
      or vbackup [-d <level>] --check <back configuration dir>
@@ -141,7 +141,7 @@ set_confdir()
 		CONFDIR="$1"
 	fi
 
-	LEVEL="$1"
+	export LEVEL="$1"
 
 	h_msg 6 "Using $CONFDIR"
 

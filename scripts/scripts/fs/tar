@@ -249,7 +249,8 @@ do_run()
 				touch "$R_TARSTATE.new"
 			fi
 		
-			$GTAR -c --one-file-system $EXCL -C "$dir" \
+			$GTAR -c --one-file-system -C "$dir" \
+				$T_EXCL_F $T_EXCL \
 				--listed-incremental="$R_TARSTATE.new" \
 			 	--sparse $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
