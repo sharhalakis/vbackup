@@ -177,7 +177,7 @@ do_script_run()
 	if [ ! -z "$DESTDIR" ] ; then
 		h_formdest "$DESTDIR"
 		DESTDIR="$R_DESTDIR"
-		h_ensuredestdir "$DESTDIR"
+		[ "x$1" = "xoff" ] || h_ensuredestdir "$DESTDIR"
 		h_msg 11 "DESTDIR: $DESTDIR"
 	fi
 

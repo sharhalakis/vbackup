@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH VBACKUP 8 "Aug 31, 2008"
+.TH VBACKUP 8 "Sep 24, 2009"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -76,7 +76,7 @@ For example, a simplistic backup strategy may have two directories named backup.
 .PP
 It is adviced to have a directory named rc.d under /etc/vbackup that will hold all configuration files. After that, individual backup.XXXXX directories will only contain links to those files. It is absolutely sure that some files will be the same among different backup strategies and trying to keep them synchronized will be an uneeded pain.
 .PP
-Each configuration file must contain a vbackup.conf file that specifies some global configuration options (like a destination directory). Next, it must contain one or more module configuration files. The available modules can be seen using the \fB\-\-list\fP parameter. Each configuration file is in the form \fBsomething\fP.\fBmodulename\fP. It is suggested that \fBsomething\fP is in the form of \fBNN\-string\fP where \fBNN\fP is a two (or more) digit number and \fBstring\fP is a descriptive string. For example, a good name is "00\-myserver.nfsmount". This clearly shows that a path in myserver will be mounted using nfs and it will help you when 2 years later. The number prefix helps in determining the sorting order. \fIAll configuration files are examined in a sorted order\fP.
+Each configuration file must contain a vbackup.conf file that specifies some global configuration options (like a destination directory). Next, it must contain one or more module configuration files. The available modules can be seen using the \fB\-\-list\fP parameter. Each configuration file is in the form \fBsomething\fP.\fBmodulename\fP. It is suggested that \fBsomething\fP is in the form of \fBNN\-string\fP where \fBNN\fP is a two (or more) digit number and \fBstring\fP is a descriptive string. For example, a good name is "00\-myserver.nfsmount". This clearly shows that a path in myserver will be mounted using nfs and it will help you when 2 years later you'll attempt to edit those files. The number prefix helps in determining the sorting order. \fIAll configuration files are examined in a sorted order\fP.
 .PP
 The complete documentation is in the README files.
 .SH BACKUP
@@ -87,7 +87,7 @@ dpkg
 Backup the debian package list. Small space requirement and very usefull for restoring a debian system.
 .TP
 exist
-Check whether a file or directory exists. This can be used to determine whether a filesystem is actually mounted or not. \fIIt is strongly advised to use this when you're not using mount or nfsmount!
+Check whether a file or directory exists. This can be used to determine whether a filesystem is actually mounted or not. \fIIt is strongly advised to use this when you're not using mount or nfsmount!\fP
 .TP
 ftar
 Use tar to backup a filesystem but use find to locate the files to backup. This is simillar to the tar method but is not that good for incremental backups. If you restore a system that was incrementally backed up using this method it will have all files that were deleted between intermediate backups too. The advantage of this method is that you can use regular expression to filter files that will be backed up.
@@ -122,7 +122,7 @@ Perform incremental backups using xfsdump. This is by far the very best way to b
 You can extend vbackup by writting very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
 .SH AUTHOR \- COPYRIGHT
 vbackup is written and maintained by Stefanos Harhalakis.
-Copyright (c) 2006\-2008 Harhalakis Stefanos
+Copyright (c) 2006\-2009 Harhalakis Stefanos
 .SH CONTACT
 For bugs, requests, ideas, comments or anything else (except spam) contact <v13@v13.gr>
 .SH LICENSE
