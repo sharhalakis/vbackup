@@ -158,6 +158,8 @@ mysql:	    Dump mysql databases
 pgsql:	    Dump pgsql databases
 dpkg:	    Backup debian dpkg database
 mbr:	    Backup MBRs and partition tables
+scp:	    Copy a local file to a remote host using scp
+rm:	    Remove a file
 
 More:
 =====
