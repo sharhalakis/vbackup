@@ -28,8 +28,9 @@ RHOST=""
 # RDIR must only contain one level to be created. For example, if RDIR is
 # a/b/c and only a/ exists, then it will faile. However, if a/b exists then
 # it will succeed. This happens because of scp.
+# Default for RDIR: "%D1-%L%"
 RPREFIX=""
-# RDIR="%D1%/"
+# RDIR="%D1%-%L%/"
 
 # The username to use for scp (required)
 USERNAME=""

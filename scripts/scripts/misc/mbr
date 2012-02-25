@@ -113,7 +113,7 @@ do_run()
 	fi
 
 	if [ -z "$DESTFILE" ] ; then
-		DESTFILE="mbrs.%D1%"
+		DESTFILE="mbrs"
 	fi
 
 	h_transform "$DESTFILE"

@@ -52,7 +52,7 @@ Configuration options:
 	RPREFIX		A prefix at the remote host that should pre-exist
 			(required)
 	RDIR		The directory under prefix that will be used for
-			data to be copyied 
+			data to be copied 
 	USERNAME	The username to use (required)
 	SCPEXTRA	Extra parameters to be passedo to scp (optional)
 _END
@@ -88,6 +88,10 @@ do_run()
 	if [ -z "$SCP" ] ; then
 		h_error "SCP was not found"
 		return 1
+	fi
+
+	if [ -z "$RDIR" ] ; then
+		RDIR="%D1%-%L%"
 	fi
 
 	# Form destination

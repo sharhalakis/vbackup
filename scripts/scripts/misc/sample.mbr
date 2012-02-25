@@ -12,5 +12,5 @@ DISKS=""
 DESTDIR="mbr/"
 
 # The destination filename
-DESTFILE="mbrs.%D1%"
+DESTFILE="mbrs"
 
