@@ -121,7 +121,7 @@ w_get_config()
     cat $CFG
     cat << _KOKO
 DATABASES="-"
-DESTDIR="pgsql/%D1%"
+DESTDIR="pgsql/"
 _KOKO
 }
 

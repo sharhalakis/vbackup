@@ -83,7 +83,7 @@ w_get_config()
     cat << _KOKO
 MYUSER="root"
 DATABASES="-"
-DESTDIR="mysql/%D1%"
+DESTDIR="mysql/"
 _KOKO
 }
 

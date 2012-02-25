@@ -135,7 +135,7 @@ w_get_config()
     cat << _KOKO
 LEVEL=$1
 STATEDIR="/var/lib/vbackup/state/tar"
-DESTDIR="fs/%D1%"
+DESTDIR="fs/"
 _KOKO
 }
 

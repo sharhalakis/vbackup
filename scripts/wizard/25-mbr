@@ -50,7 +50,7 @@ w_get_config()
     cat << _KOKO
 DISKS=""
 DESTDIR="mbr/"
-DESTFILE="mbrs.%D1%"
+DESTFILE="mbrs"
 _KOKO
 }
 
