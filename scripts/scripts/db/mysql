@@ -88,7 +88,8 @@ do_run()
 
 	P=""
 	if [ ! -z "$CREATEDB" ] ; then
-		P="$P -B --create-options"
+		# P="$P -B --create-options"
+		P="$P --create-options"
 	fi
 
 	if [ "$DATABASES" = "-" ] ; then
@@ -103,11 +104,11 @@ do_run()
 	for db in $DATABASES ; do
 		h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
 		if h_is_true $COMPRESS ; then
-			$MYSQLDUMP -u $MYUSER -a $P $db \
+			$MYSQLDUMP -u $MYUSER -R $P $db \
 				$MYSQLDUMPEXTRA \
 				| gzip > "$DESTDIR/$db.gz"
 		else
-			$MYSQLDUMP -u $MYUSER -a $P $db \
+			$MYSQLDUMP -u $MYUSER -R $P $db \
 				$MYSQLDUMPEXTRA \
 				> "$DESTDIR/$db"
 		fi

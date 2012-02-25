@@ -30,7 +30,7 @@ MYUSER="root"
 DATABASES="-"
 
 # The destination directory (required)
-DESTDIR="mysql/%D1%"
+DESTDIR="mysql/"
 
 # Include CREATE DATABASE statements in dumps
 # Default: no

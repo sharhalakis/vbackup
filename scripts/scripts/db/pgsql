@@ -121,7 +121,7 @@ do_run()
 
 	if [ "$DATABASES" = "-" ] ; then
 		CMD="$PSQL -F , -A $P_CONN -P tuples_only -P pager=off -l | \
-		     cut -f 1 -d, $P_FILT1"
+		     grep ',.*,' | cut -f 1 -d, $P_FILT1"
 		if [ -z "$SUUSER" ] ; then
 			DATABASES=`$CMD`
 		else

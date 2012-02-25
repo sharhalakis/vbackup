@@ -39,7 +39,7 @@ PGUSER="backup"
 DATABASES="-"
 
 # The destination directory (required)
-DESTDIR="pgsql/%D1%"
+DESTDIR="pgsql/"
 
 # Include create database statements (yes/no)
 # Default: yes
