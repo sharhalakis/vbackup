@@ -69,7 +69,7 @@ do_run()
 	fi
 
 	if [ -z "$DESTFILE" ] ; then
-		DESTFILE="rpm.%D1%"
+		DESTFILE="rpm"
 	fi
 
 	h_transform "$DESTFILE"

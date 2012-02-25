@@ -7,6 +7,6 @@
 DESTDIR="dpkg/"
 
 # The destinations filename
-# Default: dpkg_selections.%D1%
-#DESTFILE="dpkg_selections.%D1%
+# Default: dpkg_selections
+#DESTFILE="dpkg_selections
 

@@ -27,7 +27,7 @@ EXCLUDE="*.iso"
 STATEDIR="/var/lib/vbackup/state/tar"
 
 # The destination directory (required)
-DESTDIR="fs/%D1%"
+DESTDIR="fs/"
 
 # The name to give to the root filesystem tar file
 # Default: root

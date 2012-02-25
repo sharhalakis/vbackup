@@ -31,7 +31,7 @@ LEVEL=0
 STATEDIR="/var/lib/vbackup/state/ftar"
 
 # The destination directory (required)
-DESTDIR="fs/%D1%"
+DESTDIR="fs/"
 
 # The name to give to the root filesystem tar file
 # Default: root

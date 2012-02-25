@@ -17,5 +17,5 @@ LEVEL=0
 #MEDLABEL="localhost"
 
 # The destination directory (required)
-DESTDIR="xfs/%D1%"
+DESTDIR="xfs/"
 
