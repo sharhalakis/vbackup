@@ -81,6 +81,7 @@ AC_PATH_PROG([LVDISPLAY], [lvdisplay], [], [$PATH2])
 AC_PATH_PROG([VGDISPLAY], [vgdisplay], [], [$PATH2])
 AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
 AC_PATH_PROG([SCP], [scp], [], [$PATH2])
+AC_PATH_PROG([OPENSSL], [openssl], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`
@@ -131,6 +132,7 @@ AC_CONFIG_FILES([Makefile
 		scripts/scripts/fs/Makefile
 		scripts/scripts/pkg/Makefile
 		scripts/scripts/netcp/Makefile
+		scripts/scripts/encrypt/Makefile
 		scripts/wizard/Makefile
 		])
 AC_OUTPUT

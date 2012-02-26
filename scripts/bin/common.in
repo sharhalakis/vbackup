@@ -73,6 +73,7 @@ LVDISPLAY=$(h_lookup "@LVDISPLAY@" lvdisplay)
 VGDISPLAY=$(h_lookup "@VGDISPLAY@" vgdisplay)
 PVDISPLAY=$(h_lookup "@PVDISPLAY@" pvdisplay)
 SCP=$(h_lookup "@SCP@" scp)
+OPENSSL=$(h_lookup "@OPENSSL@" openssl)
 ECHO_E="@ECHO_E@"
 
 # Location of main programs

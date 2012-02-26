@@ -60,7 +60,7 @@ _END
 	if [ -z "$SCP" ] ; then
 		cat << _END
 
- !! This method is DISABLED becuase SCP was not found
+ !! This method is DISABLED because SCP was not found
 _END
 	fi
 }
