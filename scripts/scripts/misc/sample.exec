@@ -1,0 +1,19 @@
+# Sample config file for the exec plugin
+
+custom_exec()
+{
+	# Add commands to run here
+
+	# This function must return:
+	# 0: If everything went OK
+	# 1: If an error occured but it is not critical. The rest of the
+	#    backups can goon
+	# 2: A critical error occured. The backup should stop. However,
+	#    this is advisory and some scripts may choose to ignore it.
+	#    For example, a script that finalizes the backup by umounting a
+	#    directory may choose to ignore this and umount the directory
+	# 3: Something exceptional have occured and the backup procedure
+	#    will stop immediately.
+	return 0
+}
+
