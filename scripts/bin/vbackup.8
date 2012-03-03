@@ -53,7 +53,7 @@ Check configuration files for a specific backup strategy. Each module checks its
 \fB\-d <level>\fP
 Set the message level to <level> (default level is 8):
 1: Fatal, 2: Error, 3: Warning, 4: Note, 5\-7: Information
-(5: Rare messages, 6: Usefull message, 7: Not so usefull), 
+(5: Rare messages, 6: Useful message, 7: Not so useful), 
 10\-14: Debug messages that don't flood,
 15\-19: Debug messages that flood
 .TP
@@ -61,7 +61,7 @@ Set the message level to <level> (default level is 8):
 Show some help. If a module is passed as argument the it will display some help about that module. This is where the module configuration parameters are shown.
 .TP
 \fB\-\-list\fP
-List all available modules, their version and some brief description.
+List all available modules, their version and a brief description.
 .TP
 \fB\-\-version\fP
 Guess what...
@@ -72,9 +72,9 @@ for quickstarting. Most probably that's what you will do the first time.
 .SH CONFIGURATION
 The backup strategy is specified with a set of minimal configuration files that exist in directories under /etc/vbackup. Each directory is named backup.XXXXX where XXXXX is the name of the backup strategy.
 .PP
-For example, a simplistic backup strategy may have two directories named backup.0 and backup.5. Each of them will include configuration files that describe level 0 and leve 5 system backups.
+For example, a simplistic backup strategy may have two directories named backup.0 and backup.5. Each of them will include configuration files that describe level 0 and level 5 system backups.
 .PP
-It is adviced to have a directory named rc.d under /etc/vbackup that will hold all configuration files. After that, individual backup.XXXXX directories will only contain links to those files. It is absolutely sure that some files will be the same among different backup strategies and trying to keep them synchronized will be an uneeded pain.
+It is advised to have a directory named rc.d under /etc/vbackup that will hold all configuration files. After that, individual backup.XXXXX directories will only contain links to those files. It is absolutely sure that some files will be the same among different backup strategies and trying to keep them synchronized will be an uneeded pain.
 .PP
 Each configuration file must contain a vbackup.conf file that specifies some global configuration options (like a destination directory). Next, it must contain one or more module configuration files. The available modules can be seen using the \fB\-\-list\fP parameter. Each configuration file is in the form \fBsomething\fP.\fBmodulename\fP. It is suggested that \fBsomething\fP is in the form of \fBNN\-string\fP where \fBNN\fP is a two (or more) digit number and \fBstring\fP is a descriptive string. For example, a good name is "00\-myserver.nfsmount". This clearly shows that a path in myserver will be mounted using nfs and it will help you when 2 years later you'll attempt to edit those files. The number prefix helps in determining the sorting order. \fIAll configuration files are examined in a sorted order\fP.
 .PP
@@ -84,7 +84,10 @@ After having created at least one backup.XXXXX directory in /etc/vbackup, you ca
 .SH MODULES
 .TP
 dpkg
-Backup the debian package list. Small space requirement and very usefull for restoring a debian system.
+Backup the debian package list. Small space requirement and very useful for restoring a debian system.
+.TP
+exec
+Execute shell commands. Allows custom things to happen between steps (e.g. creating a tar of the whole backup directory or removing old backups).
 .TP
 exist
 Check whether a file or directory exists. This can be used to determine whether a filesystem is actually mounted or not. \fIIt is strongly advised to use this when you're not using mount or nfsmount!\fP
@@ -93,7 +96,7 @@ ftar
 Use tar to backup a filesystem but use find to locate the files to backup. This is simillar to the tar method but is not that good for incremental backups. If you restore a system that was incrementally backed up using this method it will have all files that were deleted between intermediate backups too. The advantage of this method is that you can use regular expression to filter files that will be backed up.
 .TP
 mbr
-Backup MBRs from all disks and their Partition Tables. It will also backup MD and LVM information if any of those is detected. Extremely usefull with very low space requirements.
+Backup MBRs from all disks and their Partition Tables. It will also backup MD and LVM information if any of those is detected. Extremely useful with very low space requirements.
 .TP
 mount
 Mount a local filesystem, in case you have an unmounted filesystem to perform backups (for example a spare or external disk).
@@ -105,10 +108,19 @@ nfsmount
 Mount a remote filesystem using NFS.
 .TP
 off
-Don't do anything at all. Very usefull for disabling configuration files. For example, if you rename 50\-main.pgsql to 50\-main.pgsql.off it will remain in the configuration directory by will be disabled.
+Don't do anything at all. Very useful for disabling configuration files. For example, if you rename 50\-main.pgsql to 50\-main.pgsql.off it will remain in the configuration directory by will be disabled.
 .TP
 pgsql
 Backup some or all PostgreSQL databases.
+.TP
+rm
+Remove a directory recursively. Useful when storing the backup to a temporary directory before (e.g.) moving it to another system or compressing it.
+.TP
+rpm
+Backup RPM database.
+.TP
+scp
+Copy files to a remote system using scp. Very good to copy backups to a remote systep. It will copy directories recursively so it can be used to copy a full backup to a remote system.
 .TP
 tar
 Perform incremental backups using the listed\-incremental format of GNU tar. \fIUse the \-\-noplugin parameter when editing tar configuration files (!!!)\fP.
@@ -116,10 +128,13 @@ Perform incremental backups using the listed\-incremental format of GNU tar. \fI
 umount
 Umount a filesystem that was previously mounted. This can be used for local and remote mounts. The configuration of this module is compatible with the configuration of mount and nfsmount modules. This means that you can just create a link to the coresponding mount configuration file to have it unount the filesystem. (For example, link 00\-remote.nfsmount to 99\-remount.umount)
 .TP
+x509
+Encrypt a file or a directory using an x509 certificate. This way backups can be safely stored in remote systems.
+.TP
 xfsdump
 Perform incremental backups using xfsdump. This is by far the very best way to backup an XFS filesystem (as a whole). It works extremely well, it is very reliable and it is able to do live backups. It is also very easy to restore all or part of the backed\-up data using the interactive xfsrestore utility (xfsrestore \-i).
 .SH EXTENDING
-You can extend vbackup by writting very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
+You can extend vbackup by writing very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
 .SH AUTHOR \- COPYRIGHT
 vbackup is written and maintained by Stefanos Harhalakis.
 Copyright (c) 2006\-2009 Harhalakis Stefanos
