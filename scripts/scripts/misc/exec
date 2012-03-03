@@ -33,12 +33,10 @@ CONTACT="v13@v13.gr"
 do_help()
 {
 	cat << _END
-Configuration options:
+Configuration:
 
-	NONE
-
-You need to define the function custom_exec() in your config file. It will
-be called to run custom commands.
+	Define the function custom_exec() in your config file. It will
+	be called to run custom commands.
 _END
 }
 
