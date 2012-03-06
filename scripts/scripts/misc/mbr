@@ -22,18 +22,12 @@
 #
 #
 
-# The name of the backup script
 NAME="mbr"
-# The version of the script
 VERSION="$PACKAGE_VERSION"
-# A short description of the script
 DESC="Backup MBRs, Partition Tables, MD and LVM information"
-# The license of this module
-LICENSE="GPLv3"
-# A copyright statement
-COPYRIGHT="Copyright (c) 2008 Stefanos Harhalakis"
-# A contact email for bugreports etc
-CONTACT="v13@v13.gr"
+LICENSE="$PACKAGE_LICENSE"
+COPYRIGHT="$PACKAGE_COPYRIGHT"
+CONTACT="$PACKAGE_BUGREPORT"
 
 # Display help
 do_help()

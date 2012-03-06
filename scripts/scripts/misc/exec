@@ -25,9 +25,9 @@
 NAME="exec"
 VERSION="$PACKAGE_VERSION"
 DESC="Execute some shell commands"
-LICENSE="GPLv3"
-COPYRIGHT="Copyright (c) 2012 Stefanos Harhalakis"
-CONTACT="v13@v13.gr"
+LICENSE="$PACKAGE_LICENSE"
+COPYRIGHT="$PACKAGE_COPYRIGHT"
+CONTACT="$PACKAGE_BUGREPORT"
 
 # Display help
 do_help()

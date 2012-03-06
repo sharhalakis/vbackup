@@ -30,10 +30,13 @@ VERSION="$PACKAGE_VERSION"
 DESC=""
 # The license of this module
 LICENSE="GPLv3"
+LICENSE="$PACKAGE_LICENSE"
 # A copyright statement
 COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
+COPYRIGHT="$PACKAGE_COPYRIGHT"
 # A contact email for bugreports etc
 CONTACT="v13@v13.gr"
+CONTACT="$PACKAGE_BUGREPORT"
 
 # Display help
 do_help()

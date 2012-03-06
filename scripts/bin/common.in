@@ -43,6 +43,8 @@ wizdir="@wizdir@"
 PACKAGE_NAME="@PACKAGE_NAME@"
 PACKAGE_VERSION="@PACKAGE_VERSION@"
 PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
+PACKAGE_LICENSE="GPLv3"
+PACKAGE_COPYRIGHT="Copyright (c) 2006-2012 Stefanos Harhalakis"
 
 # Lookup an executable
 # Required for prepackaged vbackup
@@ -405,5 +407,24 @@ h_ask_str()
 	if [ -z "$RET" ] ; then
 		RET="$3"
 	fi
+}
+
+#
+# Split a filename in the form of PRIO-NAME.TYPE
+# to PRIORITY, NAME, TYPE
+#
+# @param $1	The filename to split
+#
+# Return:
+#	$R_PRIO	The priority
+#	$R_NAME	The name
+#	$R_TYPE	The type
+h_split_fn()
+{
+	R_PRIO=$(echo "$1" | ( IFS=- read a b ; echo $a ) )
+	R_NAME=$(echo "$1" | ( IFS=- read a b ; echo $b ) | \
+			( IFS=. read a b ; echo $a ) )
+	R_TYPE=$(echo "$1" | ( IFS=- read a b ; echo $b ) | \
+			( IFS=. read a b ; echo $b ) )
 }
 

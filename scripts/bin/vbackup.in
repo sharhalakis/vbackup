@@ -35,7 +35,6 @@ do_version_head()
 	cat << _END
 $PACKAGE_NAME v$PACKAGE_VERSION
 _END
-#$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2012 Harhalakis Stefanos
 }
 
 do_version_bugreport()
@@ -73,33 +72,49 @@ do_help()
 	do_version_head
 	cat << _END
 Usage:
-	vbackup <backup configuration dir>
-		To perform backup based on this dir
+    vbackup [ -d <level> ] [ --dir <directory> ] [ --check ] <name>
 
-     or vbackup --list
-		To list all available backup scripts
+        --dir <directory>
+                        Base directory of configuration files.
+                        Default is: $myconfdir
+        --check         Check the configuation and exit.
 
-     or vbackup [-d <level>] --check <back configuration dir>
-                To check configuration for all files in dir
+        Perform backup based on the <name> strategy. For example, if <name>
+	is 0 then the configuration files will be under:
+        $myconfdir/backup.0
 
-     or vbackup --help
-                To get this help
+        -d and --dir are also available for the following commands
 
-     or vbackup --help <module>
-                To get module specific information
+ or vbackup { --list | --help | --help <module> | --version }
+        
+        --help          Get this help.
+        --help <module> Get module specific information.
+        --list          List all available backup scripts.
+        --version       Show version and license information.
 
-     or vbackup --version
-                To get version and license information
+ or vbackup --rc --list [ <name> ]
+ or vbackup --rc --init <name>
+ or vbackup --rc { --add | --delete } <config>
+ or vbackup --rc { --enable | --disable } <config> <name>
 
-        Directories must be given as absolute paths or they will be prepended
-	with $myconfdir
+        --add           Add a backup type to the rc.d directory.
+                        You will be asked for configuratio options.
+        --delete        Delete a backup type from the rc.d directory.
+        --disable ...        Disable a backup type in a backup strategy.
+        --enable ...    Enable a backup type in a backup strategy.
+        --init <name>   Initialize (create) a new backup strategy.
+        --list          List backups types in rc.d directory.
+        --list <name>   List enabled scripts for a backup strategy.
 
-	-d <level>  Set the message level to <level> (default level is \
+        <config> is the config file to be written. It is in the
+        form <priority>-<name>.<type>.  Example: 40-home.xfsdump
+
+    -d <level>  Set the message level to <level> (default level is \
 $MESSAGE_LEVEL):
-		    1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
-		    5: Rare messages, 6: Useful messages, 7: Not so useful
-		    10-14: Debug messages that don't flood
-		    15-19: Debug messages that flood
+            1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
+            5: Rare messages, 6: Useful messages, 7: Not so useful
+            10-14: Debug messages that don't flood
+            15-19: Debug messages that flood
 
 _END
 	do_version_bugreport
@@ -252,6 +267,317 @@ do_run()
 	do_run_check_common run
 }
 
+#
+# Get a sample config file and create a temp file with the configuration
+# after asking questions to the user
+#
+# Parameters
+#	$1	The full path to the config file
+#
+# Returns:
+#	R_CFG	The full path to the newly create config file.
+#		This needs to be deleted by the caller when finished.
+do_rc_ask_config()
+{
+	INFILE="$1"
+	# For this to work we:
+	# - Ignore all lines from the top of the file up to the first empty line
+	# - After that find all lines starting with '# ' (hash followed by
+	#   space) and show them as comment
+	# - If the first comment line includes (required) then this is a
+	#   mandatory option
+	# - Find ^XXXX=YYYY or ^#XXXX=YYYY and ask for the value of XXXX:
+	#   - If the line started with # then interpret an enter as nothing
+	#   - Else interpret the enter as the default (YYYY)
+
+	# The following code has some advanced bash hackery that I'm not
+	# proud of. In a perfect world things would be simpler.
+	TCFG=$(tempfile)
+	(
+	 	exec 3<&0
+		# Handle first lines
+		(
+		while read line ; do
+			echo "$line" >> $TCFG
+			if [[ ${line:0:1} != "#" ]] ; then
+				break;
+			fi
+		done
+
+		while read line ; do
+			# Ignore empty lines
+			while [[ "$line" = "" ]] ; do
+				echo >> $TCFG
+				read line
+			done
+
+	 		firstline=1
+			while [[ "${line:0:2}" = "# " ]] ; do
+				# Scan the first line for 'required'
+				if [[ $firstline = 1 ]] ; then
+					T=$(echo "x$line" | grep '(required)')
+					if [ -z "$T" ] ; then
+						REQ=0
+					else
+						REQ=1
+					fi
+					firstline=0
+				fi
+
+				echo $line
+				echo $line >> $TCFG
+				read line
+			done
+
+			# Now we are at a line that is either not a comment
+			# or doesn't start by '# '
+			
+			# If it's just an empty line the go-on
+			if [[ -z "$line" ]] ; then
+				echo >> $TCFG
+				continue
+			fi
+
+			while : ; do
+				# If it doesn't start with # then consider this a
+				# default and remove any quotes
+				if [[ "${line:0:1}" != "#" ]] ; then
+					DEFAULT=$(echo "$line" \
+						| ( IFS== read a b ; echo $b) \
+						| ( sed -e 's/^"//' \
+							-e 's/"$//' ) )
+				else
+					DEFAULT=""
+				fi
+
+				# Also get the variable name
+				VAR=$(echo ${line#\#} | \
+					( IFS== read a b ; echo $a ))
+
+				# Now pop the quiestion
+				# read -p \
+				#   "$VAR do you accept $DEFAULT as your value?" 
+				read -p "Enter value for $VAR [$DEFAULT]: " \
+					ans <&3
+
+				if [[ -z "$ans" ]] ; then
+					ans="$DEFAULT"
+				fi
+
+				echo "$VAR=\"$ans\"" >> $TCFG
+
+				# Get another one until we reach EOF or 
+				# an empty line
+				if ! read line ; then
+					break
+				fi
+
+				if [[ "x$line"  = "x" ]] ; then
+					echo "$line" >> $TCFG
+					break
+				fi
+			done
+			echo
+
+		done 
+		) < $INFILE
+	)
+
+	R_CFG="$TCFG"
+}
+
+# Implement --rc --add
+# $1:	The filename
+# $2:	The full patch to file
+do_rc_add()
+{
+	local FN FN2 PRIO TYPE NAME SAMPLE
+
+	FN="$1"
+	FN2="$2"
+
+	h_split_fn "$FN"
+
+	PRIO="$R_PRIO"
+	TYPE="$R_TYPE"
+	NAME="$R_NAME"
+
+	if [ -e "$FN2" ] ; then
+		h_error "File already exists: $FN2"
+		h_error "Please use --rc --delete first"
+		return 1
+	fi
+
+	ret=0
+
+	SAMPLE="$sampledir/sample.$TYPE"
+
+	if ! [[ -e "$SAMPLE" ]] ; then
+		h_error "Bad type $TYPE"
+		return 1
+	fi
+
+	echo "Configuring file $FN for module $TYPE"
+	echo "--------------------------------------------------------------"
+	echo
+
+	do_rc_ask_config "$SAMPLE"
+
+	mv -i $R_CFG $FN2
+
+	cat << _KOKO
+---------------------------------------------------------------------------
+ Finished.
+
+ File was placed at:
+
+ $FN2
+
+ Feel free to edit the file now or in the future.
+ Remember that this file needs to be enabled for a specific backup
+ strategy to be useful.
+---------------------------------------------------------------------------
+_KOKO
+
+	return $ret
+}
+
+# Manage the --rc parameter
+do_rc()
+{
+	local RCD DST
+	local files
+	local PRIO TYPE NAME FN FN2
+	local SAMPLE
+
+	RCD="$myconfdir/rc.d"
+
+	ret=0
+	case "$1" in
+		--list)
+			if [[ -z "$2" ]] ; then
+				# Get existing files in RCD
+				files=$(cd $RCD && ls [0-9]* 2>/dev/null | \
+					sort -n)
+			else
+				TDIR="$myconfdir/backup.$2"
+
+				if [[ ! -d "$TDIR" ]] ; then
+					h_error "No such strategy: $2"
+					return 1
+				fi
+				# Get existing files in RCD
+				files=$(cd $TDIR && ls [0-9]* 2>/dev/null | \
+					sort -n)
+			fi
+
+			for i in $files ; do
+				echo $i
+			done
+			;;
+		--add|--delete)
+			if [[ "x$2" = "x" ]] ; then
+				do_help
+				return 1
+			fi
+
+			FN="$2"
+
+			# Form the full path
+			FN2="$RCD/$FN"
+
+			if [[ "x$1" = "x--delete" ]] ; then
+				if [[ -e "$FN2" ]] ; then
+					echo rm "$FN2"
+					h_msg 4 "Removed $FN"
+				else
+					h_error "No such file $FN"
+					ret=1
+				fi
+			else
+				do_rc_add "$FN" "$FN2"
+				ret="$?"
+			fi
+			;;
+		--enable|--disable)
+			if [[ "x$3" = "x" ]] ; then
+				do_help
+				return 1
+			fi
+
+			FN="$2"
+			FN2="$RCD/$FN"
+
+			DST0="backup.$3"
+			DST="$myconfdir/$DST0/$FN"
+
+			if [[ "x$1" == "x--enable" ]] ; then
+				h_msg 10 "$FN2 -> $DST"
+
+				if ! [ -e "$FN2" ] ; then
+					h_error "No such file: $FN"
+					return 1
+				fi
+
+				if [ -e "$DST" ] ; then
+					h_msg 4 "Strategy $3: $FN is already enabled"
+					return 0
+				fi
+
+				#ln -s "$FN2" "$DST"
+				ln -s "../rc.d/$FN" "$DST"
+
+				h_msg 4 "Strategy $3: Enabled $FN"
+			else
+				if ! [ -e "$DST" ] ; then
+					h_msg 4 "Strategy $3: $FN is not enabled"
+					return 0
+				fi
+
+				rm "$DST"
+
+				h_msg 4 "Strategy $3: Disabled $FN"
+			fi
+
+			ret=0
+
+			;;
+		--init)
+			if [[ -z "$2" ]] ; then
+				do_help
+				return 1
+			fi
+
+			DST="$myconfdir/backup.$2"
+			if [[ -d "$DST" ]] ; then
+				h_error "Strategy $2 already exists"
+				return 1
+			fi
+
+			DST2="$DST/vbackup.conf"
+
+			SAMPLE="$sampledir/vbackup.conf.sample"
+
+			do_rc_ask_config $SAMPLE
+
+			# Postpone directory creating in case the user aborts
+			h_msg 11 "Creating $DST"
+			mkdir "$DST"
+
+			mv $R_CFG $DST2
+
+			h_msg 4 "Initialized strategy $2"
+
+			;;
+		*)
+			do_help
+			ret=1
+			;;
+	esac
+
+	return $ret
+}
+
 if [ "x$1" = "x-d" ] ; then
 	export MESSAGE_LEVEL="$2"
 	shift
@@ -280,6 +606,10 @@ case "$1" in
 		;;
 	--version)
 		do_version
+		;;
+	--rc)
+		shift
+		do_rc "$@"
 		;;
 	-*)
 		do_help

@@ -26,9 +26,9 @@
 NAME="mysql"
 VERSION="$PACKAGE_VERSION"
 DESC="Backup mysql databases"
-LICENSE="GPLv3"
-COPYRIGHT="Copyright (c) 2006-2008 Stefanos Harhalakis"
-CONTACT="v13@v13.gr"
+LICENSE="$PACKAGE_LICENSE"
+COPYRIGHT="$PACKAGE_COPYRIGHT"
+CONTACT="$PACKAGE_BUGREPORT"
 
 # Display help
 do_help()
