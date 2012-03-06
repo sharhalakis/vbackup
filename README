@@ -1,7 +1,7 @@
 VBackup - A modular backup utility
 ==================================
 
-This is a collection of scripts that perform backup to systems.
+This is a collection of scripts that perform backup of systems.
 It should support most of the unices out there (everything different should be
 reported as a bug).
 
@@ -11,6 +11,9 @@ This version of vbackup can backup:
     * MySQL databases
     * Filesystems using GNU tar
     * XFS filesystems using xfsdump
+    * dpkg and RPM databases
+    * MBR, Partition tables, MD and LVM information
+    * OpenLDAP database
 
 The backup procedure is completely customizable and extendable by the user.
 
@@ -20,6 +23,11 @@ Requirements:
  * GNU find
  * GNU tar - for the tar method
  * xfsdump - for the xfsdump method
+ * RPM - for the rpm method
+ * dpkg - for the dpkg method
+ * openldap - for the openldap method
+ * openssl - for the x509 method
+ * mdadm and lvm - for the mbr method
 
 Installation:
 =============
@@ -29,7 +37,7 @@ Installation:
 # make install
 
 This will install vbackup to /usr/local and assume the configuration files will
-be placed at /etc/vbackup
+be placed under /etc/vbackup
 
 Usage:
 ======
@@ -46,17 +54,72 @@ To get some information about a module run:
 example:
 # vbackup --help xfsdump
 
-Setup:
-======
+Setup - the begginer's way:
+==========================
 
-NOTE: You can skip this and just use the vbackup-wizard script.
-      Take a look at the "Wizard" section.
+There is a wizard script that will help you create basic configuration files.
+Most probably you will want to use this one the first time. For more advanced
+configuration and fine-tunning you will have to adjust the configuration files
+yourself. Read the rest of this file to fully understand how you can use
+vbackup.
+
+To launch the wizard run:
+# vbackup-wizard
+
+and just answer its questions. The wizard also serves as an introduction.
+
+Note that this will only create some trivial things. It is really suggest
+to find your way around and use the next method
+
+Setup - the CLI way:
+====================
 
 Let's assume you want to
     * Backup to an NFS mounted space
     * Perform backup of two partitions using xfsdump (full and incremental)
     * Perform backup of directories using tar (full and incremantal)
     * Perform mysql and pgsql backup
+
+Run the following and answer the questions properly. You change your config
+later by editing config files by hand.
+
+1.  First create the config files:
+    # vbackup --rc --add 00-remote.nfsmount
+    # vbackup --rc --add 10-full.mysql
+    # vbackup --rc --add 10-full.pgsql
+    # vbackup --rc --add 20-level0.tar
+    # vbackup --rc --add 20-level5.tar
+    # vbackup --rc --add 30-level0.xfsdump
+    # vbackup --rc --add 30-level5.xfsdump
+    # vbackup --rc --add 99-remote.umount
+2.  Create the two backup strategies:
+    # vbackup --rc --init 0
+    # vbackup --rc --init 5
+3.  Populate them strategy 0:
+    # vbackup --rc --enable 00-remote.nfsmount 0
+    # vbackup --rc --enable 10-full.mysql 0
+    # vbackup --rc --enable 10-full.pgsql 0
+    # vbackup --rc --enable 20-level0.tar 0
+    # vbackup --rc --enable 30-level0.xfsdump 0
+    # vbackup --rc --enable 99-remote.umount 0
+4.  Populate them strategy 5:
+    # vbackup --rc --enable 00-remote.nfsmount 5
+    # vbackup --rc --enable 10-full.mysql 5
+    # vbackup --rc --enable 10-full.pgsql 5
+    # vbackup --rc --enable 20-level5.tar 5
+    # vbackup --rc --enable 30-level5.xfsdump 5
+    # vbackup --rc --enable 99-remote.umount 5
+5.  Check the configuration:
+    # vbackup --check 0
+    # vbackup --check 5
+6.  Perform a level 0 backup
+    # vbackup 0
+7   Perform a level 5 backup
+    # vbackup 5
+
+Setup - by hand:
+================
+Let's assume the same scenario as above
 
 1.  Go to /etc/vbackup and create a folder named rc.d. This will hold all the
     configuration scripts.
@@ -107,20 +170,6 @@ To perform level 0 backup run
 To perform level 5 backup run
 # vbackup 5
 
-Basic setup using the wizard:
-=============================
-
-There is a wizard script that will help you create basic configuration files.
-Most probably you will want to use this one the first time. For more advanced
-configuration and fine-tunning you will have to adjust the configuration files
-yourself. Read the rest of this file to fully understand how you can use
-vbackup.
-
-To launch the wizard run:
-# vbackup-wizard
-
-and just answer its questions. The wizard also serves as an introduction.
-
 How it works:
 =============
 
@@ -131,7 +180,7 @@ The script enters directory /etc/vbackup/backup.0 and searches for files named
 XX-name.module, where <XX> is a number and <module> is a backup module/method.
 All configurations are examined in an alphabetical order, so that the <XX>
 prefix may be used to indicate the order. For each configuration file,
-coresponding module (<module>) is executed using the configuration file
+the coresponding module (<module>) is executed using the configuration file
 options. A module may be used from zero to many times.
 
 This way you'll have to create configuration files once and perform various
@@ -174,9 +223,9 @@ Copyright:
 License:
 ========
 
-    This program is free software; you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
