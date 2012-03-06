@@ -77,10 +77,18 @@ Usage:
                         Base directory of configuration files.
                         Default is: $myconfdir
         --check         Check the configuation and exit.
+        -d <level>      Set the message level to <level> (default level is \
+$MESSAGE_LEVEL):
 
         Perform backup based on the <name> strategy. For example, if <name>
 	is 0 then the configuration files will be under:
         $myconfdir/backup.0
+
+        Message levels:
+            1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
+            5: Rare messages, 6: Useful messages, 7: Not so useful
+            10-14: Debug messages that don't flood
+            15-19: Debug messages that flood
 
         -d and --dir are also available for the following commands
 
@@ -102,18 +110,11 @@ Usage:
         --disable ...        Disable a backup type in a backup strategy.
         --enable ...    Enable a backup type in a backup strategy.
         --init <name>   Initialize (create) a new backup strategy.
-        --list          List backups types in rc.d directory.
+        --list          List backup types in rc.d directory.
         --list <name>   List enabled scripts for a backup strategy.
 
         <config> is the config file to be written. It is in the
         form <priority>-<name>.<type>.  Example: 40-home.xfsdump
-
-    -d <level>  Set the message level to <level> (default level is \
-$MESSAGE_LEVEL):
-            1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
-            5: Rare messages, 6: Useful messages, 7: Not so useful
-            10-14: Debug messages that don't flood
-            15-19: Debug messages that flood
 
 _END
 	do_version_bugreport
@@ -467,6 +468,11 @@ do_rc()
 
 	RCD="$myconfdir/rc.d"
 
+	if [[ ! -d "$RCD" ]] ; then
+		h_msg 5 "Creating $RCD"
+		mkdir $RCD
+	fi
+
 	ret=0
 	case "$1" in
 		--list)
@@ -597,6 +603,17 @@ if [ "x$1" = "x-d" ] ; then
 	export MESSAGE_LEVEL="$2"
 	shift
 	shift
+fi
+
+if [ "x$1" = "x--dir" ] ; then
+	export myconfdir="$2"
+	shift
+	shift
+
+	if [[ ! -d "$myconfdir" ]] ; then
+		h_error "No such directory $myconfdir"
+		exit 1
+	fi
 fi
 
 case "$1" in

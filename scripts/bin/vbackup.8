@@ -20,24 +20,23 @@ vbackup \- A modular backup program
 .SH SYNOPSIS
 .RS 3
 .B vbackup
-.RI [ OPTIONS "] <" "backup configuration directory" >
-.RE
+.RI [ OPTIONS "] [ --check ] " "name"
+.\".RE
 .br
-or
 .B vbackup 
-.RI [ OPTIONS "] \-\-" list
+.RI [ OPTIONS "] { \-\-list | \-\-help [" module "] | \-\-version }"
 .br
-or
 .B vbackup
-.RI [ OPTIONS "] \-\-" check " <" "backup configuration directory" >
+.RI [ OPTIONS "] \-\-rc \-\-list [" name "]"
 .br
-or
 .B vbackup
-.RI \-\- help " [<" module >]
+.RI [ OPTIONS "] \-\-rc \-\-init " name
 .br
-or
 .B vbackup
-.RI \-\- version
+.RI [ OPTIONS "] \-\-rc { \-\-add | \-\-delete } " config
+.br
+.B vbackup
+.RI [ OPTIONS "] \-\-rc { \-\-enable | \-\-disable } " config " " name
 .br
 .SH DESCRIPTION
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
@@ -47,9 +46,6 @@ or
 The backup strategy is specified with a set of minimal configuration files that exist in directories under /etc/vbackup. See the quickstart section for quick first\-time setup.
 .SH OPTIONS
 .TP
-\fB\-\-check <backup configuration directory>\fP
-Check configuration files for a specific backup strategy. Each module checks its own configuration file. 
-.TP
 \fB\-d <level>\fP
 Set the message level to <level> (default level is 8):
 1: Fatal, 2: Error, 3: Warning, 4: Note, 5\-7: Information
@@ -57,14 +53,40 @@ Set the message level to <level> (default level is 8):
 10\-14: Debug messages that don't flood,
 15\-19: Debug messages that flood
 .TP
-\fB\-\-help [<module>]\fP
-Show some help. If a module is passed as argument the it will display some help about that module. This is where the module configuration parameters are shown.
+\fB --dir <directory>\fP
+Set the configuration directory. This is only useful in case you want to implement (e.g.) user backups, so each user may have her own configuration directory.
+.SH COMMANDS
+In all commands bellow: \fB<name>\fP refers to the name of a backup strategy (e.g. 0, 5, test0, test5, etc). \fB<config>\fP refers to a configuration file name and it is in the form XX-NAME.TYPE where XX is a number indicating a priority, NAME is an arbitrary name and TYPE is the coresponding module name (e.g. xfsdump) (example: 50-home.xfsdump, 20-mbr.mbr, 10-remote.nfsmount, etc). \fB<module>\fP refers to a module name (e.g. xfsdump)
+.TP
+\fB\-\-check <name>\fP
+Check configuration files for a specific backup strategy (name). Each module checks its own configuration file. 
 .TP
 \fB\-\-list\fP
 List all available modules, their version and a brief description.
 .TP
+\fB\-\-help [<module>]\fP
+Show some help. If a module is passed as argument then it will display some help about that module. This is where the module configuration parameters are shown.
+.TP
 \fB\-\-version\fP
 Guess what...
+.TP
+\fB\-\-rc \-\-list [<name>]\fP
+List available backup types in the rc.d directory or (if name is specified) list enable scripts in a backup strategy. This is similar to browser the directories with ls.
+.TP
+\fB\-\-rc \-\-init <name>\fP
+Create/initialize a new backup strategy. It will ask a couple of questions and then it will create the directory and populate it with a vbackup.conf file based on the answers.
+.TP
+\fB\-\-rc \-\-add <config>\fP
+Add a new configuration file to the rc.d directory. It will ask a number of questions and the create the configuration file based on the sample file.
+.TP
+\fB\-\-rc \-\-delete <config>\fP
+Delete an existing configuration file from the rc.d directory.
+.TP
+\fB\-\-rc \-\-enable <config> <name>\fP
+Enable a configuration file for a backup strategy by creating a symlink.
+.TP
+\fB\-\-rc \-\-disable <config> <name>\fP
+Disable a configuration file for a backup strategy by remove the symlink.
 .SH QUICKSTART
 Use the 
 .BR vbackup\-wizard (8)
@@ -140,7 +162,7 @@ Perform incremental backups using xfsdump. This is by far the very best way to b
 You can extend vbackup by writing very simple scripts that will be combined with other scripts. Read the README.dev file for more information and have a look at other modules.
 .SH AUTHOR \- COPYRIGHT
 vbackup is written and maintained by Stefanos Harhalakis.
-Copyright (c) 2006\-2009 Harhalakis Stefanos
+Copyright (c) 2006\-2012 Harhalakis Stefanos
 .SH CONTACT
 For bugs, requests, ideas, comments or anything else (except spam) contact <v13@v13.gr>
 .SH LICENSE
