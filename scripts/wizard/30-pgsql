@@ -46,8 +46,8 @@ w_do_ask()
 	    if h_ask_yesno \
 "You can backup your PostgreSQL cluster (if you have one). This will perform
 a backup of all databases but only for the 'main' cluster. If you have
-multiple clusters you'll have to add more tha one configuration files, one
-for each cluster. You'll have to do this by hand" \
+multiple clusters you'll have to add more than one configuration files, one
+for each cluster. You'll have to do this by hand." \
 		"Perform PostgreSQL backup?" \
 		$DEF ; then
 		ASK_NEXT="pguser"
@@ -58,13 +58,13 @@ for each cluster. You'll have to do this by hand" \
 	;;
 
 	pguser)
-	    h_ask_str
+	    h_ask_str \
 "You need to use a postgresql administrative user to perform database backup.
 This is either an administrative user you've created or a default one.
 
 This user should be a database user and not a system user.
 
-For most systems you can use the 'postgres' user be default and just press
+For most systems you can use the 'postgres' user by default and just press
 enter here. Debian users just press enter.
 " \
 		"Enter the username of a postgresql administrative user" \

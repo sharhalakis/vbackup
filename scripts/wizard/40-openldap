@@ -19,9 +19,11 @@
 # $Id$
 #
 
-NAME="mysql"
+# The name of the backup script
+NAME="openldap"
 
-PRI="30"
+# The priority to be used for the configuration file
+PRI="40"
 
 # The w_do_ask function. Adjust as needed
 # $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
@@ -32,41 +34,26 @@ PRI="30"
 # (0: enabled, 1: disabled)
 w_do_ask()
 {
-    local R DEF
+    local R
 
     R=1
     case "$1" in
 	ENABLE)
-	    if ! test -d /etc/mysql ; then
+	    if text -x /usr/sbin/slapcat || test -x /usr/bin/slapcat ; then
 		DEF='n'
 	    else
 		DEF='y'
 	    fi
 
 	    if h_ask_yesno \
-"You can backup your MySQL database (if you have one). This will backup all 
-databases." \
-		"Perform MySQL backup?" \
+"You can backup your local OpenLDAP database." \
+		"Backup OpenLDAP database?" \
 		$DEF ; then
-		ASK_NEXT="password"
+		R=0
 	    else
-		ASK_NEXT=""
 		R=1
 	    fi
-	;;
-
-	password)
-	    h_ask_str \
-"You must enter the password of the root user. You should know that this is
-insecure in case of a multiuser system. It is advised to create a .my.cnf
-file and enter the password in there. Leave this field empty if you're going
-to do this." \
-		"Enter the password for the root user" \
-		""
-
-	    echo "PASSWORD=\"$RET\"" >> $CFG
 	    ASK_NEXT=""
-	    R=0
 	;;
     esac
 
@@ -81,9 +68,7 @@ w_get_config()
 {
     cat $CFG
     cat << _KOKO
-MYUSER="root"
-DATABASES="-"
-DESTDIR="mysql/"
+DESTDIR="ldap/"
 _KOKO
 }
 

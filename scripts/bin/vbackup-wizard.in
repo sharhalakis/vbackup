@@ -99,8 +99,7 @@ The best place to store backups is an external disk or a remote directory that
 is localy mounted" \
 			"Where to place backups?"
 	done
-	DESTDIR0="$RET"
-	
+	DESTDIR0="$RET/%D1%-%L%"
 	
 	cat << _KOKO > "$1"
 # Per backup global configuration file
