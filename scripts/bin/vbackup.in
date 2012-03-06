@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2006-2008 Stefanos Harhalakis
+# Copyright (C) 2006-2012 Stefanos Harhalakis
 #
 # This file is part of vbackup.
 #
@@ -35,7 +35,7 @@ do_version_head()
 	cat << _END
 $PACKAGE_NAME v$PACKAGE_VERSION
 _END
-#$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2008 Harhalakis Stefanos
+#$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2012 Harhalakis Stefanos
 }
 
 do_version_bugreport()
@@ -49,7 +49,7 @@ _END
 do_version()
 {
 	cat << _END
-$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2008 Harhalakis Stefanos \
+$PACKAGE_NAME v$PACKAGE_VERSION Copyright (c) 2006-2012 Harhalakis Stefanos \
 $PACKAGE_BUGREPORT
 
     This program is free software; you can redistribute it and/or modify

@@ -58,7 +58,7 @@ will be backed up using GNU tar" \
 "On sane systems all configuration files are stored in /etc. It is also a 
 convenience thing to backup /boot too. Please note that this wizard doesn't
 support paths with spaces." \
-		    "What directories contain configuration files?" \
+		    "Which directories contain configuration files?" \
 		    "$T"
 
 		for i in $RET ; do
