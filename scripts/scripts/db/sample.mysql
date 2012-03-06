@@ -2,27 +2,28 @@
 #
 # $Id$
 #
+
+# The username to use (required)
+#
 # You may want to add a user named backup and do:
 #
 # mysql> grant select,show databases,lock tables on *.* to 'backup'@'localhost';
 #
-
-# The username to use (required)
 # "root" should be OK for most cases, unless you've created the 'backup'
 # user that is mentioned above.
 MYUSER="root"
 
-# password
+# The password for the above user.
 # This is insecure. Anyone will be able to get this password! It is preferred
 # to add the password in .my.cnf. Take a look at MySQL documentation
 #PASSWORD='1234'
 
-# path to mysql Executable (optional)
-# Default: Use $PATH - should work in most cases
+# path to mysql executable (optional)
+# If not specified: Use $PATH - should work in most cases
 #MYSQL='/usr/bin/mysql'
 
 # Path to mysqldump executable (optional)
-# Default: Use $PATH - should work in most cases
+# If not specified: Use $PATH - should work in most cases
 #MYSQLDUMP='/usr/bin/mysqldump'
 
 # Databases to backup. A space seperated list of databases (required)
@@ -33,9 +34,9 @@ DATABASES="-"
 DESTDIR="mysql/"
 
 # Include CREATE DATABASE statements in dumps
-# Default: no
-#CREATEDB="yes"
+# If not specified: no
+CREATEDB="yes"
 
 # Extra parameters to pass to mysqldump (optional)
 # For example: --default-character-set=latin1 --add-drop-table etc
-MYSQLDUMPEXTRA=""
+#MYSQLDUMPEXTRA=""

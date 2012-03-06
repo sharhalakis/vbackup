@@ -7,11 +7,11 @@
 PGUSER="backup"
 
 # The host to connect to. Leave it empty if it is a local connection
-# Default: empty
+# Defaults to: empty
 # PGHOST=""
 
-# The port to conenct to. Empty means to not specify a port
-# Default: empty
+# The port to conenct to. Empty means not to specify a port
+# Defaults to: empty
 # PGPORT=5432
 
 # A username to su to when performing the backup
@@ -20,18 +20,19 @@ PGUSER="backup"
 # postgresql database as an administrative user without requiring a password.
 # You can do this either by modifying pg_hba.conf or by using ~/.pgpass.
 # See the PostgreSQL Documentation for more information.
-#SUUSER="postgres"
+# For Debian systems, user "postgres" will do the job automagically.
+SUUSER="postgres"
 
 # The password passed as an environment variable.
 # This is insecure. Anyone will be able to get this password!
 #PASSWORD='1234'
 
 # path to psql Executable (optional)
-# Default is to look at $PATH
+# Defaults to: look at $PATH
 #PSQL='/usr/bin/psql'
 
 # Path to pgdump executable (optional)
-# Default is to look at $PATH
+# Defaults to: look at $PATH
 #PGDUMP='/usr/bin/pg_dump'
 
 # Databases to backup. A space seperated list of databases
@@ -42,18 +43,18 @@ DATABASES="-"
 DESTDIR="pgsql/"
 
 # Include create database statements (yes/no)
-# Default: yes
-#CREATEDB="yes"
+# Defaults to: yes
+CREATEDB="yes"
 
 # Dump global objects to this filename
 # Global objects will not be dumped if this is defined to be '-'
 # Default is "globals". You'll need to change this if you have a database
 # named like this.
 # Default: globals
-#GLOBALS="globals"
+GLOBALS="globals"
 
 # Dump template[1-9] databases too. Database template0 is never dumped since 
 # it is not needed and postgresql does not allow it
 # Default: yes
-#ALL="yes"
+ALL="yes"
 

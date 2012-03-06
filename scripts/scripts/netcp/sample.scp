@@ -11,13 +11,13 @@
 # 2) An absoulte path is set: This is the simple case of copying something
 #    to a remote host.
 #
-# If this is empty then then DESTDIR0 is used by itself
+# If this is empty then DESTDIR0 is used by itself
 #
-# Default: empty
+# Defaults to: empty
 SOURCE=""
 
 # The remote host to copy data to (required)
-RHOST=""
+#RHOST="10.1.2.3"
 
 # The remote path to copy data to (required)
 #
@@ -26,16 +26,16 @@ RHOST=""
 # The RPREFIX must exist.
 # The RDIR will be created if it doesn't exist.
 # RDIR must only contain one level to be created. For example, if RDIR is
-# a/b/c and only a/ exists, then it will faile. However, if a/b exists then
+# a/b/c and only a/ exists, then it will fail. However, if a/b exists then
 # it will succeed. This happens because of scp.
 # Default for RDIR: "%D1-%L%"
 RPREFIX=""
-# RDIR="%D1%-%L%/"
+RDIR="%D1%-%L%/"
 
 # The username to use for scp (required)
-USERNAME=""
+#USERNAME="guest"
 
 # Extra parameters to be passed to scp (optional)
 # WARNING: no spaces !
-# SCPEXTRA=""
+#SCPEXTRA=""
 

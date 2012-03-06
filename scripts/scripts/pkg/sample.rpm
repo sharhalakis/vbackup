@@ -8,5 +8,5 @@ DESTDIR="rpm/"
 
 # The destinations filename
 # Default: rpm
-#DESTFILE="rpm
+DESTFILE="rpm"
 

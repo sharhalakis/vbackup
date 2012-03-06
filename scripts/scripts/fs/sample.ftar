@@ -19,7 +19,7 @@ LEVEL=0
 # will be checked against share/ local/ local/sbin/ local/bin/ etc.
 # No '^' or '$' will be added, so you should probably add one yourself.
 # When excluding directories you should not use ^XX$ because this will only
-# exclulde the directory. (optional)
+# exclude the directory. (optional)
 #EXCLUDE="^/tmp"
 
 # A file containing one regular expression per line, as specified above
@@ -35,4 +35,4 @@ DESTDIR="fs/"
 
 # The name to give to the root filesystem tar file
 # Default: root
-#ROOTFN="root"
+ROOTFN="root"

@@ -298,6 +298,17 @@ do_rc_ask_config()
 		(
 		while read line ; do
 			echo "$line" >> $TCFG
+			# Support modules that do not support autoconfig
+			# For example, the "exec" module cannot be configured
+			# From here
+			if [[ ${line:0:2} == '## No autoconfig' ]] ; then
+				h_msg 4 "You will have to configure this be hand."
+				# Copy the sample file to the temp config file
+				# and return
+				cat $INFILE > $TCFG
+				exit 0
+			fi
+
 			if [[ ${line:0:1} != "#" ]] ; then
 				break;
 			fi
@@ -353,6 +364,11 @@ do_rc_ask_config()
 				VAR=$(echo ${line#\#} | \
 					( IFS== read a b ; echo $a ))
 
+				# Show a sample if we have one
+				if ! [[ -z "$DEFAULT" ]] ; then
+					echo "#"
+					echo "# Sample value: $DEFAULT"
+				fi
 				# Now pop the quiestion
 				# read -p \
 				#   "$VAR do you accept $DEFAULT as your value?" 

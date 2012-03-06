@@ -31,4 +31,4 @@ DESTDIR="fs/"
 
 # The name to give to the root filesystem tar file
 # Default: root
-#ROOTFN="root"
+ROOTFN="root"

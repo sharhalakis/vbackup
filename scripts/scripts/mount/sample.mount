@@ -6,7 +6,7 @@
 # The device to mount (optional)
 #DEVICE=
 
-# The mountpoint (erquired)
+# The mountpoint (required)
 #MOUNTPOINT=/mnt/backup
 
 # Filesystem type (optional)

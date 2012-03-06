@@ -9,7 +9,7 @@
 SOURCE=""
 
 # The output file (required)
-# DESTFILE=
+#DESTFILE=
 
 # The certificate file to use for encryption (required)
-# CERTFILE=
+#CERTFILE=/path/to/certificate.crt
