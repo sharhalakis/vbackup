@@ -55,7 +55,7 @@ example:
 # vbackup --help xfsdump
 
 Setup - the begginer's way:
-==========================
+===========================
 
 There is a wizard script that will help you create basic configuration files.
 Most probably you will want to use this one the first time. For more advanced
@@ -197,18 +197,24 @@ Available modules:
 
 The following modules are available:
 
-mount:	    Mount a partition
-nfsmount:   Mount an NFS share
-umount:	    Umount a partition
+dpkg:	    Backup debian package lists
+exec:	    Execute some shell commands
 exist:	    Check whether a file/dir exists
-tar:	    Perform filesystem backup using GNU tar
-xfsdump:    Perform filesystem backup using xfsdump
+ftar:	    Filesystem backup using tar and find
+mbr:	    Backup MBRs, Partition Tables, MD and LVM information
+mount:	    Mount a partition
 mysql:	    Dump mysql databases
+nfsmount:   Mount an NFS share
+off:	    Don't do anything
+openldap:   Backup OpenLDAP database
 pgsql:	    Dump pgsql databases
-dpkg:	    Backup debian dpkg database
-mbr:	    Backup MBRs and partition tables
-scp:	    Copy a local file to a remote host using scp
-rm:	    Remove a file
+rm:	    Remove a directory recursively
+rpm:	    Backup RPM database
+scp:	    Remote file copy using scp
+tar:	    Perform filesystem backup using GNU tar
+umount:	    Umount a partition
+x509:	    Encrypt a file or a directory using x509 certificates
+xfsdump:    Perform filesystem backup using xfsdump
 
 More:
 =====

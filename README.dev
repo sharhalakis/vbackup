@@ -1,5 +1,5 @@
-Simple backup
-=============
+vbackup
+=======
 
 Tree:
 =====
@@ -25,10 +25,10 @@ ${datadir}/
 		helpers/	Helper scripts (not standalone)
 		scripts/	The backup scripts
 		wizard/		Wizard configuration files
+		samples/	Sample configurations. Also used for --rc
 
 ${docdir}/
 	vbackup/		Documentation
-		samples/	Sample configurations
 
 
 Backup scripts:
@@ -114,6 +114,34 @@ or in other configuration files. The vbackup.conf entry is the main one
 but it may be overriden by individual configuration files.
 
  COMPRESS	Whether to compress the backup or not (yes/no, on/off, 1/0)
+
+Sample files:
+=============
+
+Sample configuration files are parsed by vbackup when "--rc --add" is used.
+The configuration files are parsed using the following logic:
+
+ * Ignore all comments lines from the top of the file until an empty line is
+   found
+ * If in the above block of comments there's a line '## No autoconfig' then
+   the '--rc --add' will just copy the file and not try to autoconfigure it.
+   This is useful for example in the case of the exec plugin.
+ * All files of the sample configuration file end up in the target
+   configuration file. This means that all comments and empty lines will be
+   copyied over there.
+ * Look for blocks of directives. All blocks are assumed to have some comments
+   followed by one or more configuration directives.
+ * All the comments of a block will be displayed to the user. Only lines that
+   start with '# ' (hash and a space) are assumed to be comments.
+ * When a line that doesn't start with '# ' is found then it's interpreted as
+   a configuration directive.
+ * If the line start with # (e.g: #DESTDIR="test") then it is assumed not to
+   have a default value. However, a line of text will be displayed to the
+   user saying: "Sample value: test".
+ * If the line doesn't start with # (e.g: DESTDIR="test") then it is assumed
+   that the value is the default value. It will be presented both as a sample
+   line and as default value. If the user presses enter then he will use
+   that value.
 
 Wizard:
 =======
