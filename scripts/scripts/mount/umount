@@ -25,7 +25,7 @@
 NAME="umount"
 VERSION="$PACKAGE_VERSION"
 DESC="Umount a mount point"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

@@ -25,7 +25,7 @@
 NAME="mount"
 VERSION="$PACKAGE_VERSION"
 DESC="Mount a partition"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2006 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

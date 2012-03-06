@@ -29,7 +29,7 @@ VERSION="$PACKAGE_VERSION"
 # A short description of the script
 DESC="Backup RPM database"
 # The license of this module
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 # A copyright statement
 COPYRIGHT="Copyright (c) 2006-2008 Stefanos Harhalakis"
 # A contact email for bugreports etc

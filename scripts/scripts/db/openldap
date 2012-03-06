@@ -25,7 +25,7 @@
 NAME="openldap"
 VERSION="$PACKAGE_VERSION"
 DESC="Backup OpenLDAP database"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2012 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

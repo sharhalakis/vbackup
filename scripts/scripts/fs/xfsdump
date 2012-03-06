@@ -25,7 +25,7 @@
 NAME="xfsdump"
 VERSION="$PACKAGE_VERSION"
 DESC="XFS backup using xfsdump"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2006-2007 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

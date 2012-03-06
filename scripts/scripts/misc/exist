@@ -26,7 +26,7 @@
 NAME="exist"
 VERSION="$PACKAGE_VERSION"
 DESC="Check whether a path exists"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2008 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

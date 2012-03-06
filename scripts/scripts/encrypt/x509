@@ -25,7 +25,7 @@
 NAME="x509"
 VERSION="$PACKAGE_VERSION"
 DESC="Encrypt a file or a directory using x509 certificates"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2012 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 

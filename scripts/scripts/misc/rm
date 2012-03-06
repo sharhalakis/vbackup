@@ -26,7 +26,7 @@
 NAME="rm"
 VERSION="$PACKAGE_VERSION"
 DESC="Remove a directory recursively"
-LICENSE="GPLv2"
+LICENSE="GPLv3"
 COPYRIGHT="Copyright (c) 2009 Stefanos Harhalakis"
 CONTACT="v13@v13.gr"
 
