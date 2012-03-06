@@ -82,6 +82,7 @@ AC_PATH_PROG([VGDISPLAY], [vgdisplay], [], [$PATH2])
 AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
 AC_PATH_PROG([SCP], [scp], [], [$PATH2])
 AC_PATH_PROG([OPENSSL], [openssl], [], [$PATH2])
+AC_PATH_PROG([SLAPCAT], [slapcat], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`

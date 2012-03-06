@@ -1,0 +1,8 @@
+# Sample PostgreSQL (pgsql) configuration file
+#
+# $Id: sample.pgsql 3377 2012-02-25 17:45:02Z v13 $
+#
+
+# The destination directory (required)
+DESTDIR="ldap/"
+
