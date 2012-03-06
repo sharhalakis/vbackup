@@ -201,7 +201,7 @@ Extending:
     A template for new modules is available with the name 'skel' under the
     scripts/ directory of the source code.
 
-    If you believe you've created something that will be usefull for others
+    If you believe you've created something that will be useful for others
     too, I'll be glad to include it in the distribution (preserving your
     copyright of course)
 

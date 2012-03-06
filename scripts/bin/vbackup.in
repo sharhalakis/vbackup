@@ -97,7 +97,7 @@ Usage:
 	-d <level>  Set the message level to <level> (default level is \
 $MESSAGE_LEVEL):
 		    1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
-		    5: Rare messages, 6: Usefull message, 7: Not so usefull
+		    5: Rare messages, 6: Useful messages, 7: Not so useful
 		    10-14: Debug messages that don't flood
 		    15-19: Debug messages that flood
 

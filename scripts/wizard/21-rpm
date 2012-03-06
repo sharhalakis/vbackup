@@ -44,7 +44,7 @@ w_do_ask()
 	    fi
 
 	    if h_ask_yesno \
-"You can backup your RPM databse. This can be usefull if it get destroyed for
+"You can backup your RPM databse. This can be useful if it get destroyed for
 an unpredicted reason." \
 		"Backup RPM database?" \
 		y ; then

@@ -35,6 +35,7 @@ do_help()
 	cat << _END
 Configuration options:
 	DESTDIR		The destination directory (required)
+	CNCONFIG	Backup cn=config DB (yes/no - optional - default: no)
 _END
 }
 
@@ -57,12 +58,33 @@ do_run()
 	DST1="$DESTDIR/database.ldif"
 	DST2="$DESTDIR/config.ldif"
 
+	ret=0
+
 	if h_is_true $COMPRESS ; then
-		$SLAPCAT -v | gzip > $DST1.gz
-		$SLAPCAT -s cn=config -v | gzip > $DST2.gz
+		FILTER="gzip"
+		SUFFIX=".gz"
 	else
-		$SLAPCAT -v > $DST1
-		$SLAPCAT -s cn=config -v > $DST2
+		FILTER="cat"
+		SUFFIX=""
 	fi
+
+	DST1="$DST1$SUFFIX"
+	DST2="$DST2$SUFFIX"
+
+	h_msg 6 "Dumping LDAP database to $DST1"
+	if ! $SLAPCAT -v | $FILTER > $DST1 ; then
+		h_error "Failed to dump LDAP database"
+		ret=1
+	fi
+
+	if h_is_true "$CNCONFIG" "no" ; then
+		h_msg 6 "Dumping LDAP config (cn=config) to $DST2"
+		if ! $SLAPCAT -s cn=config -v | $FILTER > $DST2 ; then
+			h_error "Failed to dump LDAP config (cn=config)"
+			ret=1
+		fi
+	fi
+
+	return $ret
 }
 

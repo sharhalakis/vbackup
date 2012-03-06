@@ -6,3 +6,8 @@
 # The destination directory (required)
 DESTDIR="ldap/"
 
+# Backup cn=config as well? (optional - yes/no)
+# If your LDAP stores the configuration in LDAP then you may want to
+# set this to yes.
+CNCONFIG="yes"
+

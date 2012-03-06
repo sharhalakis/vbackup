@@ -225,8 +225,8 @@ h_warn()
 #			3:	Warning
 #			4:	Note
 #			5:	Information (Rare messages)
-#			6:	Information (Usefull messages but not rare)
-#			7:	Information (Not so usefull)
+#			6:	Information (Useful messages but not rare)
+#			7:	Information (Not so useful)
 #			10-19:	Debug
 #				10-14:	Debug messages that don't flood
 #				15-19:	Debug messages that may flood

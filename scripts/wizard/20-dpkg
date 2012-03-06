@@ -45,7 +45,7 @@ w_do_ask()
 
 	    if h_ask_yesno \
 "You can keep a list of installed packages. This is also known as the dpkg
-selections list. This is a small text file that is very usefull for system
+selections list. This is a small text file that is very useful for system
 restores." \
 		"Backup dpkg database?" \
 		y ; then

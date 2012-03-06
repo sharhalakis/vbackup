@@ -118,14 +118,15 @@ do_run()
 		SRC="$DESTDIR0/$SRC"
 	fi
 
-	h_msg 6 "$SRC -> $DST"
-
 	if [ -d "$SRC" ] ; then
 		ISDIR=1
-		h_msg 7 "$SRC is directory"
+		DIRMSG=" (directory)"
 	else
 		ISDIR=0
+		DIRMSG=""
 	fi
+
+	h_msg 6 "Encrypting $SRC$DIRMSG as $DST using certificate $CERTFILE"
 
 	(
 		if [ "$ISDIR" = 1 ] ; then
