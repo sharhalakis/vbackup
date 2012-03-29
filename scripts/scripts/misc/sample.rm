@@ -5,7 +5,7 @@
 
 # A directory to be recursively removed (required)
 # This is relative to DESTDIR0
-# Use / if you want to remove DESDIR0
+# Use / if you want to remove DESTDIR0
 DIR=""
 
 
