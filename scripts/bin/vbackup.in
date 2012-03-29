@@ -283,7 +283,7 @@ do_rc_ask_config()
 	# For this to work we:
 	# - Ignore all lines from the top of the file up to the first empty line
 	# - After that find all lines starting with '# ' (hash followed by
-	#   space) and show them as comment
+	#   space) and show them as comment or that equal '#'
 	# - If the first comment line includes (required) then this is a
 	#   mandatory option
 	# - Find ^XXXX=YYYY or ^#XXXX=YYYY and ask for the value of XXXX:
@@ -310,7 +310,8 @@ do_rc_ask_config()
 				exit 0
 			fi
 
-			if [[ ${line:0:1} != "#" ]] ; then
+			if [[ "x${line:0:1}" != "x#" ]] &&
+				[[ "x$line" != "x#" ]] ;  then
 				break;
 			fi
 		done
