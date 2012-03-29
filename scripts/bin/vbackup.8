@@ -53,7 +53,7 @@ Set the message level to <level> (default level is 8):
 10\-14: Debug messages that don't flood,
 15\-19: Debug messages that flood
 .TP
-\fB --dir <directory>\fP
+\fB \-\-dir <directory>\fP
 Set the configuration directory. This is only useful in case you want to implement (e.g.) user backups, so each user may have her own configuration directory.
 .SH COMMANDS
 In all commands bellow: \fB<name>\fP refers to the name of a backup strategy (e.g. 0, 5, test0, test5, etc). \fB<config>\fP refers to a configuration file name and it is in the form XX-NAME.TYPE where XX is a number indicating a priority, NAME is an arbitrary name and TYPE is the coresponding module name (e.g. xfsdump) (example: 50-home.xfsdump, 20-mbr.mbr, 10-remote.nfsmount, etc). \fB<module>\fP refers to a module name (e.g. xfsdump)
