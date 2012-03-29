@@ -1,0 +1,105 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+#
+# Description
+#
+#
+
+NAME="md5"
+VERSION="$PACKAGE_VERSION"
+DESC="Calculate md5sums of files"
+LICENSE="$PACKAGE_LICENSE"
+COPYRIGHT="$PACKAGE_COPYRIGHT"
+CONTACT="$PACKAGE_BUGREPORT"
+
+# Display help
+do_help()
+{
+	cat << _END
+This method calculates the md5sum of files. While it is CPU intensive, it has
+very little requirements on disk space. Having the md5sums of backups since
+creation time allows for old backups to be validated. This way it is possible
+to detect disk faults and bit flips.
+
+Typically one would verify the md5sums with something like the following:
+
+  md5sum -c md5sums
+
+assuming that the md5s are stored in the file named md5sums inside the root
+of the backup directory
+
+The method can also be used to store system-wide md5 checksums as part of the
+backup.
+
+Configuration options:
+	SOURCE		The local directory to create md5sums of. All files
+			under that directory will be processed. This is
+			relative to DESTDIR0. If it is empty or / then the
+			whole DESTDIR0 will be processed. Default is emtpy.
+	DESTFILE	The file to store the MD5 sums. Default is md5sum.
+			This is relative to DESTDIR0 just like SOURCE.
+_END
+
+	if [ -z "$MD5SUM" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because MD5SUM was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+
+	[ -z "$MD5SUM" ] && h_error "MD5SUM was not found" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	if [ -z "$MD5SUM" ] ; then
+		h_error "MD5SUM was not found"
+		return 1
+	fi
+
+	# Expand special chars
+	h_transform "$DESTDIR0/$DESTFILE"
+	DST="$R"
+
+	h_transform "$DESTDIR0/$SOURCE"
+	SRC="$R"
+
+	h_msg 6 "Storing MD5s of $SRC to $DST"
+	(
+		cd $SRC
+		find . -type f \
+			\! -name $(basename $DST) \
+			-exec $MD5SUM -b {} \; \
+			> $DST
+	)
+}
+

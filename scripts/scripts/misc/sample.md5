@@ -1,0 +1,18 @@
+# Sample "md5" configuration file
+#
+# $Id: sample.pgsql 1421 2008-01-04 17:01:13Z v13 $
+#
+# To verify the MD5s using the defaults just cd to the backup directory
+# and run:
+#   md5sum -c md5sums
+
+# The directory to create md5sums of
+# All files under this directory will be processed
+# The directory is relative to DESTDIR0 meaining that if DSTDIR0 is empty
+# or / then the whole DESTDIR0 will be processed. This is the default
+# and a sane option
+SOURCE=""
+
+# The file to store the md5sums. This is relative to DESTDIR0.
+DESTFILE="md5sums"
+

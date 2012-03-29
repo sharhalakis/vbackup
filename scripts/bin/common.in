@@ -64,6 +64,7 @@ function h_lookup()
 }
 
 # Program locations
+ECHO_E="@ECHO_E@"
 XFSDUMP=$(h_lookup "@XFSDUMP@" xfsdump)
 GFIND=$(h_lookup "@GFIND@" find)
 GTAR=$(h_lookup "@GTAR@" tar)
@@ -76,7 +77,7 @@ PVDISPLAY=$(h_lookup "@PVDISPLAY@" pvdisplay)
 SCP=$(h_lookup "@SCP@" scp)
 OPENSSL=$(h_lookup "@OPENSSL@" openssl)
 SLAPCAT=$(h_lookup "@SLAPCAT@" slapcat)
-ECHO_E="@ECHO_E@"
+MD5SUM=$(h_lookup "@MD5SUM@" md5sum)
 
 # Location of main programs
 B_BINDIR="$mybindir"

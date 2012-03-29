@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([vbackup], [0.1.9], [v13@v13.gr])
-AM_INIT_AUTOMAKE(vbackup, 0.1.9)
+AC_INIT([vbackup], [1.0.0], [v13@v13.gr])
+AM_INIT_AUTOMAKE(vbackup, 1.0.0)
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
@@ -83,6 +83,7 @@ AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
 AC_PATH_PROG([SCP], [scp], [], [$PATH2])
 AC_PATH_PROG([OPENSSL], [openssl], [], [$PATH2])
 AC_PATH_PROG([SLAPCAT], [slapcat], [], [$PATH2])
+AC_PATH_PROG([MD5SUM], [md5sum], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`
