@@ -512,7 +512,7 @@ do_rc()
 
 			if [[ "x$1" = "x--delete" ]] ; then
 				if [[ -e "$FN2" ]] ; then
-					echo rm "$FN2"
+					rm "$FN2"
 					h_msg 4 "Removed $FN"
 				else
 					h_error "No such file $FN"
