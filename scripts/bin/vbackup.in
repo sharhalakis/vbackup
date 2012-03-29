@@ -320,7 +320,9 @@ do_rc_ask_config()
 			# Ignore empty lines
 			while [[ "$line" = "" ]] ; do
 				echo >> $TCFG
-				read line
+				if ! read line ; then
+					break
+				fi
 			done
 
 	 		firstline=1
