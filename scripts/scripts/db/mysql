@@ -64,14 +64,9 @@ do_run()
 		return 0
 	fi
 
-	# Initialize
-	if [ -z "$MYSQL" ] ; then
-		MYSQL="mysql";
-	fi
-
-	if [ -z "$MYSQLDUMP" ] ; then
-		MYSQLDUMP="mysqldump"
-	fi
+	# Initializ
+	MYSQL=${MYSQL:-mysql}
+	MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 
 	if [ ! "$PASSWORD" = "" ] ;  then
 		export MYSQL_PWD="$PASSWORD"

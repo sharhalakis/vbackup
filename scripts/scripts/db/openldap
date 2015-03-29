@@ -54,6 +54,8 @@ do_run()
 		return 0
 	fi
 
+	SLAPCAT=${SLAPCAT:-slapcat}
+
 	DST1="$DESTDIR/database.ldif"
 	DST2="$DESTDIR/config.ldif"
 

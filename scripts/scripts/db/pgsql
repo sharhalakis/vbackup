@@ -74,21 +74,10 @@ do_run()
 	fi
 
 	# Initialize
-	if [ -z "$PSQL" ] ; then
-		PSQL="psql";
-	fi
-
-	if [ -z "$PGDUMP" ] ; then
-		PGDUMP="pg_dump"
-	fi
-
-	if [ -z "$PGDUMPALL" ] ; then
-		PGDUMPALL="pg_dumpall"
-	fi
-
-	if [ -z "$GLOBALS" ] ; then
-		GLOBALS="globals"
-	fi
+	PGSQL=${PGSQL:-psql}
+	PGDUMP=${PGDUMP:-pg_dump}
+	PGDUMPALL=${PGDUMPALL:-pg_dumpall}
+	GLOBALS=${GLOBALS:-globals}
 
 	for t in $PSQL $PGDUMP ; do
 		if ! which $t > /dev/null ; then
