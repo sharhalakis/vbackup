@@ -74,7 +74,7 @@ do_run()
 	fi
 
 	# Initialize
-	PGSQL=${PGSQL:-psql}
+	PSQL=${PSQL:-psql}
 	PGDUMP=${PGDUMP:-pg_dump}
 	PGDUMPALL=${PGDUMPALL:-pg_dumpall}
 	GLOBALS=${GLOBALS:-globals}
@@ -116,6 +116,8 @@ do_run()
 			DATABASES=`su - $SUUSER -c "$CMD"`
 		fi
 	fi
+
+	h_msg 6 "Databases: $(echo $DATABASES)"
 
 	FIRST=1
 	for db in $DATABASES ; do
