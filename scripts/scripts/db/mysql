@@ -38,6 +38,7 @@ Configuration options:
 			Set this to '-' to backup all databases. (required)
 	MYUSER		The username to use to connect (required)
 	PASSWORD	The password to use to connect (insecure)
+	MYCNF		A my.cnf file to (also) read
 	MYSQL		The path to mysql executable
 	MYSQLDUMP	The path to mysqldump executable
 	MYSQLDUMPEXTRA	Extra parameters to pass to MYSQLDUMP
@@ -68,8 +69,16 @@ do_run()
 	MYSQL=${MYSQL:-mysql}
 	MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 
-	if [ ! "$PASSWORD" = "" ] ;  then
-		export MYSQL_PWD="$PASSWORD"
+	PARAMS=()
+	# This has to be before the user
+	if [ ! "x$MYCNF" = "x" ] ; then
+		PARAMS+=(--defaults-file=$MYCNF)
+	fi
+
+	PARAMS+=(-u "$MYUSER")
+
+	if [ ! "x$PASSWORD" = "x" ] ;  then
+		PARAMS+=(--password="$PASSWORD")
 	fi
 
 
@@ -80,30 +89,45 @@ do_run()
 		fi
 	done
 
-	P=""
-	if [ ! -z "$CREATEDB" ] ; then
-		# P="$P -B --create-options"
-		P="$P --create-options"
-	fi
+	# Ignored databases (regexp)
+	IGNDB='^(information_schema|performance_schema|cond_instances)$'
 
 	if [ "$DATABASES" = "-" ] ; then
-		DATABASES=`$MYSQL -u $MYUSER --disable-pager --batch \
-				-se 'show databases'`
+		DATABASES=`$MYSQL "${PARAMS[@]}" \
+				--disable-pager --batch \
+				-se 'show databases' \
+			| egrep -v "$IGNDB"`
+
+		h_msg 6 "Databases to dump: $(echo $DATABASES)"
 		if ! [ "$?" = 0 ] ; then
 			return 1
 		fi
+	fi
+
+	if [ ! -z "$CREATEDB" ] ; then
+		# PARAMS+=(-B)
+		PARAMS+=(--create-options)
+	fi
+
+	# Add routines
+	PARAMS+=(-R)
+
+	if ! [ -z "$MYSQLDUMPEXTRA" ] ; then
+		PARAMS+=($MYSQLDUMP)
 	fi
 
 	ret=0
 	for db in $DATABASES ; do
 		h_msg 6 "Dumping: $db to $DESTDIR/$db.gz"
 		if h_is_true $COMPRESS ; then
-			$MYSQLDUMP -u $MYUSER -R $P $db \
-				$MYSQLDUMPEXTRA \
+			$MYSQLDUMP "${PARAMS[@]}" \
+				$db \
+				2> >(h_filter 6 >&2) \
 				| gzip > "$DESTDIR/$db.gz"
 		else
-			$MYSQLDUMP -u $MYUSER -R $P $db \
-				$MYSQLDUMPEXTRA \
+			$MYSQLDUMP "${PARAMS[@]}" \
+				$db \
+				2> >(h_filter 6 >&2) \
 				> "$DESTDIR/$db"
 		fi
 		if ! [ "$?" -eq 0 ] ; then

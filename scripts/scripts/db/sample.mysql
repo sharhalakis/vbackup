@@ -26,6 +26,13 @@ MYUSER="root"
 # If not specified: Use $PATH - should work in most cases
 #MYSQLDUMP='/usr/bin/mysqldump'
 
+# An additional my.cnf file to read (optional)
+# This can be used to store the credentials for the user
+# For debian, one can use:
+# MYUSER='debian-sys-maint'
+# MYCNF='/etc/mysql/debian.cnf'
+#MYCNF=''
+
 # Databases to backup. A space seperated list of databases (required)
 # Use - to backup all available databases
 DATABASES="-"
