@@ -77,7 +77,7 @@ enter here. Debian users just press enter.
 	    h_ask_str \
 "You can either use a database password or an existing system user that can
 connect to PostgreSQL as the administrative user without requiring a password.
-The later is recommended. Supplying a password is insecure on multiuser
+The latter is recommended. Supplying a password is insecure on multiuser
 systems. Either provide a username to 'su' to, or a password to use to connect.
 Enter - if you want to use a password instead.
 
