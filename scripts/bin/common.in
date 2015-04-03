@@ -86,9 +86,7 @@ B_SCRIPTDIR="$myscriptdir"
 # Location of helper scripts
 B_HELPERDIR="$myhelperdir"
 
-if [ -z "$MESSAGE_LEVEL" ] ; then
-	MESSAGE_LEVEL=8
-fi
+MESSAGE_LEVEL=${MESSAGE_LEVEL:-8}
 
 #
 # Return the current date in a custom format
@@ -426,5 +424,33 @@ h_split_fn()
 			( IFS=. read a b ; echo $a ) )
 	R_TYPE=$(echo "$1" | ( IFS=- read a b ; echo $b ) | \
 			( IFS=. read a b ; echo $b ) )
+}
+
+#
+# A filtering function according to the logging level
+#
+# Can be used to filter (e.g.) stderr, but assuming that stderr messages
+# are of a certain level. This is a better approach instead of doing 2>/dev/null
+#
+# E.g:
+#    mysqldp 2> >(h_filter 7 >&2)
+# The above will make stderr messages to be logged as loglevel 7. When
+# filtering it may be needed to send the output to stderr (hence the >&2) as
+# stdout may be sent to another place
+#
+# @param $1	The logging level
+h_filter()
+{
+	L="$1"
+
+	if [ "$L" -gt "$MESSAGE_LEVEL" ] ; then
+		cat > /dev/null
+	else
+		while read line ; do
+			h_msg $L "$line"
+		done
+	fi
+
+	return 0
 }
 
