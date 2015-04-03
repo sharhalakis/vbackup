@@ -47,10 +47,30 @@ w_do_ask()
 databases." \
 		"Perform MySQL backup?" \
 		$DEF ; then
-		ASK_NEXT="password"
+		if [ -e "/etc/mysql/debian.cnf" ] ; then
+		    ASK_NEXT="debian"
+		else
+		    ASK_NEXT="password"
+		fi
 	    else
 		ASK_NEXT=""
 		R=1
+	    fi
+	;;
+
+	debian)
+	    if h_ask_yesno \
+"The file /etc/mysql/debian.cnf exists. This is used in Debian systems
+for database maintenance procedures. You can use the credentials that
+are listed in that file. This is recommended." \
+		"Use /etc/mysql/debian.cnf?" \
+		"y" ; then
+		echo "MYUSER=\"debian-sys-maint\"" >> $CFG
+		echo "MYCNF=\"/etc/mysql/debian.cnf\"" >> $CFG
+		ASK_NEXT=""
+		R=0
+	    else
+		ASK_NEXT="password"
 	    fi
 	;;
 
@@ -63,6 +83,7 @@ to do this." \
 		"Enter the password for the root user" \
 		""
 
+	    echo "MYUSER=\"root\"" >> $CFG
 	    echo "PASSWORD=\"$RET\"" >> $CFG
 	    ASK_NEXT=""
 	    R=0
@@ -80,7 +101,6 @@ w_get_config()
 {
     cat $CFG
     cat << _KOKO
-MYUSER="root"
 DATABASES="-"
 DESTDIR="mysql/"
 _KOKO
