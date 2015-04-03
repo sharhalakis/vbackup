@@ -37,8 +37,8 @@ This method copies a file or a tree to a remote host using scp. It can be
 used at the end of a backup to copy the backup to a remote host.
 
 For scp to work you have to setup public key authentication from local host
-to the remote host. You also have to to perform an interactive ssh to the
-remote host first. This is needed to accept the remote host's key and ensure
+to the remote host. You must also perform an interactive ssh attempt to the
+remote host. This is needed to accept the remote host's key and ensure
 that public key authentication works.
 
 NOTE: When doing the interactive login use the exact same hostname as it
