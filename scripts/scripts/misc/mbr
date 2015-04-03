@@ -78,9 +78,7 @@ get_disks()
 	fi
 
 	# A heuristic
-	T=`cat /proc/partitions | \
-		awk '{print $NF}' | \
-		grep -E '^[hs]d[a-z]$'`
+	T=$(cat /proc/partitions | awk '$NF~/^[vhs]d[a-z]$/')
 
 	DISKS=""
 	# Now perform the actual check
@@ -136,9 +134,10 @@ do_run()
 	for p in $DISKS ; do
 		h_msg 12 "Backing up $p"
 		dd if=/dev/$p "of=$TDIR2/$p.mbr" bs=512 count=1 >/dev/null 2>&1
-		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p.fdisk-l"
-		$SFDISK -l /dev/$p > "$TDIR2/$p.sfdisk-l"
-		$SFDISK -d /dev/$p > "$TDIR2/$p.sfdisk-d"
+		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p.fdisk-l" \
+			2> >(h_filter 6 >&2)
+		$SFDISK -l /dev/$p > "$TDIR2/$p.sfdisk-l" 2> >(h_filter 6 >&2)
+		$SFDISK -d /dev/$p > "$TDIR2/$p.sfdisk-d" 2> >(h_filter 6 >&2)
 	done
 
 	# Backup LVM information
