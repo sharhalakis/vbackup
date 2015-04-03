@@ -45,7 +45,8 @@ w_do_ask()
 	    fi
 
 	    if h_ask_yesno \
-"You can backup your local OpenLDAP database." \
+"You can backup your local OpenLDAP database.
+This is done using slapcat" \
 		"Backup OpenLDAP database?" \
 		$DEF ; then
 		R=0
