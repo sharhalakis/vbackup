@@ -337,8 +337,6 @@ h_ask_txt()
 	clear
 	if [ ! -z "$1" ] ; then
 		echo
-#		echo "------------------------------"
-#		echo
 		echo "$1"
 		echo
 	fi
