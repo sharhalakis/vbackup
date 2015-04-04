@@ -496,11 +496,6 @@ do_rc()
 
 	RCD="$myconfdir/rc.d"
 
-	if [[ ! -d "$RCD" ]] ; then
-		h_msg 5 "Creating $RCD"
-		mkdir $RCD
-	fi
-
 	ret=0
 
 	STRATEGY=''
@@ -588,6 +583,7 @@ do_rc()
 					ret=1
 				fi
 			else
+				h_ensuredir "$RCD"
 				do_rc_add "$FN" "$FN2"
 				ret="$?"
 			fi
@@ -611,7 +607,8 @@ do_rc()
 				STDIR=".$STRATEGY"
 			fi
 
-			RCD="$myconfdir/rc${STDIR}.d/"
+			RCDIR="rc${STDIR}.d"
+			RCD="$myconfdir/$RCDIR"
 
 			FN="$2"
 			FN2="$RCD/$FN"
@@ -633,7 +630,7 @@ do_rc()
 				fi
 
 				#ln -s "$FN2" "$DST"
-				ln -s "../rc.d/$FN" "$DST"
+				ln -s "../$RCDIR/$FN" "$DST"
 
 				h_msg 4 "Level $LEVEL: Enabled $FN"
 			else
@@ -657,7 +654,12 @@ do_rc()
 			fi
 
 			if [[ -z "$3" ]] ; then
-				LEVEL="$2"
+				if h_is_digit "$3" 0 9 ; then
+					LEVEL="$2"
+				else
+					h_error "Please use single digit numbers for backup levels"
+					return 1
+				fi
 			else
 				LEVEL="$3"
 				STRATEGY="$2"
