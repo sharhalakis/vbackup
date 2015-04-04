@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT([vbackup], [1.0.0], [v13@v13.gr])
-AM_INIT_AUTOMAKE(vbackup, 1.0.0)
+AM_INIT_AUTOMAKE
 
 AC_ARG_WITH( tar,
 	[AC_HELP_STRING([--with-tar=PATH],
