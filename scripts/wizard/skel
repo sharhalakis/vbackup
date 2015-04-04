@@ -24,6 +24,14 @@ NAME="mbr"
 # The priority to be used for the configuration file
 PRI="20"
 
+# The variable name in the config file that will hold the backup level
+# name.
+# - If the method supports multi-level backups (e.g. tar) then this should
+#   be set to the variable that needs to hold the leve name (e.g. LEVEL).
+#   This will be auto-added to the config file.
+# - If the method doesn't support multi-level backups then leave it empty
+MULTI=""
+
 # The w_do_ask function. Adjust as needed
 # $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
 #     the next question
