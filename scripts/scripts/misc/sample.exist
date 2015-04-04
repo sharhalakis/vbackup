@@ -4,5 +4,8 @@
 #
 
 # The PATH to check
-DIR="backup"
+# If this is defined as / then it will be assumed to be the parent directory
+# of DESTDIR. I.e. if DESTDIR is "/backup/%D%-%L%/", this will check
+# for /backup
+DIR="/"
 

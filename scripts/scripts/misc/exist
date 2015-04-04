@@ -34,7 +34,8 @@ do_help()
 {
 	cat << _END
 Configuration options:
-	DIR		The path to check
+	DIR		The path to check. If / is used then look for the
+			parent directory of DESTDIR
 _END
 }
 
@@ -54,12 +55,18 @@ do_run()
 		return 0
 	fi
 
-	h_msg 13 "Check whether $DIR exists"
-	if test -e "$DIR"  ; then
-		h_msg 10 "$DIR exists"
+	if [ "x$DIR" = "x/" ] ; then
+		DIR1=$(dirname "$DESTDIR0")
+	else
+		DIR1="$DIR"
+	fi
+
+	h_msg 13 "Check whether $DIR1 exists"
+	if test -e "$DIR1"  ; then
+		h_msg 10 "$DIR1 exists"
 		ret=0
 	else
-		h_msg 2 "$DIR doesn't exist"
+		h_msg 2 "$DIR1 doesn't exist"
 		ret=3
 	fi
 
