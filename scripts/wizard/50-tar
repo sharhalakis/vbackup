@@ -23,6 +23,8 @@ NAME="tar"
 # The priority to be used for the configuration file
 PRI="50"
 
+MULTI="LEVEL"
+
 # The w_do_ask function. Adjust as needed
 # $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
 #     the next question
