@@ -38,7 +38,7 @@ w_do_ask()
     R=1
     case "$1" in
 	ENABLE)
-	    if text -x /usr/sbin/slapcat || test -x /usr/bin/slapcat ; then
+	    if test -x /usr/sbin/slapcat || test -x /usr/bin/slapcat ; then
 		DEF='n'
 	    else
 		DEF='y'
