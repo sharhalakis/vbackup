@@ -151,8 +151,12 @@ blank scheme name which is fine for most cases." \
 		""
 	SCHEME="$RET"
 	DESTBASE="$myconfdir/backup.$SCHEME"
+	RCDIR="rc.${SCHEME}.d"
+	RCD="$myconfdir/$RCDIR"
+	LEVELS=(0 5)
 	# Check if it exists
-	if [ -e "${DESTBASE}0" ] || [ -e "${DESTBASE}5}" ] ; then
+	if [ -e "${DESTBASE}0" ] || [ -e "${DESTBASE}5}" ] ||
+		[ -e "$RCD" ] ; then
 		# Find a free dirname to move it to
 		TNAME="$myconfdir/old"
 		CNT=0
@@ -186,6 +190,7 @@ Re-run this wizard to start over
 
 		mv "${DESTBASE}0" "$TNAME"
 		mv "${DESTBASE}5" "$TNAME"
+		mv "$RCD" "$TNAME"
 	fi
 
 	# Run the wizards
@@ -223,6 +228,8 @@ Re-run this wizard to start over
 	# Create configuration
 	while read fn ; do
 		(
+		MULTI=""
+
 		. "$fn"
 
 		if ! test -f "$T/enabled/$NAME" ; then
@@ -234,18 +241,45 @@ Re-run this wizard to start over
 		# Empty the file
 		: > $T2
 
-		# Create configuration for each backup level
-		for LEVEL in 0 5 ; do
-			DCFG="$T/final/backup.$LEVEL"
-			test -d "$DCFG" || mkdir -p "$DCFG"
+		# Get config
+		w_get_config > $T2
 
-			w_get_config $LEVEL > $T2
+		if ! [ -s "$T2" ] ; then
+			rm -f "$T2"
+			continue
+		fi
 
-			if ! [ -s "$T2" ] ; then
-				rm -f "$T2"
+		# Create the rc.d entry
+		DCFG="$T/final/rc.d"
+		test -d "$DCFG" || mkdir -p "$DCFG"
+
+		# Generate the rc.d configs. Multi-level configs need
+		# multiple config files
+		if [[ -z "$MULTI" ]] ; then
+			TNAME="$PRI-$NAME.$NAME"
+			cat $T2 > "$DCFG/$TNAME"
+		else
+			for LEVEL in "${LEVELS[@]}" ; do
+				TNAME="$PRI-$NAME-$LEVEL.$NAME"
+				(
+					cat $T2
+					echo "$MULTI=$LEVEL"
+				) > "$DCFG/$TNAME"
+			done
+		fi
+
+		# Enable configuration for each backup level
+		for LEVEL in "${LEVELS[@]}" ; do
+			DCFG2="$T/final/backup.$LEVEL"
+			test -d "$DCFG2" || mkdir "$DCFG2"
+
+			if [[ -z "$MULTI" ]] ; then
+				TNAME="$PRI-$NAME.$NAME"
 			else
-				cat $T2 > "$DCFG/$PRI-$NAME.$NAME"
+				TNAME="$PRI-$NAME-$LEVEL.$NAME"
 			fi
+
+			ln -s "../$RCDIR/$TNAME" "$DCFG2/$TNAME"
 		done
 		) <&9
 	done < <( $GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*-*' |\
@@ -253,7 +287,7 @@ Re-run this wizard to start over
 
 	# Create vbackup.conf
 	get_vbackup_conf "$T2"
-	for LEVEL in 0 5 ; do
+	for LEVEL in "${LEVELS[@]}" ; do
 		(
 		DCFG="$T/final/backup.$LEVEL"
 
@@ -262,7 +296,9 @@ Re-run this wizard to start over
 	done
 
 	# Move configuration to final directory
-	for LEVEL in 0 5 ; do
+	DCFG="$T/final/rc.d"
+	mv "$DCFG" "$RCD"
+	for LEVEL in "${LEVELS[@]}" ; do
 		DCFG="$T/final/backup.$LEVEL"
 		mv "$DCFG" "$DESTBASE$LEVEL"
 	done
