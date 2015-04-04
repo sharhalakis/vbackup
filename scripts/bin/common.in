@@ -272,21 +272,7 @@ h_msg()
 #
 h_fixmsg()
 {
-	local	T
-	local	N
-	local	SZ
-
-	N=`echo "$2" | wc -c | sed 's/ //g'`
-	let N=$[N*1]
-
-	T="$2"
-
-	while ! [ "$N" -gt "$1" ] ; do
-		let N++
-		T="$T "
-	done
-
-	echo -n "$T"
+	printf "%-${1}s" "$2"
 }
 
 #
@@ -308,15 +294,9 @@ h_is_true()
 {
 	local T
 
-	if [ -z "$1" ] ; then
-		T="$2"
-	else
-		T="$1"
-	fi
+	T=${1:-$2}
 
-	T=`echo "$T" | sed 's/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/g'`
-
-	case "$T" in
+	case "${T,,*}" in
 		yes|y|1|on)
 			return 0
 			;;
@@ -331,7 +311,7 @@ h_is_true()
 
 #
 # Internal funciton
-# Common function to display the text beffore a question
+# Common function to display the text before a question
 h_ask_txt()
 {
 	clear
@@ -448,6 +428,28 @@ h_filter()
 			h_msg $L "$line"
 		done
 	fi
+
+	return 0
+}
+
+#
+# Check whether $1 is a number
+#
+# @param $1	The value to check
+# @param $2	(optional) minimum accepted value
+# @param $3	(optional) maximum accepted value
+# @return 0/1
+h_is_number()
+{
+	if ! [[ "x$1" =~ ^x[0-9]+$ ]] ; then
+		return 1
+	fi
+
+	[[ -z "$2" ]] && return 0
+	[[ "$1" -lt "$2" ]] && return 1
+
+	[[ -z "$3" ]] && return 0
+	[[ "$1" -gt "$3" ]] && return 1
 
 	return 0
 }
