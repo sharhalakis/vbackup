@@ -1,0 +1,136 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+#
+
+# The name of the backup script
+NAME="scp"
+
+# The priority to be used for the configuration file
+PRI="90"
+
+# The w_do_ask function. Adjust as needed
+# $1: The question to ask. First question is always "ENABLE". ASK_NEXT sets
+#     the next question
+#
+# Set ASK_NEXT to the next question or "" for finish
+# When ASK_NEXT=="", also return 0/1 to indicate that the script is enabled
+# (0: enabled, 1: disabled)
+w_do_ask()
+{
+    local R
+
+    R=1
+    case "$1" in
+	ENABLE)
+	    if h_ask_yesno \
+"Backups should be normally stored at a remote location. This will ensure that
+hardware failures, like power spikes, won't wipe them.
+
+It is possible to copy the backup files to a remote location using SCP.
+If you want to do that then you'll need to setup public key authentication
+and perform an initial, manual, ssh attempt in order to verify and accept
+the SSH key fingerprint of the remote end. Otherwise this method may fail." \
+		"Copy backups to a remote location using SCP?" \
+		n ; then
+		R=0
+		ASK_NEXT="rhost"
+	    else
+		ASK_NEXT=""
+	    fi
+	;;
+
+	rhost)
+	    RET=""
+	    while [[ -z "$RET" ]] ; do
+		h_ask_str "" "Remote host to perform SCP to?" ""
+	    done
+	    echo "RHOST=\"$RET\"" >> $CFG
+	    ASK_NEXT="user"
+	;;
+
+	user)
+	    RET=''
+	    while [[ -z "$RET" ]] ; do
+		h_ask_str "" "Remote user to use for SCP?" ""
+	    done
+	    echo "USERNAME=\"$RET\"" >> $CFG
+	    ASK_NEXT='rprefix'
+	;;
+
+	rprefix)
+	    h_ask_str \
+"Backups will be copied to the remote directory \"RPREFIX/RDIR/\". RPREFIX
+must already exist or else the backup will fail. RDIR will be created.
+
+RPREFIX is meant to be the remote prefix to copy the backup to, while RDIR
+is meant to be a directory name related to the current date." \
+	    "Remote prefix to copy the backups under (RPREFIX)?" \
+	    ""
+	    echo "RPREFIX=\"$RET\"" >> $CFG
+	    ASK_NEXT="rdir"
+	;;
+
+	rdir)
+	    h_ask_str \
+"Backups will be copied to the remote directory \"RPREFIX/RDIR/\". RPREFIX
+must already exist or else the backup will fail. RDIR will be created.
+
+RPREFIX is meant to be the remote prefix to copy the backup to, while RDIR
+is meant to be a directory name related to the current date.
+
+A good RDIR is %D1%-%L%" \
+	    "Directory to put backups in (RDIR)?" \
+	    "%D1%-%L%"
+	    echo "RDIR=\"$RET\"" >> $CFG
+	    ASK_NEXT="extra"
+	;;
+
+	extra)
+	    h_ask_str \
+"You can provide additional options to be passed to SCP. One use is to indicate
+an alternate port for SSH.
+
+To indicate a port other than 22 use: -o Port=12345, where 12345 is the port
+number""" \
+		"Additional options to pass to SCP?" \
+		""
+
+	    echo "SCPEXTRA=\"$RET\"" >> $CFG
+	    ASK_NEXT=""
+	    R=0
+	;;
+    esac
+
+    return $R
+}
+
+# The w_get_config function.
+# $1: Backup level
+#
+# Display configuration file in stdout
+w_get_config()
+{
+    cat $CFG
+    cat << _KOKO
+SOURCE=""
+_KOKO
+}
+
+# vim: set ts=8 sts=4 sw=4 noet formatoptions=r ai nocindent:
+
