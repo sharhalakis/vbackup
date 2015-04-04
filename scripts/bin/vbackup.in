@@ -107,7 +107,7 @@ $MESSAGE_LEVEL):
         --add           Add a backup type to the rc.d directory.
                         You will be asked for configuratio options.
         --delete        Delete a backup type from the rc.d directory.
-        --disable ...        Disable a backup type in a backup strategy.
+        --disable ...   Disable a backup type in a backup strategy.
         --enable ...    Enable a backup type in a backup strategy.
         --init <name>   Initialize (create) a new backup strategy.
         --list          List backup types in rc.d directory.
