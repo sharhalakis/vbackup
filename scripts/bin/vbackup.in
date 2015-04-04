@@ -71,18 +71,24 @@ do_help()
 	do_version_head
 	cat << _END
 Usage:
-    vbackup [ -d <level> ] [ --dir <directory> ] [ --check ] <name>
+    vbackup [ -d <level> ] [ --dir <directory> ] [ --check ]
+            [ <strategy> ] <level>
 
         --dir <directory>
                         Base directory of configuration files.
                         Default is: $myconfdir
         --check         Check the configuation and exit.
-        -d <level>      Set the message level to <level> (default level is \
-$MESSAGE_LEVEL):
+        -d <level>      Set the message level to <level> (default: \
+$MESSAGE_LEVEL)
 
-        Perform backup based on the <name> strategy. For example, if <name>
-	is 0 then the configuration files will be under:
+        Perform a level <level> backup based on the <strategy> strategy.
+        For example, if <level> is 0 and <strategy> is not provided then
+        the configuration files will be under:
         $myconfdir/backup.0
+
+	If <strategy> is "remote" and <level> is 5 then the configuration
+        files will be under:
+        $myconfdir/backup.remote.5
 
         Message levels:
             1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
@@ -99,23 +105,27 @@ $MESSAGE_LEVEL):
         --list          List all available backup scripts.
         --version       Show version and license information.
 
- or vbackup --rc --list [ <name> ]
- or vbackup --rc --init <name>
- or vbackup --rc { --add | --delete } <config>
- or vbackup --rc { --enable | --disable } <config> <name>
+ or vbackup --rc --list [ [ <strategy> ] <level> ]
+ or vbackup --rc --init [ <strategy> ] <level>
+ or vbackup --rc { --add | --delete } [ <strategy> ] <config>
+ or vbackup --rc { --enable | --disable } <config> [ <strategy> ] <level>
 
         --add           Add a backup type to the rc.d directory.
                         You will be asked for configuratio options.
         --delete        Delete a backup type from the rc.d directory.
-        --disable ...   Disable a backup type in a backup strategy.
-        --enable ...    Enable a backup type in a backup strategy.
-        --init <name>   Initialize (create) a new backup strategy.
+        --disable ...   Disable a backup type in a backup level.
+        --enable ...    Enable a backup type in a backup level.
+        --init <level>  Initialize (create) a new backup level. 
         --list          List backup types in rc.d directory.
-        --list <name>   List enabled scripts for a backup strategy.
+        --list <level>  List enabled scripts for a backup level. 
 
         <config> is the config file to be written. It is in the
         form <priority>-<name>.<type>.  Example: 40-home.xfsdump
 
+	<strategy> is an (optional) strategy name. It can be ommitted if there
+	is no need for multiple strategies
+
+	<level> is the backup level. It should be a single digit number.
 _END
 	do_version_bugreport
 	exit 0
@@ -141,22 +151,33 @@ do_list()
 
 # Set the CONFDIR variable
 # Also set the LEVEL variable
-# $1 is the directory
+# $1 is the strategy or an absolute path to the config files
+# $2 is the level or nothing if $1 is a path
 set_confdir()
 {
 	if [ ! "$1" = "${1#.}" ] ; then
-		h_error "Bad path: $1"
-		h_error "Path must not begin with a dot"
+		h_error "Bad strategy: $1"
+		h_error "Strategy must not begin with a dot"
 		exit 1
 	fi
 
-	if [ "$1" = "${1#/}" ] ; then
-		CONFDIR="${myconfdir}/backup.$1"
-	else
-		CONFDIR="$1"
+	if [ ! "$2" = "${2#.}" ] ; then
+		h_error "Bad level: $2"
+		h_error "Level must not begin with a dot"
+		exit 1
 	fi
 
-	export LEVEL="$1"
+	if [ -z "$2" ] ; then
+		CONFDIR="$1"
+	else
+		if [ -z "$1" ] ; then
+			CONFDIR="${myconfdir}/backup.$2"
+		else
+			CONFDIR="${myconfdir}/backup.$1.$2"
+		fi
+	fi
+
+	export LEVEL="$2"
 
 	h_msg 6 "Using $CONFDIR"
 
@@ -237,10 +258,11 @@ do_run_check_common()
 }
 
 # Check configuration
-# $1 is the directory
+# $1 is the strategy
+# $2 is the level
 do_check()
 {
-	set_confdir "$1"
+	set_confdir "$1" "$2"
 
 	read_global_conf
 
@@ -257,10 +279,11 @@ do_script_help()
 }
 
 # Run the backup configuration files
-# $1 is the directory
+# $1 is the strategy
+# $2 is the level
 do_run()
 {
-	set_confdir "$1"
+	set_confdir "$1" "$2"
 
 	read_global_conf
 
@@ -353,8 +376,8 @@ do_rc_ask_config()
 			fi
 
 			while : ; do
-				# If it doesn't start with # then consider this a
-				# default and remove any quotes
+				# If it does not start with # then consider
+				# this a default and remove any quotes
 				if [[ "${line:0:1}" != "#" ]] ; then
 					DEFAULT=$(echo "$line" \
 						| ( IFS== read a b ; echo $b) \
@@ -407,7 +430,7 @@ do_rc_ask_config()
 
 # Implement --rc --add
 # $1:	The filename
-# $2:	The full patch to file
+# $2:	The full path to file
 do_rc_add()
 {
 	local FN FN2 PRIO TYPE NAME SAMPLE
@@ -468,6 +491,8 @@ do_rc()
 	local files
 	local PRIO TYPE NAME FN FN2
 	local SAMPLE
+	local STRATEGY
+	local LEVEL
 
 	RCD="$myconfdir/rc.d"
 
@@ -477,17 +502,48 @@ do_rc()
 	fi
 
 	ret=0
+
+	STRATEGY=''
+	LEVEL=''
+
 	case "$1" in
 		--list)
 			if [[ -z "$2" ]] ; then
+				:
+			elif [[ -z "$3" ]] ; then
+				# If only one of the two was provided, guess
+				if [[ -d "$myconfdir/backup.$2" ]] ; then
+					LEVEL="$2"
+				else
+					STRATEGY="$2"
+				fi
+			else
+				STRATEGY="$2"
+				LEVEL="$3"
+			fi
+
+			if [[ -z "$STRATEGY" ]] ; then
+				STDIR=""
+			else
+				STDIR=".$STRATEGY"
+			fi
+
+			RCD="$myconfdir/rc${STDIR}.d/"
+
+			if [[ -z "$LEVEL" ]] ; then
+				if [[ ! -d "$RCD" ]] ; then
+					h_error "No such strategy: $STRATEGY"
+					return 1
+				fi
+
 				# Get existing files in RCD
 				files=$(cd $RCD && ls [0-9]* 2>/dev/null | \
 					sort -n)
 			else
-				TDIR="$myconfdir/backup.$2"
+				TDIR="$myconfdir/backup${STDIR}.$LEVEL"
 
 				if [[ ! -d "$TDIR" ]] ; then
-					h_error "No such strategy: $2"
+					h_error "No such level: $LEVEL"
 					return 1
 				fi
 				# Get existing files in RCD
@@ -505,7 +561,20 @@ do_rc()
 				return 1
 			fi
 
-			FN="$2"
+			if [[ -z "$3" ]] ; then
+				FN="$2"
+			else
+				STRATEGY="$2"
+				FN="$3"
+			fi
+
+			if [[ -z "$STRATEGY" ]] ; then
+				STDIR=""
+			else
+				STDIR=".$STRATEGY"
+			fi
+
+			RCD="$myconfdir/rc${STDIR}.d/"
 
 			# Form the full path
 			FN2="$RCD/$FN"
@@ -529,10 +598,25 @@ do_rc()
 				return 1
 			fi
 
+			if [[ -z "$4" ]] ; then
+				LEVEL="$3"
+			else
+				STRATEGY="$3"
+				LEVEL="$4"
+			fi
+
+			if [[ -z "$STRATEGY" ]] ; then
+				STDIR=""
+			else
+				STDIR=".$STRATEGY"
+			fi
+
+			RCD="$myconfdir/rc${STDIR}.d/"
+
 			FN="$2"
 			FN2="$RCD/$FN"
 
-			DST0="backup.$3"
+			DST0="backup${STDIR}.$LEVEL"
 			DST="$myconfdir/$DST0/$FN"
 
 			if [[ "x$1" == "x--enable" ]] ; then
@@ -544,23 +628,23 @@ do_rc()
 				fi
 
 				if [ -e "$DST" ] ; then
-					h_msg 4 "Strategy $3: $FN is already enabled"
+					h_msg 4 "Level $LEVEL: $FN is already enabled"
 					return 0
 				fi
 
 				#ln -s "$FN2" "$DST"
 				ln -s "../rc.d/$FN" "$DST"
 
-				h_msg 4 "Strategy $3: Enabled $FN"
+				h_msg 4 "Level $LEVEL: Enabled $FN"
 			else
 				if ! [ -e "$DST" ] ; then
-					h_msg 4 "Strategy $3: $FN is not enabled"
+					h_msg 4 "Level $LEVEL: $FN is not enabled"
 					return 0
 				fi
 
 				rm "$DST"
 
-				h_msg 4 "Strategy $3: Disabled $FN"
+				h_msg 4 "Level $LEVEL: Disabled $FN"
 			fi
 
 			ret=0
@@ -572,7 +656,20 @@ do_rc()
 				return 1
 			fi
 
-			DST="$myconfdir/backup.$2"
+			if [[ -z "$3" ]] ; then
+				LEVEL="$2"
+			else
+				LEVEL="$3"
+				STRATEGY="$2"
+			fi
+
+			if [[ -z "$STRATEGY" ]] ; then
+				STDIR=""
+			else
+				STDIR=".$STRATEGY"
+			fi
+
+			DST="$myconfdir/backup{$STDIR}.$2"
 			if [[ -d "$DST" ]] ; then
 				h_error "Strategy $2 already exists"
 				return 1
@@ -634,10 +731,15 @@ case "$1" in
 		;;
 	--check)
 		# check configuration
-		if [ -z "$2" ] || [ ! -z "$3" ] ; then
+		if [ -z "$2" ] || [ ! -z "$4" ] ; then
 			do_help
 		fi
-		do_check "$2"
+
+		if [ -z "$3" ] ; then
+			do_check "" "$2"
+		else
+			do_check "$2" "$3"
+		fi
 		;;
 	--version)
 		do_version
@@ -651,11 +753,16 @@ case "$1" in
 		;;
 	*)
 		# Assume that $1 is the configuration dir name
-		if [ -z "$1" ] || [ ! -z "$2" ] ; then
+		if [ -z "$1" ] || [ ! -z "$3" ] ; then
 			do_help
 		fi
 
-		do_run "$1"
+
+		if [ -z "$2" ] ; then
+			do_run "" "$1"
+		else
+			do_run "$1" "$2"
+		fi
 		;;
 esac
 
