@@ -8,7 +8,7 @@
 
 # The directory to create md5sums of
 # All files under this directory will be processed
-# The directory is relative to DESTDIR0 meaining that if DSTDIR0 is empty
+# The directory is relative to DESTDIR0 meaining that if SOURCE is empty
 # or / then the whole DESTDIR0 will be processed. This is the default
 # and a sane option
 SOURCE=""

@@ -7,7 +7,7 @@
 #
 
 # A directory where backups will be stored (required)
-# All other DESTDIR directived are relative to this one
+# All other DESTDIR directives are relative to this one
 # Try something like this: /path/to/dir/%D1%-%L%
 # %D1%-%L% will become DATE-LEVEL (i.e. 120305-0)
 DESTDIR0=""
