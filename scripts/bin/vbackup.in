@@ -106,7 +106,7 @@ $MESSAGE_LEVEL)
         --version       Show version and license information.
 
  or vbackup --rc --list [ [ <strategy> ] <level> ]
- or vbackup --rc --init [ <strategy> ] <level>
+ or vbackup --rc --init { <strategy> | [ <strategy> ] <level> }
  or vbackup --rc { --add | --delete } [ <strategy> ] <config>
  or vbackup --rc { --enable | --disable } <config> [ <strategy> ] <level>
 
@@ -306,7 +306,7 @@ do_rc_ask_config()
 	# For this to work we:
 	# - Ignore all lines from the top of the file up to the first empty line
 	# - After that find all lines starting with '# ' (hash followed by
-	#   space) and show them as comment or that equal '#'
+	#   space), or that equal '#'  and show them as comment
 	# - If the first comment line includes (required) then this is a
 	#   mandatory option
 	# - Find ^XXXX=YYYY or ^#XXXX=YYYY and ask for the value of XXXX:
@@ -349,7 +349,8 @@ do_rc_ask_config()
 			done
 
 	 		firstline=1
-			while [[ "${line:0:2}" = "# " ]] ; do
+			while [[ "x${line:0:2}" = "x# " ]] ||
+				[[ "x$line" = 'x#' ]] ; do
 				# Scan the first line for 'required'
 				if [[ $firstline = 1 ]] ; then
 					T=$(echo "x$line" | grep '(required)')
@@ -431,12 +432,14 @@ do_rc_ask_config()
 # Implement --rc --add
 # $1:	The filename
 # $2:	The full path to file
+# $3:	The strategy name (used for creating a meaningful message)
 do_rc_add()
 {
-	local FN FN2 PRIO TYPE NAME SAMPLE
+	local FN FN2 PRIO TYPE NAME SAMPLE STRATEGY
 
 	FN="$1"
 	FN2="$2"
+	STRATEGY="$3"
 
 	h_split_fn "$FN"
 
@@ -446,7 +449,7 @@ do_rc_add()
 
 	if [ -e "$FN2" ] ; then
 		h_error "File already exists: $FN2"
-		h_error "Please use --rc --delete first"
+		h_error "Delete it first using: vbckup --rc --delete $STRATEGY $FN"
 		return 1
 	fi
 
@@ -476,8 +479,10 @@ do_rc_add()
  $FN2
 
  Feel free to edit the file now or in the future.
- Remember that this file needs to be enabled for a specific backup
- strategy to be useful.
+ Remember that this file needs to be enabled for a backup level
+ in order to be useful.
+
+ E.g: vbackup --rc --enable $FN $STRATEGY 0
 ---------------------------------------------------------------------------
 _KOKO
 
@@ -573,6 +578,7 @@ do_rc()
 
 			# Form the full path
 			FN2="$RCD/$FN"
+			h_msg 12 "FN2: $FN2"
 
 			if [[ "x$1" = "x--delete" ]] ; then
 				if [[ -e "$FN2" ]] ; then
@@ -584,7 +590,7 @@ do_rc()
 				fi
 			else
 				h_ensuredir "$RCD"
-				do_rc_add "$FN" "$FN2"
+				do_rc_add "$FN" "$FN2" "$STRATEGY"
 				ret="$?"
 			fi
 			;;
@@ -654,11 +660,10 @@ do_rc()
 			fi
 
 			if [[ -z "$3" ]] ; then
-				if h_is_digit "$3" 0 9 ; then
+				if h_is_number "$3" 0 9 ; then
 					LEVEL="$2"
 				else
-					h_error "Please use single digit numbers for backup levels"
-					return 1
+					STRATEGY="$2"
 				fi
 			else
 				LEVEL="$3"
@@ -671,9 +676,25 @@ do_rc()
 				STDIR=".$STRATEGY"
 			fi
 
-			DST="$myconfdir/backup{$STDIR}.$2"
+			DST="$myconfdir/rc${STDIR}.d"
+			if ! [[ -d "$DST" ]] ; then
+				h_msg 4 "Initializing strategy $STRATEGY"
+				mkdir "$DST"
+			elif [[ -z "$LEVEL" ]] ; then
+				# If no level was specified and strategy
+				# exists, then let the user know
+				h_error "Strategy $STRATEGY already exists"
+				return 1
+			fi
+
+			# If no level was specified then we're done
+			if [[ -z "$LEVEL" ]] ; then
+				return 0
+			fi
+
+			DST="$myconfdir/backup${STDIR}.${LEVEL}"
 			if [[ -d "$DST" ]] ; then
-				h_error "Strategy $2 already exists"
+				h_error "Level $LEVEL already exists"
 				return 1
 			fi
 
@@ -689,7 +710,7 @@ do_rc()
 
 			mv $R_CFG $DST2
 
-			h_msg 4 "Initialized strategy $2"
+			h_msg 4 "Initialized level $LEVEL"
 
 			;;
 		*)
