@@ -115,7 +115,9 @@ do_run()
 		-o BatchMode=yes \
 		$SCPEXTRA \
 		-r \
-		"$SRC" "$USERNAME@$RHOST:$DST" ; then
+		"$SRC" "$USERNAME@$RHOST:$DST" \
+		> >(h_filter 6) \
+		; then
 		h_msg 6 "scp succeeded"
 	else
 		h_msg 2 "scp failed"
