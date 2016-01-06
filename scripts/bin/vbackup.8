@@ -115,7 +115,7 @@ exist
 Check whether a file or directory exists. This can be used to determine whether a filesystem is actually mounted or not. \fIIt is strongly advised to use this when you're not using mount or nfsmount!\fP
 .TP
 ftar
-Use tar to backup a filesystem but use find to locate the files to backup. This is simillar to the tar method but is not that good for incremental backups. If you restore a system that was incrementally backed up using this method it will have all files that were deleted between intermediate backups too. The advantage of this method is that you can use regular expression to filter files that will be backed up.
+Use tar to backup a filesystem but use find to locate the files to backup. This is similar to the tar method but is not that good for incremental backups. If you restore a system that was incrementally backed up using this method it will have all files that were deleted between intermediate backups too. The advantage of this method is that you can use regular expression to filter files that will be backed up.
 .TP
 mbr
 Backup MBRs from all disks and their Partition Tables. It will also backup MD and LVM information if any of those is detected. Extremely useful with very low space requirements.
