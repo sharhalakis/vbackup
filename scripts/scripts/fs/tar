@@ -255,7 +255,9 @@ do_run()
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
 				-f "$FN2" .
 		
-			if ! [ "$?" -eq 0 ] ; then
+			# Exit code 1 is a warning. Don't let it fail
+			# our backup
+			if [ "$?" -ge 2 ] ; then
 				h_error "Backup of $dir may have failed"
 				return 1
 			fi
