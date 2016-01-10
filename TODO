@@ -1,2 +1,7 @@
 - Fix manpage
 - Review documentation
+- Add %% option for day of week and for hours/minutes
+- Fix --rc initialisation
+- Tar states between strategies may be shared - use different names (?)
+- Review documentation in .sample files for --rc
+- Change order of postgresql (or mysql?) options, so that the suggested ones are first
