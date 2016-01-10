@@ -1,1 +1,1 @@
-( [ -f ChangeLog ] || touch ChangeLog ) && aclocal && automake --add-missing && autoconf
+( [ -f ChangeLog ] || touch ChangeLog ) && autoreconf -i
