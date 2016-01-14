@@ -35,6 +35,7 @@ mybindir="@mybindir@"
 myscriptdir="@myscriptdir@"
 myconfdir="@myconfdir@"
 myhelperdir="@myhelperdir@"
+mystatedir="@mystatedir@"
 sampledir="@sampledir@"
 wizdir="@wizdir@"
 
@@ -85,6 +86,8 @@ B_BINDIR="$mybindir"
 B_SCRIPTDIR="$myscriptdir"
 # Location of helper scripts
 B_HELPERDIR="$myhelperdir"
+# Base state directory
+B_STATEDIR="$mystatedir"
 
 MESSAGE_LEVEL=${MESSAGE_LEVEL:-8}
 
@@ -93,13 +96,20 @@ MESSAGE_LEVEL=${MESSAGE_LEVEL:-8}
 #
 # $1:	The format:
 #	1:	YYMMDD
+#	2:	YYMMDDHH
 #
 # Prints the date
 #
 h_formdate()
 {
 	# For now - only one format
-	date "+%y%m%d"
+	case "$1" in
+		0) date "+%u" ;;
+		1) date "+%y%m%d" ;;
+		2) date "+%y%m%d%H" ;;
+		3) date "+%y%m%d%H%M" ;;
+		*) echo "Bad date formet" >&2 exit 3 ;;
+	esac
 }
 
 #
@@ -110,12 +120,21 @@ h_formdate()
 #
 h_transform()
 {
-	local D1
+	local D0 D1 D2 D3
+	local L
 
-	D1=`h_formdate 1`
+	D0=$(h_formdate 0)
+	D1=$(h_formdate 1)
+	D2=$(h_formdate 2)
+	D3=$(h_formdate 3)
 	L="$LEVEL"
 
-	R=`echo "$1" | sed "s,%D1%,$D1,g" | sed "s,%L%,$L,g"`
+	R=$(echo "$1" \
+		| sed "s,%D0%,$D0,g" \
+		| sed "s,%D1%,$D1,g" \
+		| sed "s,%D2%,$D2,g" \
+		| sed "s,%D3%,$D3,g" \
+		| sed "s,%L%,$L,g")
 }
 
 
