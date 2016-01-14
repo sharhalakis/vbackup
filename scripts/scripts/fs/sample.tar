@@ -3,9 +3,6 @@
 # $Id$
 #
 
-# The backup level (0-9) (required)
-LEVEL=0
-
 # The directories to backup (required)
 # This can be either a space separated list of directories (DIRS)
 # or a file with a directory on each line (DIRFILE)
@@ -15,16 +12,15 @@ LEVEL=0
 
 # A space separated list of wildcard masks to identify files to
 # be excluded from the backup, as specified by the --exclude argument of
-# GNU tar (optional)
+# GNU tar
+# This can also exlude directories and full paths as long as they start
+# with ./ E.g. EXCLUDE="./dir1 ./dir2/subdir1 ./dir3/*.jpg *.iso"
+# (optional)
 EXCLUDE="*.iso"
 
 # A file containing one wildcard mask on each line, identifying
-# files to be excluded from the backup (optional)
+# files to be excluded from the backup. (optional)
 #EXCLUDEFILE="/etc/backup.exclude"
-
-# A path to hold last backup dates. This directory should be
-# persistent for incremental backups to work (required)
-STATEDIR="/var/lib/vbackup/state/tar"
 
 # The destination directory (required)
 DESTDIR="fs/"
