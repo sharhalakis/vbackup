@@ -43,15 +43,11 @@ backups. If you try to restore an incremental backup, files that were deleted
 will re-appear (but no files will be lost).
 
 Configuration options:
-	LEVEL		The backup level (0-9) (required)
 	DIRS		The directories to backup (*)
 	DIRFILE		A file containing the directories to backup (*)
 	DESTDIR		The directory to backup to (required)
 	EXCLUDE		Exclude patters
 	EXCLUDEFILE	A file containing exclude patterns
-	STATEDIR	A directory to hold last backup state. If it is not
-			an absolute path it will be prefixed by:
-			"$localstatedir/vbackup" (required)
 	ROOTFN		The name to give to the root fs tar file (if any)
 
   * Exactly one of DIRS/DIRFILE is required
@@ -92,29 +88,51 @@ do_check_conf()
 		return 1
 	fi
 
+	h_warn "====================================================="
+	h_warn "ftar is deprecated. ftar does not handle incremental"
+	h_warn "backups and is not maintained any more."
+	h_warn "Please use tar instead"
+	h_warn "====================================================="
+
 	return 0
 }
 
+# $1 == strategy
+# $2 == level
+# $3 == filename (dir with dots instead of /)
+get_statefile()
+{
+	if test -z "$1" ; then
+		statefile="$2.$3"
+	else
+		statefile="$1.$2.$3"
+	fi
+
+	echo "$STATEDIR/$statefile"
+}
+
+
 # Try to find the last backup date with lower level
-# $1 == level
-# $2 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
+# $1 == strategy
+# $2 == level
+# $3 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
 # Return value in $R_LDATE
 # Return 0 if R_LDATE was found or 1 if not (true/false)
 get_old_date()
 {
 	local old=""
-	local lev="$1"
+	local lev="$2"
 	local statefile=""
 	
 	R_LDATE=""
 	
-	if [ -z "$1" ] || [ -z "$2" ] ; then
+	if [ -z "$2" ] || [ -z "$3" ] ; then
 		return 1
 	fi
 	
 	let lev=$lev-1
 	while [ "$lev" -ge 0 ] ; do
-		statefile="$STATEDIR/${lev}.$2"
+		statefile=$(get_statefile "$1" "$lev" "$3")
 		if [ -f "${statefile}" ] ; then
 			R_LDATE=`cat "$statefile"`
 			return 0
@@ -128,19 +146,20 @@ get_old_date()
 # Remove unwanted state files
 # In case of a L3 backup remove all state files
 # for levels > 3
-# $1 == level
-# $2 == filename
+# $1 == strategy
+# $2 == level
+# $3 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
 remove_unwanted()
 {
-	local lev="$1"
+	local lev="$2"
 
-	if [ -z "$1" ] || [ -z "$2" ] ; then
+	if [ -z "$2" ] || [ -z "$3" ] ; then
 		return 1
 	fi
 	
 	let lev=$lev+1
 	while [ "$lev" -le 9 ] ; do
-		statefile="$STATEDIR/${lev}.$2"
+		statefile=$(get_statefile "$1" "$lev" "$3")
 		if [ -f "${statefile}" ] ; then
 			rm -f "${statefile}"
 			rm -f "${statefile}.snar"
@@ -206,7 +225,7 @@ do_run()
 		fi
 		h_msg 6 "$dir -> $DESTDIR/$LEVEL.$FN.$T_DATE2.tar.gz"
 		(
-			STATEFILE="$STATEDIR/$LEVEL.$FN"
+			STATEFILE=$(get_statefile "$STRATEGY" $LEVEL "$FN")
 			if [ -f "$STATEFILE" ] ; then
 				last=`cat $STATEFILE`
 				h_msg 7 "Last level $LEVEL backup of $dir: $last"
@@ -226,7 +245,7 @@ do_run()
 
 			extra_n=""
 
-			if get_old_date $LEVEL $FN ; then
+			if get_old_date $STRATEGY $LEVEL $FN ; then
 				h_msg 7 "Will backup files newer than: $R_LDATE"
 				extra_n="$R_LDATE"
 			else
@@ -247,7 +266,7 @@ do_run()
 			else
 				h_msg 6 "Done"
 				echo "${T_DATE}" > "$STATEFILE"
-				remove_unwanted $LEVEL "$FN"
+				remove_unwanted "$STRATEGY" $LEVEL "$FN"
 			fi
 		)
 		h_msg 7 "----------------------------------------"
