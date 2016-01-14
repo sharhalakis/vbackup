@@ -57,13 +57,20 @@ It may expect:
 --------------
   * If the configuration file includes a DESTDIR options, it will be
     prepended with the DESTDIR0 prefix. It will also be transformed
-    by changed %X% variables (for example %D1%)
+    by changing %X% variables (for example %D1%)
   * A variable named ABORT is set to 1 if a script previously exited with
     error code 2 (see bellow). Most scripts should abort with exit code 0
     when they detect this. For example: a script that checks for free space
     may exit with error code 2. The ABORT variable will be set automatically.
     All backup scripts must detect this and do nothing. The umount script
     will ignore this and actually try to umount the directory.
+  * A variable named LEVEL that indicates the backup level as passed to the
+    vbackup command.
+  * A variable named STRATEGY that indicates the strategy as passed to the
+    vbackup command. This will be empty if no strategy was specified.
+  * A variable named STATEDIR that points to a script-specific directory
+    to store state. Note that the directory may not exist. If needed, the
+    script should use h_ensuredir to create the directory
 
 It must return (from each function):
 ------------------------------------
@@ -83,13 +90,16 @@ Configuration files:
 ====================
 
 Some configuration files may include a DESTDIR directive.
-It may contain the following special sequences:
+For example, '%D1%' which will be replaced by YYMMDD of the current date
+E.g.: /tmp/backups/filesystem/%D1%
+will be converted to: /tmp/backups/filesystem/061117 (as of 17 Nov 2006)
 
- * '%D1%' which will be replaced by YYMMDD of the current date
-   Example: /tmp/backups/filesystem/%D1%
-   will be converted to: /tmp/backups/filesystem/061117 (as of 17 Nov 2006)
+The following special sequences are recognised:
 
-(to be extended with other formats)
+  * %D0%	Day of the week (1-7). 1 is Monday
+  * %D1%	YYMMDD of the current date
+  * %D2%	YYMMDDHH
+  * %D3%	YYMMDDHHMM
 
 Configuration directives:
 =========================
