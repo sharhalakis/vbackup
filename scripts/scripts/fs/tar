@@ -41,15 +41,11 @@ do_help()
 Perform incremental (listed-incremental) tar backups
 
 Configuration options:
-	LEVEL		The backup level (0-9) (required)
 	DIRS		The directories to backup (*)
 	DIRFILE		A file containing the directories to backup (*)
 	DESTDIR		The directory to backup to (required)
 	EXCLUDE		Exclude patters
 	EXCLUDEFILE	A file containing exclude patterns
-	STATEDIR	A directory to hold last backup state. If it is not
-			an absolute path it will be prefixed by:
-			"$localstatedir/vbackup" (required)
 	ROOTFN		The name to give to the root fs tar file (if any)
 
   * Exactly one of DIRS/DIRFILE is required
@@ -93,9 +89,25 @@ do_check_conf()
 	return 0
 }
 
+# Print the full path of the state file
+# $1 == strategy
+# $2 == level
+# $3 == filename (dir with dots instead of /)
+get_statefile()
+{
+	if test -z "$1" ; then
+		statefile="$2.$3"
+	else
+		statefile="$1.$2.$3"
+	fi
+
+	echo "$STATEDIR/$statefile"
+}
+
 # Try to find the last backup date with lower level
-# $1 == level
-# $2 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
+# $1 == strategy
+# $2 == level
+# $3 == filename (dir with dots instead of / (/tmp/a/b -> tmp.a.b)
 # Return value in $R_LDATE
 # Return tar-state file in $R_TARSTATE0
 # Return last backup level in $R_LLEVEL
@@ -103,18 +115,18 @@ do_check_conf()
 get_old_date()
 {
 	local old=""
-	local lev="$1"
+	local lev="$2"
 	local statefile=""
 	
 	R_LDATE=""
 	
-	if [ -z "$1" ] || [ -z "$2" ] ; then
+	if [ -z "$2" ] || [ -z "$3" ] ; then
 		return 1
 	fi
 	
 	let lev=$lev-1
 	while [ "$lev" -ge 0 ] ; do
-		statefile="$STATEDIR/${lev}.$2"
+		statefile=$(get_statefile "$1" "$lev" "$3")
 		if [ -f "${statefile}" ] ; then
 			R_LDATE=`cat "$statefile"`
 			R_TARSTATE0="$statefile.snar"
@@ -124,7 +136,7 @@ get_old_date()
 		let lev=$lev-1
 	done
 
-	R_TARSTATE0="$STATEDIR/${lev}.0.snar"
+	R_TARSTATE0="$(get_statefile "$1" 0 "$3").snar"
 	R_LLEVEL=-1
 	
 	return 1
@@ -133,19 +145,20 @@ get_old_date()
 # Remove unwanted state files
 # In case of a L3 backup remove all state files
 # for levels > 3
-# $1 == level
-# $2 == filename
+# $1 == strategy
+# $2 == level
+# $3 == filename
 remove_unwanted()
 {
-	local lev="$1"
+	local lev="$2"
 
-	if [ -z "$1" ] || [ -z "$2" ] ; then
+	if [ -z "$2" ] || [ -z "$3" ] ; then
 		return 1
 	fi
 	
 	let lev=$lev+1
 	while [ "$lev" -le 9 ] ; do
-		statefile="$STATEDIR/${lev}.$2"
+		statefile=$(get_statefile "$1" "$lev" "$3")
 		if [ -f "${statefile}" ] ; then
 			h_msg 11 "Removing $statefile"
 			rm -f "${statefile}"
@@ -189,7 +202,7 @@ do_run()
 		T_EXCL=""
 	else
 		T_EXCL=`echo -n "$EXCLUDE" | \
-			awk 'BEGIN {RS=" "} {printf("--exclude=\"%s\" ", $0)}'`
+			awk 'BEGIN {RS=" "} {printf("--exclude=%s ", $0)}'`
 	fi
 
 	if ! [ -d "$STATEDIR" ] ; then
@@ -226,7 +239,7 @@ do_run()
 
 		h_msg 6 "$dir -> $FN2"
 		(
-			STATEFILE="$STATEDIR/$LEVEL.$FN"
+			STATEFILE=$(get_statefile "$STRATEGY" "$LEVEL" "$FN")
 			if [ -f "$STATEFILE" ] ; then
 				last=`cat $STATEFILE`
 				h_msg 7 "Last level $LEVEL backup of $dir: $last"
@@ -234,7 +247,7 @@ do_run()
 				h_msg 7 "Last level $LEVEL backup of $dir: NEVER"
 			fi
 
-			if get_old_date $LEVEL "$FN" ; then
+			if get_old_date "$STRATEGY" $LEVEL "$FN" ; then
 				h_msg 7 "Backup will be based on L$R_LLEVEL backup at $R_LDATE"
 			fi
 
@@ -248,12 +261,14 @@ do_run()
 				touch "$R_TARSTATE.new"
 			fi
 		
+			set -f
 			$GTAR -c --one-file-system -C "$dir" \
 				$T_EXCL_F $T_EXCL \
 				--listed-incremental="$R_TARSTATE.new" \
 			 	--sparse $extra \
 				-V "L${LEVEL} backup of ${dir} at ${T_DATE}" \
 				-f "$FN2" .
+			set +f
 		
 			# Exit code 1 is a warning. Don't let it fail
 			# our backup
@@ -267,7 +282,7 @@ do_run()
 
 			h_msg 6 "Done"
 			echo "${T_DATE}" > "$STATEFILE"
-			remove_unwanted $LEVEL "$FN"
+			remove_unwanted "$STRATEGY" $LEVEL "$FN"
 		)
 		h_msg 7 "----------------------------------------"
 	done
