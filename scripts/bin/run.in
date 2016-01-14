@@ -161,6 +161,9 @@ do_script_run()
 
 	export DESTDIR=""
 	(
+	# Set STATEDIR
+	STATEDIR="$B_STATEDIR/$1"
+
 	# Source the script
 	. "$B_SCRIPTDIR/$1"
 
