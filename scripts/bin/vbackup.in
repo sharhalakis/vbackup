@@ -151,6 +151,7 @@ do_list()
 
 # Set the CONFDIR variable
 # Also set the LEVEL variable
+# Also set the STRATEGY variable
 # $1 is the strategy or an absolute path to the config files
 # $2 is the level or nothing if $1 is a path
 set_confdir()
@@ -177,6 +178,7 @@ set_confdir()
 		fi
 	fi
 
+	export STRATEGY="$1"
 	export LEVEL="$2"
 
 	h_msg 6 "Using $CONFDIR"
@@ -626,7 +628,7 @@ do_rc()
 				h_msg 10 "$FN2 -> $DST"
 
 				if ! [ -e "$FN2" ] ; then
-					h_error "No such file: $FN"
+					h_error "No such file: $FN2"
 					return 1
 				fi
 
