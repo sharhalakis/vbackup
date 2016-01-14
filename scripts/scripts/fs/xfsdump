@@ -33,7 +33,6 @@ do_help()
 {
 	cat << _END
 Configuration options:
-	LEVEL		The backup level (0-9) (required)
 	PARTITIONS	The partitions to backup. This is a space separated
 			list of partitions. They can be identified by
 			mountpoint or by device name (required)
@@ -79,21 +78,23 @@ do_dump()
 {
 	local	T_M
 
-	T_M="-M '$MEDLABEL'"
+	T_M="-M $MEDLABEL"
 
+	set -f
 	if h_is_true $COMPRESS ; then
 		FN="$2.gz"
 		h_msg 6 "Dumping $1 to $FN"
-		$XFSDUMP -l $LEVEL $T_M -L "$1" - "$1" | gzip > "$FN"
+		$XFSDUMP -l $LEVEL -M "$MEDLABEL" -L "$1" - "$1" 2> >(h_filter 6 >&2) | gzip > "$FN"
 		if ! [ "$?" -eq 0 ] ; then
 			return 1
 		fi
 	else
 		h_msg 6 "Dumping $1 to $2"
-		if ! $XFSDUMP -l $LEVEL $T_M -L "$1" -f "$2" "$1" ; then
+		if ! $XFSDUMP -l $LEVEL -M "$MEDLABEL" -L "$1" -f "$2" "$1" 2> >(h_filter 6 >&2) ; then
 			return 1
 		fi
 	fi
+	set +f
 
 	return 0
 }
