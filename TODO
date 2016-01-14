@@ -1,7 +1,15 @@
 - Fix manpage
 - Review documentation
-- Add %% option for day of week and for hours/minutes
-- Fix --rc initialisation
-- Tar states between strategies may be shared - use different names (?)
+  - List the new %% tranformations
+  - Explain the strategies and --rc
 - Review documentation in .sample files for --rc
-- Change order of postgresql (or mysql?) options, so that the suggested ones are first
+- Fix --rc initialisation
+- Change order of postgresql (or is it mysql?) options, so that the suggested ones are first
+- xfsdump method has a bug: Regardless of the strategy, it will use the same
+  session information for incremental backups.
+- Maybe:
+	- Rework vbackup config dir structure
+	- Lose per-level directories ?
+	- Support both per-level and no-level directories for backward
+	  compatibility ?
+- test ftar
