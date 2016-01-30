@@ -1,7 +1,7 @@
 # Per backup global configuration file
 #
 # This file holds per-backup configuration options and should reside in
-# etc/vbackup/backup.XXXX/
+# etc/vbackup/rc.d/ or etc/vbackup/rc.XXXX.d/
 #
 # $Id: sample.tar 692 2006-11-19 15:50:11Z v13 $
 #
@@ -9,7 +9,7 @@
 # A directory where backups will be stored (required)
 # All other DESTDIR directives are relative to this one
 # Try something like this: /path/to/dir/%D1%-%L%
-# %D1%-%L% will become DATE-LEVEL (i.e. 120305-0)
+# %D1%-%L% will become DATE-LEVEL (e.g. 120305-0)
 DESTDIR0=""
 
 # Compress backups? (yes/no)
