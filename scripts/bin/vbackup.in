@@ -82,13 +82,12 @@ Usage:
 $MESSAGE_LEVEL)
 
         Perform a level <level> backup based on the <strategy> strategy.
-        For example, if <level> is 0 and <strategy> is not provided then
-        the configuration files will be under:
-        $myconfdir/backup.0
+        For example, if <strategy> is not provided then the configuration
+	files will be under:
+	$myconfdir/rc.d
 
-	If <strategy> is "remote" and <level> is 5 then the configuration
-        files will be under:
-        $myconfdir/backup.remote.5
+	If <strategy> is "remote" then the configuration files will be under:
+        $myconfdir/rc.remote.d
 
         Message levels:
             1: Fatal, 2: Error, 3: Warning, 4: Note, 5-7: Information
@@ -99,28 +98,30 @@ $MESSAGE_LEVEL)
         -d and --dir are also available for the following commands
 
  or vbackup { --list | --help | --help <module> | --version }
-        
+
         --help          Get this help.
         --help <module> Get module specific information.
         --list          List all available backup scripts.
         --version       Show version and license information.
 
- or vbackup --rc --list [ [ <strategy> ] <level> ]
- or vbackup --rc --init { <strategy> | [ <strategy> ] <level> }
+ or vbackup --rc --list [ <strategy> [ <level> ] ]
+ or vbackup --rc --init <strategy>
  or vbackup --rc { --add | --delete } [ <strategy> ] <config>
- or vbackup --rc { --enable | --disable } <config> [ <strategy> ] <level>
+ or vbackup --rc { --enable | --disable } [ <strategy> ] <config>
 
         --add           Add a backup type to the rc.d directory.
                         You will be asked for configuratio options.
         --delete        Delete a backup type from the rc.d directory.
-        --disable ...   Disable a backup type in a backup level.
-        --enable ...    Enable a backup type in a backup level.
-        --init <level>  Initialize (create) a new backup level. 
+        --disable ...   Disable a script
+        --enable ...    Enable a script
+        --init		Initialize (create) a new backup strategy.
         --list          List backup types in rc.d directory.
-        --list <level>  List enabled scripts for a backup level. 
+        --list <level>  List scripts of a backup level.
 
         <config> is the config file to be written. It is in the
         form <priority>-<name>.<type>.  Example: 40-home.xfsdump
+	It can also be in the form of <priority>-<name>-<level>.<type>
+	in which case it will only be applied to a certain level
 
 	<strategy> is an (optional) strategy name. It can be ommitted if there
 	is no need for multiple strategies
@@ -152,8 +153,9 @@ do_list()
 # Set the CONFDIR variable
 # Also set the LEVEL variable
 # Also set the STRATEGY variable
+# Also set CONFSTYLE to the configuration style (1 is old, 2 is new)
 # $1 is the strategy or an absolute path to the config files
-# $2 is the level or nothing if $1 is a path
+# $2 is the level or nothing if $1 is a path or it's a new style config
 set_confdir()
 {
 	if [ ! "$1" = "${1#.}" ] ; then
@@ -168,14 +170,35 @@ set_confdir()
 		exit 1
 	fi
 
-	if [ -z "$2" ] ; then
+	if [[ -z "$2" ]] ; then
 		CONFDIR="$1"
+		CONFSTYLE="2"
 	else
 		if [ -z "$1" ] ; then
-			CONFDIR="${myconfdir}/backup.$2"
+			CONFDIR="${myconfdir}/rc.d"
 		else
-			CONFDIR="${myconfdir}/backup.$1.$2"
+			CONFDIR="${myconfdir}/rc.$1.d"
 		fi
+
+		if ! test -d "$CONFDIR" ; then
+			h_fatal 1 "No such dir: $CONFDIR"
+		fi
+
+		if test -e "$CONFDIR/vbackup.conf" ; then
+			CONFSTYLE="2"
+		else
+			h_msg 5 "Old style configuration. Consider upgrading"
+			CONFSTYLE="1"
+			if [ -z "$1" ] ; then
+				CONFDIR="${myconfdir}/backup.$2"
+			else
+				CONFDIR="${myconfdir}/backup.$1.$2"
+			fi
+		fi
+	fi
+
+	if [[ "$CONFSTYLE" = "2" ]] ; then
+		h_msg 6 "New style configuration"
 	fi
 
 	export STRATEGY="$1"
@@ -206,13 +229,41 @@ read_global_conf()
 	export COMPRESS
 }
 
+# Get the script to be executed in the proper order
+# Expects CONFDIR to be set
+# Expects LEVEL to be set. If not set then return all scripts
+# Outputs the script names to stdout
+get_scripts()
+{
+	pushd "$CONFDIR" > /dev/null
+	$GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*.*' |
+		sort |
+		grep '^./[0-9]' |
+		while read fn ; do
+			# No magic needed for old style configs
+			if [[ $CONFSTYLE = 1 ]] ; then
+				echo "${fn#./}"
+				continue
+			fi
+
+			if [[ ! -z "$LEVEL" ]] &&
+				[[ "x$fn" =~ ^x./(.*)-([0-9])\.([^.]*)$ ]] &&
+				[[ ${BASH_REMATCH[2]} != $LEVEL ]] ; then
+					continue
+			fi
+			echo "${fn#./}"
+		done
+	popd > /dev/null
+}
+
 # Common part for run/check
 # $1:	run, check indicating what to do
 do_run_check_common()
 {
 	local	F
 	local	D
-	local	T
+	local	M
+	local	SCRIPTS
 
 	if [ "$1" != "run" ] && [ "$1" != "check" ] ; then
 		h_fatal 1 "Bad argument to do_run_check_common()"
@@ -228,35 +279,39 @@ do_run_check_common()
 
 	export DESTDIR0
 
+	SCRIPTS=$(get_scripts)
+	h_msg 11 "Scripts to run: $SCRIPTS"
+
 	cd "$CONFDIR"
-	$GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*.*' | sort |
-		while read fn ; do
-			F=${fn#./}
-			D=`echo "$F" | awk -F . '{print $NF}'`
-			T=`echo "$F" | grep '^[0-9]'`
-			h_msg 11 "T - D: $T - $D"
-			if [ ! -z "$T" ] && [ ! -z "$D" ] ; then
-				h_msg 11 "$fn -> $D"
-				if [ "$1" = "run" ] ; then
-					$B_BINDIR/run "$D" "$T"
-					case "$?" in
-						1)
-							h_error "$D exited with errors (non-fatal)"
-							;;
-						2)
-							h_fatal -x "$D exited with errors"
-							return
-							;;
-						3)
-							h_fatal 1 "$D exited with errors"
-							;;
-					esac
-				else
-					h_msg 7 "Checking $T..."
-					$B_BINDIR/run "$D" --check "$T"
-				fi
-			fi
-		done
+	for F in $SCRIPTS ; do
+		D=`echo "$F" | awk -F . '{print $NF}'`
+		T=`echo "$F" | grep '^[0-9]'`
+
+		h_msg 11 "T - D: $T - $D"
+		if [ -z "$T" ] || [ -z "$D" ] ; then
+			continue
+		fi
+
+		h_msg 11 "$fn -> $D"
+		if [ "$1" = "run" ] ; then
+			$B_BINDIR/run "$D" "$T"
+			case "$?" in
+				1)
+					h_error "$D exited with errors (non-fatal)"
+					;;
+				2)
+					h_fatal -x "$D exited with errors"
+					return
+					;;
+				3)
+					h_fatal 1 "$D exited with errors"
+					;;
+			esac
+		else
+			h_msg 7 "Checking $T..."
+			$B_BINDIR/run "$D" --check "$T"
+		fi
+	done
 }
 
 # Check configuration
@@ -328,7 +383,7 @@ do_rc_ask_config()
 			# For example, the "exec" module cannot be configured
 			# From here
 			if [[ ${line:0:2} == '## No autoconfig' ]] ; then
-				h_msg 4 "You will have to configure this be hand."
+				h_msg 4 "You will have to configure this by hand."
 				# Copy the sample file to the temp config file
 				# and return
 				cat $INFILE > $TCFG
@@ -401,17 +456,24 @@ do_rc_ask_config()
 				fi
 				# Now pop the quiestion
 				# read -p \
-				#   "$VAR do you accept $DEFAULT as your value?" 
-				read -p "Enter value for $VAR [$DEFAULT]: " \
-					ans <&3
+				#   "$VAR do you accept $DEFAULT as your value?"
+				while : ; do
+					read -p "Enter value for $VAR [$DEFAULT]: " \
+						ans <&3
+					if [[ -z "$ans" ]] ; then
+						ans="$DEFAULT"
+					fi
 
-				if [[ -z "$ans" ]] ; then
-					ans="$DEFAULT"
-				fi
+					if [[ "$REQ" = 0 ]] ||
+						[[ ! -z "$ans" ]] ; then
+						break
+					fi
+				done
+
 
 				echo "$VAR=\"$ans\"" >> $TCFG
 
-				# Get another one until we reach EOF or 
+				# Get another one until we reach EOF or
 				# an empty line
 				if ! read line ; then
 					break
@@ -424,7 +486,7 @@ do_rc_ask_config()
 			done
 			echo
 
-		done 
+		done
 		) < $INFILE
 	)
 
@@ -481,10 +543,6 @@ do_rc_add()
  $FN2
 
  Feel free to edit the file now or in the future.
- Remember that this file needs to be enabled for a backup level
- in order to be useful.
-
- E.g: vbackup --rc --enable $FN $STRATEGY 0
 ---------------------------------------------------------------------------
 _KOKO
 
@@ -510,19 +568,8 @@ do_rc()
 
 	case "$1" in
 		--list)
-			if [[ -z "$2" ]] ; then
-				:
-			elif [[ -z "$3" ]] ; then
-				# If only one of the two was provided, guess
-				if [[ -d "$myconfdir/backup.$2" ]] ; then
-					LEVEL="$2"
-				else
-					STRATEGY="$2"
-				fi
-			else
-				STRATEGY="$2"
-				LEVEL="$3"
-			fi
+			STRATEGY="$2"
+			LEVEL="$3"
 
 			if [[ -z "$STRATEGY" ]] ; then
 				STDIR=""
@@ -530,28 +577,15 @@ do_rc()
 				STDIR=".$STRATEGY"
 			fi
 
-			RCD="$myconfdir/rc${STDIR}.d/"
+			CONFDIR="$myconfdir/rc${STDIR}.d/"
 
-			if [[ -z "$LEVEL" ]] ; then
-				if [[ ! -d "$RCD" ]] ; then
-					h_error "No such strategy: $STRATEGY"
-					return 1
-				fi
-
-				# Get existing files in RCD
-				files=$(cd $RCD && ls [0-9]* 2>/dev/null | \
-					sort -n)
-			else
-				TDIR="$myconfdir/backup${STDIR}.$LEVEL"
-
-				if [[ ! -d "$TDIR" ]] ; then
-					h_error "No such level: $LEVEL"
-					return 1
-				fi
-				# Get existing files in RCD
-				files=$(cd $TDIR && ls [0-9]* 2>/dev/null | \
-					sort -n)
+			if [[ ! -d "$CONFDIR" ]] ; then
+				h_error "No such strategy: $STRATEGY"
+				return 1
 			fi
+
+			# Get existing files in RCD
+			files=$(get_scripts)
 
 			for i in $files ; do
 				echo $i
@@ -597,16 +631,17 @@ do_rc()
 			fi
 			;;
 		--enable|--disable)
-			if [[ "x$3" = "x" ]] ; then
+			if [[ "x$2" = "x" ]] ; then
 				do_help
 				return 1
 			fi
 
-			if [[ -z "$4" ]] ; then
-				LEVEL="$3"
+			if [[ -z "$3" ]] ; then
+				STRATEGY=""
+				FN="$2"
 			else
-				STRATEGY="$3"
-				LEVEL="$4"
+				STRATEGY="$2"
+				FN="$3"
 			fi
 
 			if [[ -z "$STRATEGY" ]] ; then
@@ -618,38 +653,44 @@ do_rc()
 			RCDIR="rc${STDIR}.d"
 			RCD="$myconfdir/$RCDIR"
 
-			FN="$2"
-			FN2="$RCD/$FN"
+			# The ON and OFF filenames
+			ONFN="${FN#.off}"
+			OFFFN="$ONFN.off"
 
-			DST0="backup${STDIR}.$LEVEL"
-			DST="$myconfdir/$DST0/$FN"
+			ONFN2="$RCD/$ONFN"
+			OFFFN2="$RCD/$OFFFN"
 
 			if [[ "x$1" == "x--enable" ]] ; then
-				h_msg 10 "$FN2 -> $DST"
+				if [ -e "$ONFN2" ] ; then
+					h_msg 5 "$ONFN is already enabled"
+					return 0
+				fi
 
-				if ! [ -e "$FN2" ] ; then
-					h_error "No such file: $FN2"
+				if ! [ -e "$OFFFN2" ] ; then
+					h_error "No such file: $ONFN"
 					return 1
 				fi
 
-				if [ -e "$DST" ] ; then
-					h_msg 4 "Level $LEVEL: $FN is already enabled"
-					return 0
-				fi
+				mv -f "$OFFFN2" "$ONFN2"
 
 				#ln -s "$FN2" "$DST"
-				ln -s "../$RCDIR/$FN" "$DST"
+				#ln -s "../$RCDIR/$FN" "$DST"
 
-				h_msg 4 "Level $LEVEL: Enabled $FN"
+				h_msg 4 "Enabled $ONFN"
 			else
-				if ! [ -e "$DST" ] ; then
-					h_msg 4 "Level $LEVEL: $FN is not enabled"
+				if [ -e "$OFFFN2" ] ; then
+					h_msg 5 "$ONFN is already disabled"
 					return 0
 				fi
 
-				rm "$DST"
+				if ! [ -e "$ONFN2" ] ; then
+					h_error "No such file: $ONFN"
+					return 1
+				fi
 
-				h_msg 4 "Level $LEVEL: Disabled $FN"
+				mv -f "$ONFN2" "$OFFFN2"
+
+				h_msg 4 "Disabled $ONFN"
 			fi
 
 			ret=0
@@ -661,16 +702,7 @@ do_rc()
 				return 1
 			fi
 
-			if [[ -z "$3" ]] ; then
-				if h_is_number "$3" 0 9 ; then
-					LEVEL="$2"
-				else
-					STRATEGY="$2"
-				fi
-			else
-				LEVEL="$3"
-				STRATEGY="$2"
-			fi
+			STRATEGY="$2"
 
 			if [[ -z "$STRATEGY" ]] ; then
 				STDIR=""
@@ -689,30 +721,13 @@ do_rc()
 				return 1
 			fi
 
-			# If no level was specified then we're done
-			if [[ -z "$LEVEL" ]] ; then
-				return 0
-			fi
-
-			DST="$myconfdir/backup${STDIR}.${LEVEL}"
-			if [[ -d "$DST" ]] ; then
-				h_error "Level $LEVEL already exists"
-				return 1
-			fi
-
 			DST2="$DST/vbackup.conf"
 
 			SAMPLE="$sampledir/vbackup.conf.sample"
 
 			do_rc_ask_config $SAMPLE
 
-			# Postpone directory creating in case the user aborts
-			h_msg 11 "Creating $DST"
-			mkdir "$DST"
-
 			mv $R_CFG $DST2
-
-			h_msg 4 "Initialized level $LEVEL"
 
 			;;
 		*)
