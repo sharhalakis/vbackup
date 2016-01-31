@@ -777,11 +777,20 @@ case "$1" in
 		;;
 	--check)
 		# check configuration
-		if h_is_number "$2" ; then
-			do_check "" "$2"
+		if ! test -z "$2" && h_is_number "$2" ; then
+			S=""
+			L="$2"
 		else
-			do_check "$2" "$3"
+			S="$2"
+			L="$3"
 		fi
+
+		if test -z "$L" ; then
+			h_msg 4 "No level specified. Assuming 0"
+			L="0"
+		fi
+
+		do_check "$S" "$L"
 		;;
 	--version)
 		do_version
