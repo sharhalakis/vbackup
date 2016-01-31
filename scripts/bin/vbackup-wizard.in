@@ -119,7 +119,7 @@ do_run()
 {
 	h_ask_txt \
 "Welcome to vbackup initial configuration wizard.
-Your configuration files will be stored in:
+Your configuration files will be stored under:
 $myconfdir
 
 You'll now be asked a series of questions.
@@ -144,16 +144,15 @@ enter."
 
 	# Ask a name for the backup
 	h_ask_str \
-"You can have unlimited number of backup schemes. Each scheme must have a
+"You can have unlimited number of backup stategies. Each strategy must have a
 unique name that will be used to distinguish it. It is possible to have a
-blank scheme name which is fine for most cases." \
-		"Enter the backup scheme name" \
+blank strategy name which is fine for most cases and serves as the default." \
+		"Enter the backup strategy name" \
 		""
-	SCHEME="$RET"
-	DESTBASE="$myconfdir/backup.$SCHEME"
-	RCDIR="rc.${SCHEME}.d"
+	STRATEGY="$RET"
+	DESTBASE="$myconfdir/backup.$STRATEGY"
+	RCDIR="rc.${STRATEGY}.d"
 	RCD="$myconfdir/$RCDIR"
-	LEVELS=(0 5)
 	# Check if it exists
 	if [ -e "${DESTBASE}0" ] || [ -e "${DESTBASE}5}" ] ||
 		[ -e "$RCD" ] ; then
@@ -166,10 +165,10 @@ blank scheme name which is fine for most cases." \
 		done
 
 		if ! h_ask_yesno \
-"A backup scheme with that name already exists. I can move existing scheme to
-$TNAME
-You will have to delete it yourself if it is not needed any more" \
-			"Do you want to move existing scheme out of the way?" \
+"A backup strategy with that name already exists. I can move the existing
+strategy to $TNAME. You will have to delete it yourself if it is not needed
+any more" \
+			"Do you want to move the existing strategy out of the way?" \
 			"y" ; then
 			h_msg 0 \
 "
@@ -253,64 +252,33 @@ Re-run this wizard to start over
 		DCFG="$T/final/rc.d"
 		test -d "$DCFG" || mkdir -p "$DCFG"
 
-		# Generate the rc.d configs. Multi-level configs need
-		# multiple config files
-		if [[ -z "$MULTI" ]] ; then
-			TNAME="$PRI-$NAME.$NAME"
-			cat $T2 > "$DCFG/$TNAME"
-		else
-			for LEVEL in "${LEVELS[@]}" ; do
-				TNAME="$PRI-$NAME-$LEVEL.$NAME"
-				(
-					cat $T2
-					echo "$MULTI=$LEVEL"
-				) > "$DCFG/$TNAME"
-			done
-		fi
-
-		# Enable configuration for each backup level
-		for LEVEL in "${LEVELS[@]}" ; do
-			DCFG2="$T/final/backup.$LEVEL"
-			test -d "$DCFG2" || mkdir "$DCFG2"
-
-			if [[ -z "$MULTI" ]] ; then
-				TNAME="$PRI-$NAME.$NAME"
-			else
-				TNAME="$PRI-$NAME-$LEVEL.$NAME"
-			fi
-
-			ln -s "../$RCDIR/$TNAME" "$DCFG2/$TNAME"
-		done
+		TNAME="$PRI-$NAME.$NAME"
+		cat $T2 > "$DCFG/$TNAME"
 		) <&9
 	done < <( $GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*-*' |\
 			sort)
 
 	# Create vbackup.conf
 	get_vbackup_conf "$T2"
-	for LEVEL in "${LEVELS[@]}" ; do
-		(
-		DCFG="$T/final/backup.$LEVEL"
-
-		cp "$T2" "$DCFG/vbackup.conf"
-		) <&9
-	done
+	DCFG="$T/final/rc.d"
+	cp "$T2" "$DCFG/vbackup.conf"
 
 	# Move configuration to final directory
 	DCFG="$T/final/rc.d"
 	mv "$DCFG" "$RCD"
-	for LEVEL in "${LEVELS[@]}" ; do
-		DCFG="$T/final/backup.$LEVEL"
-		mv "$DCFG" "$DESTBASE$LEVEL"
-	done
+
+	if ! -z "$STRATEGY" ; then
+		STRATEGY="$STRATEGY "
+	fi
 
 	h_ask_txt \
 "Done! You can now create level 0 backups by running:
 
-# vbackup ${SCHEME}0
+# vbackup ${STRATEGY}0
 
 and level 5 backups by running:
 
-# vbackup ${SCHEME}5
+# vbackup ${STRATEGY}5
 
 Level 5 backups are incremental backups. This means that they only store
 differences from the last level 0 backup. This is only possible for filesystem
@@ -331,8 +299,8 @@ You can get further information about each plugin by running
 
 # vbackup --help <plugin name>
 
-After using vbackup don't forget to send some feedback to v13@v13.gr
-Since this is a work-in-progress, this will greatly affect the way vbackup
+After using vbackup feel free to send feedback to v13@v13.gr
+Since this is work-in-progress, this will greatly affect the way vbackup
 is developed and what new features will be available in the near future." | more
 }
 
