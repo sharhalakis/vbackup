@@ -1,11 +1,11 @@
 VBackup - A modular backup utility
 ==================================
 
-This is a collection of scripts that perform backup of systems.
-It should support most of the unices out there (everything different should be
-reported as a bug).
+vbackup is an extensible CLI backup tool. Ultimately it is a collection of
+scripts that perform backup of systems. It is based on bash and should support
+most of the unices out there (if not then please report it as a bug).
 
-This version of vbackup can backup:
+Vbackup can backup:
 
     * Postgresql databases
     * MySQL databases
@@ -20,14 +20,14 @@ The backup procedure is completely customizable and extendable by the user.
 Requirements:
 =============
 
- * GNU find
- * GNU tar - for the tar method
- * xfsdump - for the xfsdump method
- * RPM - for the rpm method
- * dpkg - for the dpkg method
- * openldap - for the openldap method
- * openssl - for the x509 method
- * mdadm and lvm - for the mbr method
+    * GNU find
+    * GNU tar - for the tar method
+    * xfsdump - for the xfsdump method
+    * RPM - for the rpm method
+    * dpkg - for the dpkg method
+    * openldap - for the openldap method
+    * openssl - for the x509 method
+    * mdadm and lvm - for the mbr method
 
 Installation:
 =============
@@ -54,11 +54,27 @@ To get some information about a module run:
 example:
 # vbackup --help xfsdump
 
+High level overview:
+====================
+
+vbackup runs by scanning a configuration directory for configuration files.
+This directory has a vbackup.conf file and a series of config files that
+dictate what vbackup should do. For example, one may indicate that a
+PostgreSQL database should be backedup, the next one can indicate that
+/home should be backed up and a final one would instruct vbackup to copy
+the backups to a remote system using scp.
+
+See "How It Works", below, for more details.
+
+From a users point of view, vbackup simplifies the backup process by
+requiring a config file for everything that otherwise would require a
+custom made script.
+
 Setup - the begginer's way:
 ===========================
 
 There is a wizard script that will help you create basic configuration files.
-Most probably you will want to use this one the first time. For more advanced
+Most probably you will want to use it for the first time. For more advanced
 configuration and fine-tunning you will have to adjust the configuration files
 yourself. Read the rest of this file to fully understand how you can use
 vbackup.
@@ -66,109 +82,149 @@ vbackup.
 To launch the wizard run:
 # vbackup-wizard
 
-and just answer its questions. The wizard also serves as an introduction.
+and answer its questions. The wizard also serves as an introduction.
 
-Note that this will only create some trivial things. It is really suggest
-to find your way around and use the next method
+Note that this will only create basic backups, even though that may be
+all that you need. For more advanced stuff you'll need to use the CLI
+or the manual method
 
 Setup - the CLI way:
 ====================
 
-Let's assume you want to
-    * Backup to an NFS mounted space
-    * Perform backup of two partitions using xfsdump (full and incremental)
-    * Perform backup of directories using tar (full and incremantal)
-    * Perform mysql and pgsql backup
+A simple backup:
+----------------
+
+Let's assume you want to:
+    * Store backups undeer /mnt/backup/
+    * Backup /home
+    * Backup /etc
+    * Backup your partition information in case disaster hits
 
 Run the following and answer the questions properly. You change your config
 later by editing config files by hand.
 
-1.  First create the config files:
-    # vbackup --rc --add 00-remote.nfsmount
-    # vbackup --rc --add 10-full.mysql
-    # vbackup --rc --add 10-full.pgsql
-    # vbackup --rc --add 20-level0.tar
-    # vbackup --rc --add 20-level5.tar
-    # vbackup --rc --add 30-level0.xfsdump
-    # vbackup --rc --add 30-level5.xfsdump
-    # vbackup --rc --add 99-remote.umount
-2.  Create the two backup strategies:
-    # vbackup --rc --init 0
-    # vbackup --rc --init 5
-3.  Populate them strategy 0:
-    # vbackup --rc --enable 00-remote.nfsmount 0
-    # vbackup --rc --enable 10-full.mysql 0
-    # vbackup --rc --enable 10-full.pgsql 0
-    # vbackup --rc --enable 20-level0.tar 0
-    # vbackup --rc --enable 30-level0.xfsdump 0
-    # vbackup --rc --enable 99-remote.umount 0
-4.  Populate them strategy 5:
-    # vbackup --rc --enable 00-remote.nfsmount 5
-    # vbackup --rc --enable 10-full.mysql 5
-    # vbackup --rc --enable 10-full.pgsql 5
-    # vbackup --rc --enable 20-level5.tar 5
-    # vbackup --rc --enable 30-level5.xfsdump 5
-    # vbackup --rc --enable 99-remote.umount 5
-5.  Check the configuration:
-    # vbackup --check 0
-    # vbackup --check 5
-6.  Perform a level 0 backup
+    # vbackup --rc --init
+	# Enter "/mnt/backup/%L1%-%D%", without the quotes, for DESTDIR0
+    # vbackup --rc --add 10-exist.exist	    # Just press enter when asked
+    # vbackup --rc --add 20-mbr.mbr	    # Press enter on all questions
+    # vbackup --rc --add 30-home.tar
+	# Enter "/home /etc", without the quotes, for DIRS
+	# Press enter for everything else
+
+And you're done. This initialized the default strategy under /etc/vbackup/rc.d
+and added 3 config files:
+    * One to ensure that /mnt/backup is present
+    * One to backup MBR and LVM data
+    * One to backup /home and /etc using tar
+
+You can verify that all is good by running:
+
+    # vbackup --check
+
+You can perform backups using:
+
     # vbackup 0
-7   Perform a level 5 backup
+    - or, for less verbose output -
+    # vbackup -d 4 0
+
+You can perform higher level (incremental ) backups by passing a different
+paramter to vbackup:
+
     # vbackup 5
 
+this will base the backup on a previous level. Since the only lower level
+backup is 0, it will be based on that. All methods that support incremental
+backups will honor this. In this case this is tar. The mbr method will
+still perform full backups, regardles of the level, as it doesn't support
+incremental backups.
+
+
+A more complated setup:
+-----------------------
+
+Let's assume you want to
+    * Backup to an NFS mounted space that will be mounted on demand
+      under /mnt/nfsbackup
+    * Perform backup of /home using xfsdump
+    * Perform backup of /boot and /etc using tar
+    * Perform mysql and postgresql backup
+    * Name this backup strategy "big"
+
+Run the following
+    # vbackup --rc --init big
+	# Enter "/mnt/nfsbackup/%D1%-%L%", without the quotes, for DESTDIR0
+    # vbackup --rc --add big 00-remote.nfsmount
+	# Enter the NFS URI to mount (e.g. mynfs.local:/mnt/backup) in NFSDIR
+	# Enter the mount point (/mnt/nfsbackup) in MOUNTPOINT
+    # vbackup --rc --add big 10-full.mysql
+	# Answer as needed. For Debian systems you can just press enter
+	# on all options
+    # vbackup --rc --add big 10-full.pgsql
+	# Same as above
+    # vbackup --rc --add big 20-home.xfsdump
+	# Enter /home for PARTITIONS
+    # vbackup --rc --add big 30-system.tar
+	# Enter "/etc /boot" for DIRS
+    # vbackup --rc --add 99-remote.umount
+	# Enter /mnt/nfsbackup for MOUNTPOINT
+
+Now, see what you have created and check the configuration:
+
+    # vbackup --rc --list big
+    # vbackup --check big
+
+Level 0 vackups are performed with:
+
+    # vbackup big 0
+
+Level 5 backups are performed with:
+
+    # vbackup big 5
+    
 Setup - by hand:
 ================
-Let's assume the same scenario as above
+Let's assume the complex scenario above
 
-1.  Go to /etc/vbackup and create a folder named rc.d. This will hold all the
-    configuration scripts.
+1.  Go to /etc/vbackup and create a folder named rc.big.d. This will hold all
+    the configuration scripts.
+
 2.  Copy from the samples directory ($prefix/share/vbackup/samples) the
-    following scripts to rc.d:
+    following scripts to /etc/vbackup/rc.big.d:
     * sample.nfsmount
     * sample.umount
     * sample.xfsdump
     * sample.mysql
     * sample.pgsql
     * sample.umount
+    * vbackup.conf.sample
 
-3.  Rename sample.nfsmount to remote.nfsmount. (Any name with the extension
+3.  Rename sample.nfsmount to 00-remote.nfsmount (any name with the extension
     .nfsmount will do) and edit it. Change the values of the variables to fit
     your needs.
-4.  Rename sample.umount to remote.umount and edit it. Just set the mountpoint
-    to umount.
-5.  Rename sample.mysql to full.mysql and edit it. Read the note at the top of
-    the script and set variables as needed.
-6.  Rename sample.pgsql to full.pgsql and edit it.
-7.  Copy sample.tar to level0.tar an edit it. Set the level to 0
-8.  Rename sample.tar to level5.tar and edit it. Set the level to 5
-9.  Copy sample.xfsdump to level0.xfsdump and edit it. Set the level to 0
-10. Rename xfsdump to level5.xfsdump and edit it. Set the level to 5
 
-11. Create two directories named backup.0 and backup.5 under /etc/vbackup
-12. Enter backup.0 and create softlinks to the desired configuration files:
-    # ln -s ../rc.d/remote.nfsmount 00-remote.nfsmount
-    # ln -s ../rc.d/remote.umount 99-remote.umount
-    # ln -s ../rc.d/full.mysql 10-full.mysql
-    # ln -s ../rc.d/full.pgsql 10-full.pgsql
-    # ln -s ../rc.d/level0.tar 20-level0.tar
-    # ln -s ../rc.d/level0.xfsdump 30-level0.xfsdump
-13. Enter backup.1 and create softlinks:
-    # ln -s ../rc.d/remote.nfsmount 00-remote.nfsmount
-    # ln -s ../rc.d/remote.umount 99-remote.umount
-    # ln -s ../rc.d/level5.tar 20-level5.tar
-    # ln -s ../rc.d/level5.xfsdump 30-level5.xfsdump
-14. Copy to backup.0 and backup.1 the vbackup.conf.sample from the samples
-    directory. Rename it to vbackup.conf and edit it as needed.
-15. Check the configuration using:
-    # vbackup --check 0
-    # vbackup --check 5
+4.  Rename sample.umount to 99-remote.umount and edit it. Just set
+    the mountpoint to umount.
+
+5.  Rename sample.mysql to 10-full.mysql and edit it. Read the note at
+    the top of the script and set variables as needed.
+
+6.  Rename sample.pgsql to 10-full.pgsql and edit it.
+
+7.  Rename sample.xfsdump to 20-home.xfsdump and edit it.
+
+8.  Rename sample.tar to 30-system.tar an edit it.
+
+9.  Rename vbackup.conf.sample to vbackup.conf and edit it
+
+10. Check the configuration using:
+    # vbackup --check big 0
+    # vbackup --check big 5
 
 To perform level 0 backup run
-# vbackup 0
+# vbackup big 0
 
 To perform level 5 backup run
-# vbackup 5
+# vbackup big 5
 
 How it works:
 =============
@@ -176,21 +232,25 @@ How it works:
 When you run:
 # vbackup 0
 
-The script enters directory /etc/vbackup/backup.0 and searches for files named
-XX-name.module, where <XX> is a number and <module> is a backup module/method.
-All configurations are examined in an alphabetical order, so that the <XX>
-prefix may be used to indicate the order. For each configuration file,
-the coresponding module (<module>) is executed using the configuration file
-options. A module may be used from zero to many times.
-
-This way you'll have to create configuration files once and perform various
-types of backups, depending on your needs.
+* The script enters directory /etc/vbackup/rc.d and searches for files named
+  XX-name.module, where <XX> is a number and <module> is a backup
+  module/method.
+* All configurations are examined in an alphabetical order, so that the <XX>
+  is used to indicate the order. These files apply to all backup levels.
+* The script also checks for files named XX-name-level.module, where <level>
+  is a certain level. These files apply only to that level and are ignored
+  in other levels.
+* For each configuration file, the coresponding module (<module>) is
+  executed using the parameters of the configuration file. A module may be
+  used from zero to many times. E.g. there can be many .tar files in there
 
 The verbosity of the backup procedure may be controlled using the -d parameter.
-Level 7 is recommended.
+Level 4 should let you know of any special cases while keeping everything
+else for itself
 
 Backups that fail will not stop the backup procedure. There are however some
-errors that will stop everything (ex: when failing to mount a filesystem)
+errors that will stop everything (ex: when failing to mount a filesystem).
+However, backups that fail will cause vbackup to exit with non 0 code.
 
 Available modules:
 ==================
