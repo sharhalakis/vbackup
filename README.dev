@@ -166,7 +166,7 @@ w_do_ask()
 {
   A function that will be called to ask for configuration parameters.
   This function may be called multiple times to answer different questions.
-  The first argument mantates the question to me asked
+  The first argument mandates the question to me asked
   Initialy, this function is called with "ENABLE" as the first argument.
   All capital letter names should be reserved for vbackup usage. This function
   must set the variable ASK_NEXT to "" whenever the series of questions is
@@ -182,24 +182,18 @@ w_do_ask()
   do_ask level ==> Set ASK_NEXT="", return code=0
   finished asking questions, method is enabled
 
-  This function may also write to temporary file $CFG
-  echo 'DIRS="/tmp"' > $CFG
-  echo '# Comment' > $CFG
+  This function may also write to the temporary file $CFG:
+  echo 'DIRS="/tmp"' >> $CFG
+  echo '# Comment' >> $CFG
 
   This file will be available when w_get_config() is called.
   Typically, this should contain the majority of the configuration options
-  except from backup level related options.
+  except maybe from static options.
 }
 
 w_get_config()
 {
-  A function that should print to its stdout the configuration file
-  The first argument is a number that indicates a backup level. This should
-  be used whenever backup levels are supported (or to enable-disable a method
-  for a specific backup level).
-
-  This function may produce empty output to indicate that it should be
-  disabled at the current backup level.
+  A function that should print to its stdout the configuration file.
 }
 
 
