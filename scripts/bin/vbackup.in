@@ -170,24 +170,16 @@ set_confdir()
 		exit 1
 	fi
 
-	if [[ -z "$2" ]] ; then
-		CONFDIR="$1"
-		CONFSTYLE="2"
+	if [ -z "$1" ] ; then
+		CONFDIR="${myconfdir}/rc.d"
 	else
-		if [ -z "$1" ] ; then
-			CONFDIR="${myconfdir}/rc.d"
-		else
-			CONFDIR="${myconfdir}/rc.$1.d"
-		fi
+		CONFDIR="${myconfdir}/rc.$1.d"
+	fi
 
-		if ! test -d "$CONFDIR" ; then
-			h_fatal 1 "No such dir: $CONFDIR"
-		fi
-
+	if test -d "$CONFDIR" ; then
 		if test -e "$CONFDIR/vbackup.conf" ; then
 			CONFSTYLE="2"
 		else
-			h_msg 5 "Old style configuration. Consider upgrading"
 			CONFSTYLE="1"
 			if [ -z "$1" ] ; then
 				CONFDIR="${myconfdir}/backup.$2"
@@ -195,10 +187,23 @@ set_confdir()
 				CONFDIR="${myconfdir}/backup.$1.$2"
 			fi
 		fi
+	else
+		CONFDIR="$1"
+		CONFSTYLE="2"
+	fi
+
+	if ! test -d "$CONFDIR" ; then
+		h_fatal 1 "No such dir: $CONFDIR"
+	fi
+
+	if ! test -e "$CONFDIR/vbackup.conf" ; then
+		h_fatal 1 "No such file: $CONFDIR/vbackup.conf"
 	fi
 
 	if [[ "$CONFSTYLE" = "2" ]] ; then
 		h_msg 6 "New style configuration"
+	else
+		h_msg 5 "Old style configuration. Consider upgrading"
 	fi
 
 	export STRATEGY="$1"
@@ -772,11 +777,7 @@ case "$1" in
 		;;
 	--check)
 		# check configuration
-		if [ -z "$2" ] || [ ! -z "$4" ] ; then
-			do_help
-		fi
-
-		if [ -z "$3" ] ; then
+		if h_is_number "$2" ; then
 			do_check "" "$2"
 		else
 			do_check "$2" "$3"
