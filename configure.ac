@@ -16,6 +16,7 @@ AC_ARG_WITH( find,
 	[GFIND="$with_find"])
 
 # Checks for programs.
+AC_PROG_MKDIR_P
 
 # Check for GNU tar
 if test -z "$GTAR" ; then
