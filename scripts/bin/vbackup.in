@@ -511,7 +511,7 @@ do_rc_add()
 	TYPE="$R_TYPE"
 	NAME="$R_NAME"
 
-	if [ -e "$FN2" ] ; then
+	if [[ -e "$FN2" ]] || [[ -h "$FN2" ]] ; then
 		h_error "File already exists: $FN2"
 		h_error "Delete it first using: vbckup --rc --delete $STRATEGY $FN"
 		return 1
@@ -617,7 +617,7 @@ do_rc()
 			h_msg 12 "FN2: $FN2"
 
 			if [[ "x$1" = "x--delete" ]] ; then
-				if [[ -e "$FN2" ]] ; then
+				if [[ -e "$FN2" ]] || [[ -h "$FN2" ]] ; then
 					rm "$FN2"
 					h_msg 4 "Removed $FN"
 				else
@@ -661,12 +661,12 @@ do_rc()
 			OFFFN2="$RCD/$OFFFN"
 
 			if [[ "x$1" == "x--enable" ]] ; then
-				if [ -e "$ONFN2" ] ; then
+				if [[ -e "$ONFN2" ]] || [ -h "$ONFN2" ] ; then
 					h_msg 5 "$ONFN is already enabled"
 					return 0
 				fi
 
-				if ! [ -e "$OFFFN2" ] ; then
+				if ! [ -e "$OFFFN2" ] && ! [ -h "$OFFFN2" ] ; then
 					h_error "No such file: $ONFN"
 					return 1
 				fi
@@ -678,12 +678,12 @@ do_rc()
 
 				h_msg 4 "Enabled $ONFN"
 			else
-				if [ -e "$OFFFN2" ] ; then
+				if [ -e "$OFFFN2" ] || [ -h "$OFFFN2" ] ; then
 					h_msg 5 "$ONFN is already disabled"
 					return 0
 				fi
 
-				if ! [ -e "$ONFN2" ] ; then
+				if ! [ -e "$ONFN2" ] && ! [ -h "$ONFN2" ] ; then
 					h_error "No such file: $ONFN"
 					return 1
 				fi
@@ -697,11 +697,6 @@ do_rc()
 
 			;;
 		--init)
-			if [[ -z "$2" ]] ; then
-				do_help
-				return 1
-			fi
-
 			STRATEGY="$2"
 
 			if [[ -z "$STRATEGY" ]] ; then
