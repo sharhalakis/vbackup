@@ -568,8 +568,14 @@ do_rc()
 
 	case "$1" in
 		--list)
-			STRATEGY="$2"
-			LEVEL="$3"
+
+			if h_is_number "$2" ; then
+				STRATEGY=""
+				LEVEL="$2"
+			else
+				STRATEGY="$2"
+				LEVEL="$3"
+			fi
 
 			if [[ -z "$STRATEGY" ]] ; then
 				STDIR=""
