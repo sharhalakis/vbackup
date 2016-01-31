@@ -3,19 +3,17 @@
 # $Id$
 #
 
-# The username to use (required)
-PGUSER="backup"
-
 # The host to connect to. Leave it empty if it is a local connection
 # Defaults to: empty
-# PGHOST=""
+PGHOST=""
 
-# The port to conenct to. Empty means not to specify a port
+# The port to connect to. Empty means not to specify a port
 # Defaults to: empty
-# PGPORT=5432
+# Default PostgreSQL port is 5432
+PGPORT=""
 
 # A username to su to when performing the backup
-# This is the most secure way of performing backups. Either use this or
+# This is the most secure way of performing local backups. Either use this or
 # supply a password. It is preffered to have a UNIX user that can connect to
 # postgresql database as an administrative user without requiring a password.
 # You can do this either by modifying pg_hba.conf or by using ~/.pgpass.
@@ -23,17 +21,14 @@ PGUSER="backup"
 # For Debian systems, user "postgres" will do the job automagically.
 SUUSER="postgres"
 
+# The username to use (required)
+# This is the database user to connect as
+PGUSER="postgres"
+
 # The password passed as an environment variable.
 # This is insecure. Anyone will be able to get this password!
+# Leave it empty if you specified a SUUSER
 #PASSWORD='1234'
-
-# path to psql Executable (optional)
-# Defaults to: look at $PATH
-#PSQL='/usr/bin/psql'
-
-# Path to pgdump executable (optional)
-# Defaults to: look at $PATH
-#PGDUMP='/usr/bin/pg_dump'
 
 # Databases to backup. A space seperated list of databases
 # Use - to backup all available databases

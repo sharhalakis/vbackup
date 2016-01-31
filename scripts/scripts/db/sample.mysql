@@ -3,35 +3,30 @@
 # $Id$
 #
 
+# A my.cnf file to read (optional)
+# This can be used to store the credentials for the user, which is the
+# most secure method
+# For debian, one can set this to /etc/mysql/debian.cnf and
+# use the debian-sys-maint user
+# MYUSER="debian-sys-maint"
+# MYCNF="/etc/mysql/debian.cnf"
+MYCNF="/etc/mysql/debian.cnf"
+
 # The username to use (required)
 #
 # You may want to add a user named backup and do:
 #
 # mysql> grant select,show databases,lock tables on *.* to 'backup'@'localhost';
 #
-# "root" should be OK for most cases, unless you've created the 'backup'
-# user that is mentioned above.
-MYUSER="root"
+# "debian-sys-maint" along with the proper MYCNF should be OK for Debian.
+# "root" should be OK for the rest of the cases, unless you've created the
+# 'backup' user as mentioned above.
+MYUSER="debian-sys-maint"
 
 # The password for the above user.
 # This is insecure. Anyone will be able to get this password! It is preferred
 # to add the password in .my.cnf. Take a look at MySQL documentation
 #PASSWORD='1234'
-
-# path to mysql executable (optional)
-# If not specified: Use $PATH - should work in most cases
-#MYSQL='/usr/bin/mysql'
-
-# Path to mysqldump executable (optional)
-# If not specified: Use $PATH - should work in most cases
-#MYSQLDUMP='/usr/bin/mysqldump'
-
-# An additional my.cnf file to read (optional)
-# This can be used to store the credentials for the user
-# For debian, one can use:
-# MYUSER='debian-sys-maint'
-# MYCNF='/etc/mysql/debian.cnf'
-#MYCNF=''
 
 # Databases to backup. A space seperated list of databases (required)
 # Use - to backup all available databases
