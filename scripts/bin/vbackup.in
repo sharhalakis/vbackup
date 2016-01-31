@@ -83,10 +83,10 @@ $MESSAGE_LEVEL)
 
         Perform a level <level> backup based on the <strategy> strategy.
         For example, if <strategy> is not provided then the configuration
-	files will be under:
-	$myconfdir/rc.d
+        files will be under:
+        $myconfdir/rc.d
 
-	If <strategy> is "remote" then the configuration files will be under:
+        If <strategy> is "remote" then the configuration files will be under:
         $myconfdir/rc.remote.d
 
         Message levels:
@@ -97,12 +97,13 @@ $MESSAGE_LEVEL)
 
         -d and --dir are also available for the following commands
 
- or vbackup { --list | --help | --help <module> | --version }
+ or vbackup { --list | --help | --help <module> | --version | --init }
 
         --help          Get this help.
         --help <module> Get module specific information.
         --list          List all available backup scripts.
         --version       Show version and license information.
+        --init          Alias for --rc --init. See that
 
  or vbackup --rc --list [ <strategy> [ <level> ] ]
  or vbackup --rc --init <strategy>
@@ -114,19 +115,19 @@ $MESSAGE_LEVEL)
         --delete        Delete a backup type from the rc.d directory.
         --disable ...   Disable a script
         --enable ...    Enable a script
-        --init		Initialize (create) a new backup strategy.
+        --init          Initialize (create) a new backup strategy.
         --list          List backup types in rc.d directory.
         --list <level>  List scripts of a backup level.
 
         <config> is the config file to be written. It is in the
         form <priority>-<name>.<type>.  Example: 40-home.xfsdump
-	It can also be in the form of <priority>-<name>-<level>.<type>
-	in which case it will only be applied to a certain level
+        It can also be in the form of <priority>-<name>-<level>.<type>
+        in which case it will only be applied to a certain level
 
-	<strategy> is an (optional) strategy name. It can be ommitted if there
-	is no need for multiple strategies
+        <strategy> is an (optional) strategy name. It can be ommitted if there
+        is no need for multiple strategies
 
-	<level> is the backup level. It should be a single digit number.
+        <level> is the backup level. It should be a single digit number.
 _END
 	do_version_bugreport
 	exit 0
@@ -719,10 +720,10 @@ do_rc()
 			DST="$myconfdir/rc${STDIR}.d"
 			if ! [[ -d "$DST" ]] ; then
 				h_msg 4 "Initializing strategy $STRATEGY"
-				mkdir "$DST"
-			elif [[ -z "$LEVEL" ]] ; then
-				# If no level was specified and strategy
-				# exists, then let the user know
+				# Delay the creation of the directory in
+				# case the user interrupts
+			else
+				# If strategy exists then let the user know
 				h_error "Strategy $STRATEGY already exists"
 				return 1
 			fi
@@ -732,6 +733,10 @@ do_rc()
 			SAMPLE="$sampledir/vbackup.conf.sample"
 
 			do_rc_ask_config $SAMPLE
+
+			if ! [[ -d "$DST" ]] ; then
+				mkdir "$DST"
+			fi
 
 			mv $R_CFG $DST2
 
@@ -797,6 +802,10 @@ case "$1" in
 		;;
 	--rc)
 		shift
+		do_rc "$@"
+		;;
+	--init)
+		# Alias for --rc --init
 		do_rc "$@"
 		;;
 	-*)
