@@ -126,29 +126,60 @@ _END
 	exit 0
 }
 
+# $1 one of "check", "run"
+# $2 is the script name
+# $3 is the configuration file
+do_script_check_run_common()
+{
+	if ! [[ "$1" = "check" ]] && ! [[ "$1" == "run" ]] ; then
+		h_fatal 1 "Must be check or run"
+	fi
+
+	validate_script "$2"
+	validate_conf "$3"
+
+	export DESTDIR=""
+	(
+	# Set STATEDIR
+	STATEDIR="$B_STATEDIR/$2"
+
+	# Source the script
+	. "$B_SCRIPTDIR/$2"
+
+	# Source the configuration
+	. ./"$3"
+
+	if ! do_check_conf ; then
+		return 1
+	fi
+
+	if [[ "$1" == "check" ]] ; then
+		return 0
+	else
+		# If this script has the DESTDIR variable then prepend it with
+		# DESTDIR0 and transform it as needed
+		if [ ! -z "$DESTDIR" ] ; then
+			h_formdest "$DESTDIR"
+			DESTDIR="$R_DESTDIR"
+			[ "x$2" = "xoff" ] || h_ensuredestdir "$DESTDIR"
+			h_msg 11 "DESTDIR: $DESTDIR"
+		fi
+
+		do_run
+	fi
+	)
+
+	return $?
+}
+
 # Invoke check conf for a script
 # $1 is the script name
 # $2 is the configuration file
 do_script_check_conf()
 {
-	validate_script "$1"
-	validate_conf "$2"
+	do_script_check_run_common "check" "$1" "$2"
 
-	( 
-	# Source the script
-	. "$B_SCRIPTDIR/$1"
-
-	# Source the configuration
-	. ./"$2"
-
-	if do_check_conf ; then
-		exit 0
-	else
-		exit 1
-	fi
-	)
-
-	exit $?
+	return $?
 }
 
 # Invoke a script
@@ -156,35 +187,9 @@ do_script_check_conf()
 # $2 is the configuration file
 do_script_run()
 {
-	validate_script "$1"
-	validate_conf "$2"
+	do_script_check_run_common "run" "$1" "$2"
 
-	export DESTDIR=""
-	(
-	# Set STATEDIR
-	STATEDIR="$B_STATEDIR/$1"
-
-	# Source the script
-	. "$B_SCRIPTDIR/$1"
-
-	# Source the configuration
-	. ./"$2"
-
-	if ! do_check_conf ; then
-		exit 1
-	fi
-
-	# If this script has the DESTDIR variable then prepend it with
-	# DESTDIR0 and transform it as needed
-	if [ ! -z "$DESTDIR" ] ; then
-		h_formdest "$DESTDIR"
-		DESTDIR="$R_DESTDIR"
-		[ "x$1" = "xoff" ] || h_ensuredestdir "$DESTDIR"
-		h_msg 11 "DESTDIR: $DESTDIR"
-	fi
-
-	do_run
-	)
+	return $?
 }
 
 if [ -z "$1" ] ; then
@@ -226,4 +231,5 @@ case "$1" in
 		;;
 esac
 
+exit $?
 
