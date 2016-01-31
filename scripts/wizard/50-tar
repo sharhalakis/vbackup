@@ -127,15 +127,12 @@ enter them here" \
 }
 
 # The w_get_config function.
-# $1: Backup level
 #
 # Display configuration file in stdout
 w_get_config()
 {
     cat "$CFG"
     cat << _KOKO
-LEVEL=$1
-STATEDIR="/var/lib/vbackup/state/tar"
 DESTDIR="fs/"
 _KOKO
 }
