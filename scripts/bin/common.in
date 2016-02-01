@@ -329,7 +329,7 @@ h_is_true()
 }
 
 #
-# Internal funciton
+# Internal function
 # Common function to display the text before a question
 h_ask_txt()
 {
@@ -360,18 +360,13 @@ h_ask_yesno()
 
 	prom="$2 (y/n) "
 	if [ "$3" = "y" ] ; then
-		prom="$prom[y] "
 		ans2=y
 	elif [ "$3" = "n" ] ; then
-		prom="$prom[n] "
 		ans2=n
 	fi
 
 	while true ; do
-		read -p "$prom" ans
-		if [ -z "$ans" ] && [ ! -z "$ans2" ] ; then
-			ans=$ans2
-		fi
+		read -rp "$prom" -ei "$ans2" ans
 
 		if [ "x$ans" = "xy" ] ; then
 			return 0
@@ -395,9 +390,9 @@ h_ask_str()
 
 	h_ask_txt "$1"
 
-	prom="$2 [$3] "
+	prom="$2 "
 
-	read -p "$prom" RET
+	read -rp "$prom" -ei "$3" RET
 
 	if [ -z "$RET" ] ; then
 		RET="$3"
@@ -416,11 +411,11 @@ h_ask_str()
 #	$R_TYPE	The type
 h_split_fn()
 {
-	R_PRIO=$(echo "$1" | ( IFS=- read a b ; echo $a ) )
-	R_NAME=$(echo "$1" | ( IFS=- read a b ; echo $b ) | \
-			( IFS=. read a b ; echo $a ) )
-	R_TYPE=$(echo "$1" | ( IFS=- read a b ; echo $b ) | \
-			( IFS=. read a b ; echo $b ) )
+	R_PRIO=$(echo "$1" | ( IFS=- read -r a b ; echo $a ) )
+	R_NAME=$(echo "$1" | ( IFS=- read -r a b ; echo $b ) | \
+			( IFS=. read -r a b ; echo $a ) )
+	R_TYPE=$(echo "$1" | ( IFS=- read -r a b ; echo $b ) | \
+			( IFS=. read -r a b ; echo $b ) )
 }
 
 #
@@ -443,7 +438,7 @@ h_filter()
 	if [ "$L" -gt "$MESSAGE_LEVEL" ] ; then
 		cat > /dev/null
 	else
-		while read line ; do
+		while read -r line ; do
 			h_msg $L "$line"
 		done
 	fi
