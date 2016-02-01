@@ -252,6 +252,30 @@ Backups that fail will not stop the backup procedure. There are however some
 errors that will stop everything (ex: when failing to mount a filesystem).
 However, backups that fail will cause vbackup to exit with non 0 code.
 
+DESTDIR0:
+=========
+DESTDIR0 holds the destination directory. The name should be an absolute path.
+Certain character sequences are translated during runtime:
+
+    - %L% is replaced with the backup level, as specified in the command line.
+      E.g. 1
+    - %D0% is replaced by a number for each day of the week. Monday is 1,
+      Sunday is 7
+    - %D1% is replaced by YYMMDD where YY are the two last digits of the
+      year, MM is the two-digit month number (e.g. 05 for May) and DD is the
+      two-digit day of the month number
+    - %D2% is replaced by YYMMDDHH where YYMMDD is as above and HH is the
+      two digit 24 hour-of-the-day number
+    - %D3% is replaced by YYMMDDHHmm where YYMMDDHH is as above and mm is the
+      two digit minutes number within the hour
+
+For example, /mnt/backup/%D1%-%L% while create a separate backup directory per
+day, per level, like this:
+
+drwxr-xr-x 8 v13 v13 70 Jun 28  2015 150628-1
+drwxr-xr-x 8 v13 v13 70 Jul 20  2015 150720-5
+drwxr-xr-x 8 v13 v13 70 Aug 18 01:23 150818-5
+
 Available modules:
 ==================
 
