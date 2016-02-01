@@ -245,7 +245,7 @@ get_scripts()
 	$GFIND . -maxdepth 1 \( -type f -or -type l \) -name '*.*' |
 		sort |
 		grep '^./[0-9]' |
-		while read fn ; do
+		while read -r fn ; do
 			# No magic needed for old style configs
 			if [[ $CONFSTYLE = 1 ]] ; then
 				echo "${fn#./}"
@@ -383,7 +383,7 @@ do_rc_ask_config()
 	 	exec 3<&0
 		# Handle first lines
 		(
-		while read line ; do
+		while read -r line ; do
 			echo "$line" >> $TCFG
 			# Support modules that do not support autoconfig
 			# For example, the "exec" module cannot be configured
@@ -402,24 +402,22 @@ do_rc_ask_config()
 			fi
 		done
 
-		while read line ; do
+		while read -r line ; do
 			# Ignore empty lines
 			while [[ "$line" = "" ]] ; do
 				echo >> $TCFG
-				if ! read line ; then
+				if ! read -r line ; then
 					break
 				fi
 			done
 
 	 		firstline=1
+			REQ=0
 			while [[ "x${line:0:2}" = "x# " ]] ||
 				[[ "x$line" = 'x#' ]] ; do
 				# Scan the first line for 'required'
 				if [[ $firstline = 1 ]] ; then
-					T=$(echo "x$line" | grep '(required)')
-					if [ -z "$T" ] ; then
-						REQ=0
-					else
+					if [[ $line =~ (required) ]] ; then
 						REQ=1
 					fi
 					firstline=0
@@ -427,11 +425,11 @@ do_rc_ask_config()
 
 				echo $line
 				echo $line >> $TCFG
-				read line
+				read -r line
 			done
 
 			# Now we are at a line that is either not a comment
-			# or doesn't start by '# '
+			# or doesn't start with '# '
 			
 			# If it's just an empty line the go-on
 			if [[ -z "$line" ]] ; then
@@ -444,7 +442,7 @@ do_rc_ask_config()
 				# this a default and remove any quotes
 				if [[ "${line:0:1}" != "#" ]] ; then
 					DEFAULT=$(echo "$line" \
-						| ( IFS== read a b ; echo $b) \
+						| ( IFS== read -r a b ; echo $b) \
 						| ( sed -e 's/^"//' \
 							-e 's/"$//' ) )
 				else
@@ -453,22 +451,21 @@ do_rc_ask_config()
 
 				# Also get the variable name
 				VAR=$(echo ${line#\#} | \
-					( IFS== read a b ; echo $a ))
+					( IFS== read -r a b ; echo $a ))
 
 				# Show a sample if we have one
 				if ! [[ -z "$DEFAULT" ]] ; then
 					echo "#"
 					echo "# Sample value: $DEFAULT"
 				fi
-				# Now pop the quiestion
-				# read -p \
+				# Now pop the question
+				# read -r -p \
 				#   "$VAR do you accept $DEFAULT as your value?"
 				while : ; do
-					read -p "Enter value for $VAR [$DEFAULT]: " \
+					read -r \
+						-e -i "$DEFAULT" \
+						-p "Enter value for $VAR: " \
 						ans <&3
-					if [[ -z "$ans" ]] ; then
-						ans="$DEFAULT"
-					fi
 
 					if [[ "$REQ" = 0 ]] ||
 						[[ ! -z "$ans" ]] ; then
@@ -476,12 +473,14 @@ do_rc_ask_config()
 					fi
 				done
 
+				# Reset this here
+				REQ=0
 
 				echo "$VAR=\"$ans\"" >> $TCFG
 
 				# Get another one until we reach EOF or
 				# an empty line
-				if ! read line ; then
+				if ! read -r line ; then
 					break
 				fi
 

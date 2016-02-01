@@ -126,7 +126,7 @@ You'll now be asked a series of questions.
 Default answers will be shown in brackets. You can accept them by pressing
 enter."
 
-	read -p "Press enter to continue..." a
+	read -rp "Press enter to continue..." a
 
 	cd "$wizdir"
 
@@ -193,7 +193,7 @@ Re-run this wizard to start over
 	fi
 
 	# Run the wizards
-	while read fn ; do
+	while read -r fn ; do
 		(
 		. "$fn"
 
@@ -225,7 +225,7 @@ Re-run this wizard to start over
 	T2=`mktemp -p /tmp/`
 
 	# Create configuration
-	while read fn ; do
+	while read -r fn ; do
 		(
 		MULTI=""
 
