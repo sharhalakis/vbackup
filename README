@@ -60,7 +60,7 @@ High level overview:
 vbackup runs by scanning a configuration directory for configuration files.
 This directory has a vbackup.conf file and a series of config files that
 dictate what vbackup should do. For example, one may indicate that a
-PostgreSQL database should be backedup, the next one can indicate that
+PostgreSQL database should be backed up, the next one can indicate that
 /home should be backed up and a final one would instruct vbackup to copy
 the backups to a remote system using scp.
 
@@ -70,12 +70,12 @@ From a users point of view, vbackup simplifies the backup process by
 requiring a config file for everything that otherwise would require a
 custom made script.
 
-Setup - the begginer's way:
+Setup - the beginner's way:
 ===========================
 
 There is a wizard script that will help you create basic configuration files.
 Most probably you will want to use it for the first time. For more advanced
-configuration and fine-tunning you will have to adjust the configuration files
+configuration and fine-tuning you will have to adjust the configuration files
 yourself. Read the rest of this file to fully understand how you can use
 vbackup.
 
@@ -95,7 +95,7 @@ A simple backup:
 ----------------
 
 Let's assume you want to:
-    * Store backups undeer /mnt/backup/
+    * Store backups under /mnt/backup/
     * Backup /home
     * Backup /etc
     * Backup your partition information in case disaster hits
@@ -135,7 +135,7 @@ paramter to vbackup:
 this will base the backup on a previous level. Since the only lower level
 backup is 0, it will be based on that. All methods that support incremental
 backups will honor this. In this case this is tar. The mbr method will
-still perform full backups, regardles of the level, as it doesn't support
+still perform full backups, regardless of the level, as it doesn't support
 incremental backups.
 
 
@@ -240,7 +240,7 @@ When you run:
 * The script also checks for files named XX-name-level.module, where <level>
   is a certain level. These files apply only to that level and are ignored
   in other levels.
-* For each configuration file, the coresponding module (<module>) is
+* For each configuration file, the corresponding module (<module>) is
   executed using the parameters of the configuration file. A module may be
   used from zero to many times. E.g. there can be many .tar files in there
 

@@ -75,16 +75,16 @@ It may expect:
 It must return (from each function):
 ------------------------------------
 0	Everything were OK
-1	Error occured - continue backups
-2	Error occured - abort backup sequence
-3	Error occured - force abort of backup sequence
+1	Error occurred - continue backups
+2	Error occurred - abort backup sequence
+3	Error occurred - force abort of backup sequence
 
 Notes:
   * When a script returns 2, the flag ABORT is set to 1. This is
     checked by backup scripts and they will not do anything at all.
     Scripts like umount may ignore this and umount the directory
   * When a script returns 3, the backup is immediately aborted.
-    This sould be used by scripts like mount
+    This should be used by scripts like mount
 
 Configuration files:
 ====================
@@ -121,7 +121,7 @@ Common configuration variables:
 
 Common configuration variables are variables that are set in vbackup.conf
 or in other configuration files. The vbackup.conf entry is the main one
-but it may be overriden by individual configuration files.
+but it may be overridden by individual configuration files.
 
  COMPRESS	Whether to compress the backup or not (yes/no, on/off, 1/0)
 
