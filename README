@@ -17,6 +17,10 @@ Vbackup can backup:
 
 The backup procedure is completely customizable and extendable by the user.
 
+vbackup supports multiple backup strategies and each one can supports
+multiple levels. For example, one can have a backup strategy for filesystem
+backups and another for VM backups or for testing
+
 Requirements:
 =============
 
@@ -63,6 +67,12 @@ dictate what vbackup should do. For example, one may indicate that a
 PostgreSQL database should be backed up, the next one can indicate that
 /home should be backed up and a final one would instruct vbackup to copy
 the backups to a remote system using scp.
+
+Each strategy's configuration is stored under /etc/vbackup:
+
+    * The default strategy (i.e. the one with no name) is the one stored at
+      /etc/vbackup/rc.d
+    * Each named strategy is stored under /etc/vbackup/rc.<strategy>.d
 
 See "How It Works", below, for more details.
 
@@ -138,9 +148,8 @@ backups will honor this. In this case this is tar. The mbr method will
 still perform full backups, regardless of the level, as it doesn't support
 incremental backups.
 
-
-A more complated setup:
------------------------
+A more complex setup:
+---------------------
 
 Let's assume you want to
     * Backup to an NFS mounted space that will be mounted on demand
@@ -304,6 +313,20 @@ More:
 =====
 
 More information about how vbackup actually works can be found in README.dev
+
+Known issues:
+=============
+
+The xfsdump method cannot possibly support multi-level backups for multiple
+strategies. This is because xfsdump stores the state under
+/var/lib/xfsdump/inventory with no option to override this. This means that
+multiple strategies wills hare the same state information, meaning that a level
+5 backup of strategy A may end up depending on the level 0 backup of strategy
+B.
+
+I.e: Do not use xfsdump with multiple strategies and multiple levels or else
+you *will* lose data. If you have a good idea on how to solve this, please send
+a bug report.
 
 Copyright:
 ==========
