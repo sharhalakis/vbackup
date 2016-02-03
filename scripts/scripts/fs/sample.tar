@@ -2,6 +2,9 @@
 #
 # $Id$
 #
+# To edit this file with vim use:
+#
+#   vim --noplugin xxx.tar
 
 # The directories to backup (required)
 # This can be either a space separated list of directories (DIRS)
