@@ -16,8 +16,3 @@ Contents:
    License and copyright <copyright>
    dev
 
-Development:
-
-.. toctree::
-   :maxdepth: 1
-
