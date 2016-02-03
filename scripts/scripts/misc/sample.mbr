@@ -4,7 +4,7 @@
 #
 
 # A space separated list of disks to backup
-# Disk names must not include the /dev/ prefix (ex: sda sdb sdc)
+# Disk names must not include the /dev/ prefix (e.g: sda sdb sdc)
 # Leave it empty for auto-detect
 DISKS=""
 
