@@ -4,6 +4,7 @@ The full documentation of vbackup can be found at:
 http://vbackup.readthedocs.org/
 
 # Overview
+
 vbackup is an extensible CLI backup tool. Ultimately it is a collection of
 scripts that perform backup of systems. It is based on bash and should support
 most of the unices out there (if not then please report it as a bug).
@@ -51,14 +52,14 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-Contact:
-========
+# Contact
 
 For bug reports, recommendations or anything else, send an email to
 <v13@v13.gr>.
 
-The latest vbackup can be found at:
-https://github.com/sharhalakis/vbackup
+The latest vbackup can be found at: https://github.com/sharhalakis/vbackup
+
+Documentation is at: http://vbackup.readthedocs.org/
 
 vim: set ts=8 sts=4 sw=4 noet formatoptions=rtcn textwidth=79:
 
