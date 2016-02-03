@@ -20,6 +20,16 @@ example::
 
  # vbackup --help xfsdump
 
+Once setup, you can perform level 0 and level 5 backups with::
+
+ # vbackup 0
+ # vbackup 5
+
+If you use multiple backup strategies then you can perform a backup
+for each one of them with::
+
+ # vbackup strategy1 0
+ # vbackup strategy2 0
 
 High level overview
 -------------------

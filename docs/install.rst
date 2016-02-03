@@ -1,10 +1,14 @@
 Installation
 =============
-::
+
+If you are not installing from packages then you most probably need to do
+something like this::
 
  # ./configure --sysconfdir=/etc
  # make
  # make install
+
+I.e. standard autoconf installation.
 
 Requirements
 ------------
