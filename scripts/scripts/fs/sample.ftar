@@ -1,12 +1,14 @@
 # Sample tar configuration file
 #
 # $Id: sample.tar 1416 2007-12-28 12:36:01Z v13 $
-#
 
-# The backup level (0-9) (required)
-LEVEL=0
+# This plugin is deprecated. Please use tar instead.
+# ftar is not able to perform correct incremental backups as it cannot
+# track file deletions. If you restore an incremental backup that was
+# taken with the ftar method, the result will include files that were
+# deleted.
 
-# The directories to backup (required)
+# The directories to backup
 # This can be either a space separated list of directories (DIRS)
 # or a file with a directory on each line (DIRFILE)
 # Exaclty one of DIRS/DIRFILE is required
@@ -25,10 +27,6 @@ LEVEL=0
 # A file containing one regular expression per line, as specified above
 # that indicate files to be excluded from the backup
 #EXCLUDEFILE="/etc/backup.exclude"
-
-# A path to hold last backup dates. This directory should be
-# persistent for incremental backups to work (required)
-STATEDIR="/var/lib/vbackup/state/ftar"
 
 # The destination directory (required)
 DESTDIR="fs/"
