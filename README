@@ -25,6 +25,10 @@ vbackup supports multiple backup strategies and each one can supports
 multiple levels. For example, one can have a backup strategy for filesystem
 backups and another for VM backups or for testing
 
+The documentation of vbackup can be found at:
+
+    http://vbackup.readthedocs.org/
+
 Copyright:
 ==========
 
