@@ -1,15 +1,3 @@
-- Fix manpage
-- Review documentation
-  - List the new %% tranformations
-  - Explain the strategies and --rc
-- Review documentation in .sample files for --rc
-- Fix --rc initialisation
-- Change order of postgresql (or is it mysql?) options, so that the suggested ones are first
 - xfsdump method has a bug: Regardless of the strategy, it will use the same
   session information for incremental backups.
-- Maybe:
-	- Rework vbackup config dir structure
-	- Lose per-level directories ?
-	- Support both per-level and no-level directories for backward
-	  compatibility ?
 - test ftar
