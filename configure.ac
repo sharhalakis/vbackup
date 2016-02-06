@@ -23,9 +23,18 @@ if test -z "$GTAR" ; then
 	AC_PATH_PROG([GTAR], [tar], [])
 fi
 
+if test -z "$GTAR" ; then
+	AC_MSG_ERROR([GNU tar was not found. vbackup cannot work.])
+fi
+
 if test -z "$GFIND" ; then
 	AC_PATH_PROG([GFIND], [find], [])
 fi
+
+if test -z "$GFIND" ; then
+	AC_MSG_ERROR([GNU find was not found. vbackup cannot work.])
+fi
+
 
 AC_CACHE_CHECK(
 	[for GNU tar],
@@ -72,21 +81,6 @@ else
 	GFIND="$vbackup_cv_gfind"
 fi
 
-# Check for xfsdump and other programs
-PATH2="$PATH:/sbin:/usr/sbin:/usr/local/sbin"
-AC_PATH_PROG([XFSDUMP], [xfsdump], [], [$PATH2])
-AC_PATH_PROG([FDISK], [fdisk], [], [$PATH2])
-AC_PATH_PROG([SFDISK], [sfdisk], [], [$PATH2])
-AC_PATH_PROG([MDADM], [mdadm], [], [$PATH2])
-AC_PATH_PROG([LVDISPLAY], [lvdisplay], [], [$PATH2])
-AC_PATH_PROG([VGDISPLAY], [vgdisplay], [], [$PATH2])
-AC_PATH_PROG([PVDISPLAY], [pvdisplay], [], [$PATH2])
-AC_PATH_PROG([SCP], [scp], [], [$PATH2])
-AC_PATH_PROG([OPENSSL], [openssl], [], [$PATH2])
-AC_PATH_PROG([SLAPCAT], [slapcat], [], [$PATH2])
-AC_PATH_PROG([MD5SUM], [md5sum], [], [$PATH2])
-AC_PATH_PROG([GPG], [gpg], [], [$PATH2])
-
 # Check for echo that accepts newlines
 T=`echo -e ""`
 if test -z "$T" ; then
@@ -106,22 +100,9 @@ AC_SUBST([myhelperdir], [${datadir}/vbackup/helpers])
 AC_SUBST([myscriptdir], [${datadir}/vbackup/scripts])
 AC_SUBST([myconfdir], [${sysconfdir}/vbackup])
 AC_SUBST([mystatedir], [${localstatedir}/lib/vbackup/state])
-dnl AC_SUBST([sampledir], [${myconfdir}/samples])
-dnl AC_SUBST([sampledir], [${docdir}/samples])
 AC_SUBST([sampledir], [${datadir}/vbackup/samples])
 AC_SUBST([wizdir], [${datadir}/vbackup/wizard])
 
-AC_SUBST([GTAR])
-AC_SUBST([GFIND])
-AC_SUBST([XFSDUMP])
-AC_SUBST([FDISK])
-AC_SUBST([SFDISK])
-AC_SUBST([MDADM])
-AC_SUBST([LVDISPLAY])
-AC_SUBST([VGDISPLAY])
-AC_SUBST([PVDISPLAY])
-AC_SUBST([SCP])
-AC_SUBST([GPG])
 AC_SUBST([ECHO_E])
 
 # Checks for library functions.
@@ -143,33 +124,4 @@ AC_CONFIG_FILES([Makefile
 		scripts/wizard/Makefile
 		])
 AC_OUTPUT
-
-ERR=0
-if test -z "$GTAR" ; then
-	echo 
-	echo " * No GNU tar was found. The tar method will not function."
-	ERR=1
-fi
-
-if test -z "$GFIND" ; then
-	echo 
-	echo " * No GNU find was found. This script will not work."
-	ERR=1
-fi
-
-if test -z "$XFSDUMP" ; then
-	echo 
-	echo " * xfsdump was not found. The xfsdump method will not function."
-	ERR=1
-fi
-
-if test -z "$SCP" ; then
-	echo
-	echo " * scp was not found. The scp method will not function."
-	ERR=1
-fi
-
-test "x$ERR" = "x1" && echo
-
-true
 
