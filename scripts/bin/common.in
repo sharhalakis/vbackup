@@ -66,20 +66,20 @@ function h_lookup()
 
 # Program locations
 ECHO_E="@ECHO_E@"
-XFSDUMP=$(h_lookup "@XFSDUMP@" xfsdump)
+XFSDUMP=$(h_lookup "" xfsdump)
 GFIND=$(h_lookup "@GFIND@" find)
 GTAR=$(h_lookup "@GTAR@" tar)
-FDISK=$(h_lookup "@FDISK@" fdisk)
-SFDISK=$(h_lookup "@SFDISK@" sfdisk)
-MDADM=$(h_lookup "@MDADM@" mdadm)
-LVDISPLAY=$(h_lookup "@LVDISPLAY@" lvdisplay)
-VGDISPLAY=$(h_lookup "@VGDISPLAY@" vgdisplay)
-PVDISPLAY=$(h_lookup "@PVDISPLAY@" pvdisplay)
-SCP=$(h_lookup "@SCP@" scp)
-OPENSSL=$(h_lookup "@OPENSSL@" openssl)
-SLAPCAT=$(h_lookup "@SLAPCAT@" slapcat)
-MD5SUM=$(h_lookup "@MD5SUM@" md5sum)
-GPG=$(h_lookup "@GPG@" gpg)
+FDISK=$(h_lookup "" fdisk)
+SFDISK=$(h_lookup "" sfdisk)
+MDADM=$(h_lookup "" mdadm)
+LVDISPLAY=$(h_lookup "" lvdisplay)
+VGDISPLAY=$(h_lookup "" vgdisplay)
+PVDISPLAY=$(h_lookup "" pvdisplay)
+SCP=$(h_lookup "" scp)
+OPENSSL=$(h_lookup "" openssl)
+SLAPCAT=$(h_lookup "" slapcat)
+MD5SUM=$(h_lookup "" md5sum)
+GPG=$(h_lookup "" gpg)
 
 # Location of main programs
 B_BINDIR="$mybindir"
