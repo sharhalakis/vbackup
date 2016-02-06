@@ -48,10 +48,10 @@ Configuration options:
 
 Files may be decrypted using openssl:
 
-  openssl smime -decrypt -in <outfile> -out <file> -inkey <key> <cert>
+  openssl smime -decrypt -in <encrypted> -out <outfile> -inkey <key> <cert>
 
-Where <outfile> is the file that's produced by this script (encrypted),
-<out> is the unencrypted file that will be produced, <key> is the private
+Where <encrypted> is the file that's produced by this script (encrypted),
+<outfile> is the unencrypted file that will be produced, <key> is the private
 key file and <cert> is the certificate file.
 _END
 
@@ -106,16 +106,19 @@ do_run()
 	fi
 
 	# Expand special chars
-	h_transform "$DESTFILE"
+	if [ "x${DESTFILE:0:0}" = "x/" ] ; then
+		h_transform "$DESTFILE"
+	else
+		h_transform "$DESTDIR0/$DESTFILE"
+	fi
 	DST="$R"
 
-	h_transform "$SOURCE"
-	T="${SOURCE:0:0}"
-	if [ "x$T" = "x/" ] ; then
-		SRC="$SOURCE"
+	if [ "x${SOURCE:0:0}" = "x/" ] ; then
+		h_transform "$SOURCE"
 	else
-		SRC="$DESTDIR0/$SRC"
+		h_transform "$DESTDIR0/$SRC"
 	fi
+	SRC="$R"
 
 	if [ -d "$SRC" ] ; then
 		ISDIR=1
@@ -134,5 +137,15 @@ do_run()
 			cat "$SRC"
 		fi
 	) | $OPENSSL smime -encrypt -binary -out $DST $CERTFILE
+
+	if [[ "$?" = 0 ]] ; then
+		h_msg 6 "openssl encryption succeeded"
+		R=0
+	else
+		h_msg 2 "openssl encryption failed"
+		R=1
+	fi
+
+	return $R
 }
 
