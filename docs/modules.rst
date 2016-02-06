@@ -18,6 +18,7 @@ openldap:   Backup OpenLDAP database
 pgsql:      Dump pgsql databases
 rm:         Remove a directory recursively
 rpm:        Backup RPM database
+rsync:      Copy files locally or remotely, using rsync
 scp:        Remote file copy using scp
 tar:        Perform filesystem backup using GNU tar
 umount:     Umount a partition
