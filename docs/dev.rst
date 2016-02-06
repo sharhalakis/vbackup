@@ -83,7 +83,7 @@ It may expect
     prepended with the DESTDIR0 prefix. It will also be transformed
     by changing %X% variables (for example %D1%)
   * A variable named ABORT is set to 1 if a script previously exited with
-    error code 2 (see bellow). Most scripts should abort with exit code 0
+    error code 2 (see below). Most scripts should abort with exit code 0
     when they detect this. For example: a script that checks for free space
     may exit with error code 2. The ABORT variable will be set automatically.
     All backup scripts must detect this and do nothing. The umount script
