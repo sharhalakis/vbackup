@@ -85,6 +85,7 @@ AC_PATH_PROG([SCP], [scp], [], [$PATH2])
 AC_PATH_PROG([OPENSSL], [openssl], [], [$PATH2])
 AC_PATH_PROG([SLAPCAT], [slapcat], [], [$PATH2])
 AC_PATH_PROG([MD5SUM], [md5sum], [], [$PATH2])
+AC_PATH_PROG([GPG], [gpg], [], [$PATH2])
 
 # Check for echo that accepts newlines
 T=`echo -e ""`
@@ -120,6 +121,7 @@ AC_SUBST([LVDISPLAY])
 AC_SUBST([VGDISPLAY])
 AC_SUBST([PVDISPLAY])
 AC_SUBST([SCP])
+AC_SUBST([GPG])
 AC_SUBST([ECHO_E])
 
 # Checks for library functions.

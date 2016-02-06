@@ -8,6 +8,7 @@ dpkg:       Backup debian package lists
 exec:       Execute some shell commands
 exist:      Check whether a file/dir exists
 ftar:       Filesystem backup using tar and find
+gpg:        Encrypt a file or a directory using gpg
 mbr:        Backup MBRs, Partition Tables, MD and LVM information
 mount:      Mount a partition
 mysql:      Dump mysql databases

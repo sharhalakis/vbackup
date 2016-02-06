@@ -1,0 +1,160 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+#
+# GPG encryption module
+#
+#
+
+# The name of the backup script
+NAME="gpg"
+# The version of the script
+VERSION="$PACKAGE_VERSION"
+# A short description of the script
+DESC="Encrypt with GPG"
+# The license of this module
+LICENSE="$PACKAGE_LICENSE"
+# A copyright statement
+COPYRIGHT="$PACKAGE_COPYRIGHT"
+# A contact email for bugreports etc
+CONTACT="$PACKAGE_BUGREPORT"
+
+# Display help
+do_help()
+{
+	cat << _END
+This method encrypts a file or a directory using gpg, using a symmetric key.
+It can be used in the final steps to create an encrypted archive which may be
+stored locally or remotely.
+
+If a directory is specified then it will be tar'ed first.
+
+Configuration options:
+	SOURCE		The local file or directory to encrypt. This is
+			relative to DESTDIR0. If this is empty or / then
+			the whole DESTDIR0 will be encrypted.
+	DESTFILE	The destination file. This must include the
+			suffix (e.g. .tar.gpg) (required)
+	KEY		The encryption key (passphrase) to suse (required)
+
+Files may be descrypted using gpg:
+
+  gpg --output <outfile> --decrypt <encrypted>
+
+Where <encrypted> is the file that's produced by this script (encrypted) and
+<outfile> is the unencrypted file that will be produced.
+_END
+
+	if [ -z "$GPG" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because OPENSSL was not found
+_END
+	fi
+
+	if [ -z "$GTAR" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because GNU TAR was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$KEY" ] && h_error "Missing KEY" && return 1
+	[ -z "$DESTFILE" ] && h_error "Missing DESTFILE" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	if [ -z "$GPG" ] ; then
+		h_error "GPG was not found"
+		return 1
+	fi
+
+	if [ -z "$GTAR" ] ; then
+		h_error "GNU TAR was not found"
+		return 1
+	fi
+
+	# Expand special chars
+	if [ "x${DESTFILE:0:0}" = "x/" ] ; then
+		h_transform "$DESTFILE"
+	else
+		h_transform "$DESTDIR0/$DESTFILE"
+	fi
+	DST="$R"
+
+	if [ "x${SOURCE:0:0}" = "x/" ] ; then
+		h_transform "$SOURCE"
+	else
+		h_transform "$DESTDIR0/$SRC"
+	fi
+	SRC="$R"
+
+	if [ -d "$SRC" ] ; then
+		ISDIR=1
+		DIRMSG=" (directory)"
+	else
+		ISDIR=0
+		DIRMSG=""
+	fi
+
+	if ! test -e "$SRC" ; then
+		h_msg2 "No such file: $SRC"
+		return 1
+	fi
+
+	h_msg 6 "Encrypting $SRC$DIRMSG as $DST using gpg"
+
+	(
+		if [ "$ISDIR" = 1 ] ; then
+			$GTAR -c -C "$SRC" -f - .
+		else
+			cat "$SRC"
+		fi
+	) | (
+		rm -f $DST
+		$GPG --no-use-agent \
+			--output $DST \
+			--passphrase-file <(echo $KEY) \
+			--batch \
+			--symmetric \
+			-
+	)
+	if [[ "$?" = 0 ]] ; then
+		h_msg 6 "gpg succeeded"
+		R=0
+	else
+		h_msg 2 "gpg failed"
+		R=1
+	fi
+
+	return $R
+}
+

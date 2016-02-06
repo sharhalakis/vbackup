@@ -79,6 +79,7 @@ SCP=$(h_lookup "@SCP@" scp)
 OPENSSL=$(h_lookup "@OPENSSL@" openssl)
 SLAPCAT=$(h_lookup "@SLAPCAT@" slapcat)
 MD5SUM=$(h_lookup "@MD5SUM@" md5sum)
+GPG=$(h_lookup "@GPG@" gpg)
 
 # Location of main programs
 B_BINDIR="$mybindir"
