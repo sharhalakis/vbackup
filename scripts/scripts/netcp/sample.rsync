@@ -1,0 +1,27 @@
+# Sample scp configuration file
+#
+# $Id: sample.xfsdump 1416 2007-12-28 12:36:01Z v13 $
+#
+
+# The local directory to be copied to remote system
+# This can be used in two ways:
+# 1) A relative path is set: This is interpreted as being relative to
+#    DESTDIR0. This can be used in a backup strategy where, after creating
+#    the backup, all data are copied to a remote host.
+# 2) An absoulte path is set: This is the simple case of copying something
+#    to a remote host.
+#
+# If this is empty then DESTDIR0 is used by itself
+#
+# Defaults to: empty
+SOURCE=""
+
+# The remote location (required)
+# This can be a local path or a URL
+#DEST=""
+
+# The RSH method to use
+# This must be the full command and its arguments, as it's expected
+# by the --rsh parameter of rsync
+# Default: ssh -o PubkeyAuthentication=yes -o PasswordAuthentication=no -o BatchMode=yes
+#RSH=""

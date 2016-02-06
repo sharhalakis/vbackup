@@ -1,0 +1,114 @@
+#!/bin/bash
+#
+# This file is part of vbackup.
+#
+# vbackup is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# vbackup is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vbackup  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+#
+# Description
+#
+#	Perform file copy using rsync
+#
+
+NAME="rsync"
+VERSION="$PACKAGE_VERSION"
+DESC="Copy files using rsync"
+LICENSE="$PACKAGE_LICENSE"
+COPYRIGHT="$PACKAGE_COPYRIGHT, Antonio David Martin Fernandez <antonio.dmf@gmail.com>"
+CONTACT="$PACKAGE_BUGREPORT"
+
+RSYNC=$(h_lookup "" rsync)
+
+# Display help
+do_help()
+{
+	cat << _END
+This method copies a file or a tree to a remote host using rsync. It can be
+used at the end of a backup to copy the backup to a remote host.
+
+This has similar requirements to the scp plugin when used with ssh.
+
+Configuration options:
+	SOURCE		The local directory to copy data from, or empty
+			to copy all of DESTDIR0
+	DEST		The destination path/url (required)
+	RSH		The rsh command to use (default: ssh)
+_END
+
+	if [ -z "$RSYNC" ] ; then
+		cat << _END
+
+ !! This method is DISABLED because RSYNC was not found
+_END
+	fi
+}
+
+# Check configuration
+# return: 0: ok, 1: error
+do_check_conf()
+{
+	[ -z "$RSYNC" ] && h_error "RSYNC was not found" && return 1
+	[ -z "$DEST" ] && h_error "Missing DEST" && return 1
+
+	return 0
+}
+
+# Do backup
+do_run()
+{
+	if [ "x$ABORT" = "x1" ] ; then
+		return 0
+	fi
+
+	if [ -z "$RSYNC" ] ; then
+		h_error "RSYNC was not found"
+		return 1
+	fi
+
+	if [ -z "$RSH" ] ; then
+		RSH="ssh -o PubkeyAuthentication=yes -o PasswordAuthentication=no -o BatchMode=yes"
+	fi
+
+	# Expand special chars
+	h_transform "$DEST"
+	DST="$R"
+
+	# Form source
+	h_transform "$SOURCE"
+	T="${R:0:0}"
+	if ! [ "x$T" = "x/" ] ; then
+		SRC="$DESTDIR0/$R"
+	else
+		SRC="$R"
+	fi
+
+	h_msg 6 "$SRC -> $DST"
+
+	rsync -va \
+		--rsh="${RSH}" \
+		"$SRC" "$DST" \
+		> >(h_filter 6)
+
+	if [[ $? -eq 0 ]] ; then
+		h_msg 6 "rsync succeeded"
+		R=0
+	else
+		h_msg 2 "rsync failed"
+		R=1
+	fi
+
+	return $R
+}
+
