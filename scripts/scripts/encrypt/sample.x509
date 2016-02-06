@@ -9,6 +9,7 @@
 SOURCE=""
 
 # The output file (required)
+# It can be absolute, or relative to DESTDIR0
 #DESTFILE=
 
 # The certificate file to use for encryption (required)
