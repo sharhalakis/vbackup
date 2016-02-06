@@ -119,10 +119,12 @@ do_run()
 		> >(h_filter 6) \
 		; then
 		h_msg 6 "scp succeeded"
+		R=0
 	else
 		h_msg 2 "scp failed"
+		R=1
 	fi
 
-	return 0
+	return $R
 }
 
