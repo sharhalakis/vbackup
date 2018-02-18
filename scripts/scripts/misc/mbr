@@ -133,11 +133,15 @@ do_run()
 
 	for p in $DISKS ; do
 		h_msg 12 "Backing up $p"
-		dd if=/dev/$p "of=$TDIR2/$p.mbr" bs=512 count=1 >/dev/null 2>&1
-		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p.fdisk-l" \
+
+		# Some device names have / in them. Convert them to _
+		p2=$(echo "$p3" | sed "s,/,_,g")
+
+		dd if=/dev/$p "of=$TDIR2/$p2.mbr" bs=512 count=1 >/dev/null 2>&1
+		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p2.fdisk-l" \
 			2> >(h_filter 6 >&2)
-		$SFDISK -l /dev/$p > "$TDIR2/$p.sfdisk-l" 2> >(h_filter 6 >&2)
-		$SFDISK -d /dev/$p > "$TDIR2/$p.sfdisk-d" 2> >(h_filter 6 >&2)
+		$SFDISK -l /dev/$p > "$TDIR2/$p2.sfdisk-l" 2> >(h_filter 6 >&2)
+		$SFDISK -d /dev/$p > "$TDIR2/$p2.sfdisk-d" 2> >(h_filter 6 >&2)
 	done
 
 	# Backup LVM information
