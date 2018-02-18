@@ -119,7 +119,7 @@ do_run()
 	fi
 
 	# Create a temporary directory
-	TDIR=`mktemp -d`
+	TDIR=$(mktemp -d)
 	TDIR2="$TDIR/mbr"
 
 	# Store files in there
@@ -135,7 +135,7 @@ do_run()
 		h_msg 12 "Backing up $p"
 
 		# Some device names have / in them. Convert them to _
-		p2=$(echo "$p3" | sed "s,/,_,g")
+		p2=${p//\//_}
 
 		dd if=/dev/$p "of=$TDIR2/$p2.mbr" bs=512 count=1 >/dev/null 2>&1
 		[ -z "$FDISK" ] || $FDISK -l /dev/$p > "$TDIR2/$p2.fdisk-l" \
@@ -173,7 +173,7 @@ do_run()
 			cat /proc/mdstat | grep "^md" | while read md rest ; do
 				$MDADM --detail /dev/$md > "$TDIR3/$md.sb"
 				cat "$TDIR3/$md.sb" | grep -E "[[:space:]]/dev/[hs]d[a-z][0-9]+$" | awk '{print $NF}' | while read dsk ; do
-					dsk2=`basename "$dsk"`
+					dsk2=$(basename "$dsk")
 					$MDADM --examine "$dsk" > \
 						"$TDIR3/$dsk2.sb"
 				done
